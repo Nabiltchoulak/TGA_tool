@@ -59,7 +59,7 @@ class Cours(models.Model):
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='niv',verbose_name="Curriculum")
 	matiere=models.ForeignKey('Matiere',on_delete=models.SET_NULL,null=True,verbose_name="Matiere")
 	coach=models.ForeignKey('Coach',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Coach")
-	frequence=models.ForeignKey('Frequence',on_delete=models.SET_NULL,defa)
+	frequence=models.ForeignKey('Frequence',on_delete=models.SET_NULL,blank=True)
 	class Meta:
 		verbose_name="cours"
 	def __str__(self):
