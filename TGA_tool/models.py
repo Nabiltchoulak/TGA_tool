@@ -60,6 +60,7 @@ class Cours(models.Model):
 	matiere=models.ForeignKey('Matiere',on_delete=models.SET_NULL,null=True,verbose_name="Matiere")
 	coach=models.ForeignKey('Coach',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Coach")
 	frequence=models.ForeignKey('Frequence',on_delete=models.SET_NULL,null=True,blank=True)
+	
 	class Meta:
 		verbose_name="cours"
 	def __str__(self):
@@ -105,7 +106,7 @@ class Notions(models.Model):
 		return self.notion
 
 class Resource(models.Model):
-	disponibilité=models.CharField(max_length=15)
+	disponibilité=models.CharField(max_length=15,blank=True)
 
 	class Meta:
 		abstract=True
