@@ -1,6 +1,6 @@
 from django.contrib import admin
-"""from TGA_tool.models import Parent,Eleve,Cours,Seance,Coach,Salle,Chapitre,Notions,test
-
+from TGA_tool.models import Parent,Eleve,Cours,Seance,Coach,Salle,Chapitre,Notions,Matiere,Frequence
+"""
 # Register your models here.
 class ParentAdmin(admin.ModelAdmin):
 	list_display   = ('nom', 'mail', 'num_tel', 'mail','adresse','estResponsable')
@@ -49,13 +49,14 @@ class SeanceAdmin(admin.ModelAdmin):
 		'classes': ['collapse',],
 		'fields':('chapitre','notions')
 	}),
-	)
-admin.site.register(Parent,ParentAdmin)
-admin.site.register(Eleve,EleveAdmin)
-admin.site.register(Cours,CoursAdmin)
-admin.site.register(Seance, SeanceAdmin)
+	)"""
+admin.site.register(Parent)
+admin.site.register(Eleve)
+admin.site.register(Cours)
+admin.site.register(Seance)
 admin.site.register(Coach)
 admin.site.register(Salle)
-admin.site.register(Chapitre, ChapitreAdmin)
-admin.site.register(Notions, NotionsAdmin)
-admin.site.register(test)"""
+admin.site.register(Chapitre)
+admin.site.register(Notions)
+admin.site.register(Matiere)
+admin.site.register(Frequence)
