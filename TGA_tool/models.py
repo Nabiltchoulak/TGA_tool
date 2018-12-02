@@ -136,7 +136,7 @@ class Salle(Resource):
 
 class Frequence(models.Model):
 	freq_choices=(("OS","Une seule fois"),("Par semaine","Chaque semaine"),("Par mois","Chaque mois"),("Par jour","Chaque jour"),) 
-	frequence=models.CharField(max_length=2,choices=freq_choices,default="OS",verbose_name="Fréquence")
+	frequence=models.CharField(max_length=11,choices=freq_choices,default="OS",verbose_name="Fréquence")
 	times=models.PositiveIntegerField(verbose_name="Nombre de séance par fréquence",blank=True,null=True)#x times per week/month/day
 	class Meta:
 		verbose_name="fréquence"
