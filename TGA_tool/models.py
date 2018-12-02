@@ -29,7 +29,7 @@ class Eleve(models.Model):
 	parent_resp=models.ForeignKey('Parent',on_delete=models.CASCADE,limit_choices_to={'estResponsable':True},verbose_name="Parent responsable")
 	parent_sec=models.ForeignKey('Parent',on_delete=models.SET_NULL,null=True,blank=True,limit_choices_to={'estResponsable':False},related_name="secondaire",verbose_name="Parent contact")
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,verbose_name="Curriculum")
-	cours=models.ManyToManyField('Cours',related_name='cours',verbose_name="Cours")
+	cours=models.ManyToManyField('Cours',related_name='cours',blank=True,verbose_name="Cours")
 	etablissement=models.CharField(max_length=20,null=True)
 	#dz= models.BooleanField(verbose_name="Programme Algérien")
 	date_inscription = models.DateField(auto_now=True, verbose_name="Date d'inscription")
