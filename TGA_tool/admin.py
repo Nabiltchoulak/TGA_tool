@@ -48,7 +48,7 @@ class SeanceAdmin(admin.ModelAdmin):
 		'fields':('cours',)
 	}),
 	('Ressources',{
-		'fields':('creneau','coach','salle')
+		'fields':('creneau','salle')
 	}),
 	('Contenu',{
 		'classes': ['collapse',],
