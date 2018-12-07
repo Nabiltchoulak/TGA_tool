@@ -1,7 +1,13 @@
 from django.db import models 
 from django.utils import timezone
+from datetime import timedelta,datetime,date
+from . import date_manager
 #from matrix_field import MatrixField
 #from django.utils.managers import InheritanceManager
+from django.db.models.signals import post_save
+from django.dispatch import receiver 
+NB_SEMAINESPARPERIODE=10
+NB_MOISPARPERIODE=2
 
 class Parent(models.Model):
 	nom= models.CharField(max_length=42,verbose_name="Nom",unique=True)
@@ -67,33 +73,35 @@ class Cours(models.Model):
 		return "{0} {1}".format(self.matiere, self.curriculum)
 
 class Seance(models.Model):
-	creneau=models.DateTimeField( verbose_name="Creneau")
-	cours=models.ForeignKey('Cours',on_delete=models.SET_NULL,null=True,verbose_name="Cours")
+	date=models.DateField(blank=True,null=True,verbose_name="Date")
+	creneau=models.TimeField(blank=True,null=True,verbose_name="Creneau")
+	cours=models.ForeignKey('Cours',on_delete=models.CASCADE,null=True,verbose_name="Cours")
 	salle=models.ForeignKey('Salle',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Salle")
 	chapitre=models.ForeignKey('Chapitre',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Chapitre")
 	notions=models.ManyToManyField('Notions',related_name="Titre",blank=True,verbose_name="Notions")
 	statut_choices=(("PL","Planifiée"),("EF","Effectuée"),("AN","Annulée"),)
 	statut=models.CharField(max_length=2,choices=statut_choices,default="PL",verbose_name="Statut")
+
 	class Meta:
 		verbose_name="seance"
 	#date
 	def __str__(self):
-		str_cre=str(self.creneau)
-		return str_cre
+		str_cre=str(self.date)
+		return "{0} {1}".format(str_cre, self.cours)
 class Matiere(models.Model):
 	matiere=models.CharField(max_length=14,verbose_name="Matiere")
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,verbose_name="Curriculum")
 	class Meta:
 		verbose_name="matiere"
 	def __str__(self):
-		return self.matiere
+		return "{0} {1}".format(self.matiere, self.curriculum)
 
 class Chapitre(models.Model):
 	chapitre=models.CharField(max_length=50)
 	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,verbose_name="Matiere")
 	
 	def __str__(self):
-		return self.chapitre
+		return self.chapitre 
 	class Meta:
 		verbose_name="chapitre"
 class Notions(models.Model):
@@ -136,10 +144,47 @@ class Salle(Resource):
 
 
 class Frequence(models.Model):
-	freq_choices=(("OS","Une seule fois"),("Par semaine","Chaque semaine"),("Par mois","Chaque mois"),("Par jour","Chaque jour"),) 
-	frequence=models.CharField(max_length=11,choices=freq_choices,default="OS",verbose_name="Fréquence")
-	times=models.PositiveIntegerField(verbose_name="Nombre de séance par fréquence",blank=True,null=True)#x times per week/month/day
+	freq_choices=(
+		('Frequence',(
+			("Une seance","Une séance"),
+			("Chaque jour","Chaque jour"),
+			("Un jour chaque semaine","Un jour chaque semaine"),
+			("Un jour chaque mois","Un jour chaque mois"),
+				)
+			),
+		('Personalisé',(
+			('Jours','Chaque x jours'),
+			('Semaines','Chaque x semaines'),
+			('Mois','Chaque x mois'),
+				)
+			),
+	)
+	frequence=models.CharField(max_length=30,choices=freq_choices,default="Une seance",verbose_name="Fréquence")
+	intervalle=models.PositiveIntegerField(verbose_name="Nombre de séance par fréquence",blank=True,null=True)#x times each week/month/day
+	day_choices=((7,'Dimanche'),(1,'Lundi'),(2,'Mardi'),(3,'Mercredi'),(4,'Jeudi'),(5,'Vendredi'),(6,'Samedi'),)#les numéros font référence a l'isoweekday
+	jour=models.PositiveIntegerField(blank=True,null=True,choices=day_choices)
+	day_of_month=models.PositiveIntegerField(verbose_name="Jour du mois",blank=True,null=True)
+	date_limite=models.DateField(verbose_name="Fin de la période",blank=True,null=True)
+	date_debut=models.DateField(verbose_name="Debut de la période",blank=True,null=True)#le premier jour de la semiane dans la calendrier iso est le lundi
 	class Meta:
 		verbose_name="fréquence"
 	def __str__(self):
-		return "{0} {1}".format(self.times, self.frequence)
+		if self.intervalle == None :
+			return self.frequence
+		else:
+			return "chaque {0} {1}".format(self.intervalle, self.frequence)
+############ Signal qui génére les séances selon la fréquence 
+@receiver(post_save, sender=Cours)
+def init_seances(sender, instance, **kwargs):
+	if instance.frequence.intervalle == None :
+		if instance.frequence.frequence == "Une seance" :
+			Seance.objects.create(cours=instance)
+		elif instance.frequence.frequence =="Chaque jour" :
+			for day in date_manager.daysrange(instance.frequence.date_debut,instance.frequence.date_limite):
+				Seance.objects.create(cours=instance,date=day)#Ajouer l'attribut date dans séance 
+		elif instance.frequence.frequence =="Un jour chaque semaine":
+			for day in date_manager.weeksrange(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.jour):
+				Seance.objects.create(cours=instance,date=day)
+		elif instance.frequence.frequence =="Un jour chaque mois":
+			for day in date_manager.monthsrange(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.day_of_month):
+				Seance.objects.create(cours=instance,date=day)

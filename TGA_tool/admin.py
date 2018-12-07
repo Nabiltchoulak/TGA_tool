@@ -41,14 +41,14 @@ class NotionsAdmin(admin.ModelAdmin):
 	list_filter=('chapitre',)
 	list_display=('chapitre','notion')
 class SeanceAdmin(admin.ModelAdmin):
-	list_display=('creneau','cours','salle','chapitre','statut')
-	list_filter=('cours','salle','chapitre','notions','statut')
+	list_display=('date','cours','salle','chapitre','statut')
+	list_filter=('cours','date','salle','chapitre','notions','statut')
 	fieldsets = (
 	('Cours',{
 		'fields':('cours',)
 	}),
 	('Ressources',{
-		'fields':('creneau','salle')
+		'fields':('date','creneau','salle')
 	}),
 	('Contenu',{
 		'classes': ['collapse',],
