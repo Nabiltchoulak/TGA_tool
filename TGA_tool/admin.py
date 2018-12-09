@@ -55,6 +55,8 @@ class SeanceAdmin(admin.ModelAdmin):
 		'fields':('chapitre','notions')
 	}),
 	)
+class FrequenceAdmin(admin.ModelAdmin):
+	fields=('frequence','jour','day_of_month','intervalle','date_debut','date_limite')
 admin.site.register(Parent,ParentAdmin)
 admin.site.register(Eleve,EleveAdmin)
 admin.site.register(Cours,CoursAdmin)
@@ -64,4 +66,4 @@ admin.site.register(Salle)
 admin.site.register(Chapitre,ChapitreAdmin)
 admin.site.register(Notions,NotionsAdmin)
 admin.site.register(Matiere,MatiereAdmin)
-admin.site.register(Frequence)
+admin.site.register(Frequence,FrequenceAdmin)

@@ -153,14 +153,14 @@ class Frequence(models.Model):
 				)
 			),
 		('Personalisé',(
-			('Jours','Chaque x jours'),
-			('Semaines','Chaque x semaines'),
-			('Mois','Chaque x mois'),
+			("Jours",'Chaque x jours'),
+			("Semaines",'Chaque x semaines'),
+			("Mois",'Chaque x mois'),
 				)
 			),
 	)
 	frequence=models.CharField(max_length=30,choices=freq_choices,default="Une seance",verbose_name="Fréquence")
-	intervalle=models.PositiveIntegerField(verbose_name="Nombre de séance par fréquence",blank=True,null=True)#x times each week/month/day
+	intervalle=models.PositiveIntegerField(verbose_name="intervalle par fréquence",blank=True,null=True)#x times each week/month/day
 	day_choices=((7,'Dimanche'),(1,'Lundi'),(2,'Mardi'),(3,'Mercredi'),(4,'Jeudi'),(5,'Vendredi'),(6,'Samedi'),)#les numéros font référence a l'isoweekday
 	jour=models.PositiveIntegerField(blank=True,null=True,choices=day_choices)
 	day_of_month=models.PositiveIntegerField(verbose_name="Jour du mois",blank=True,null=True)
@@ -172,19 +172,32 @@ class Frequence(models.Model):
 		if self.intervalle == None :
 			return self.frequence
 		else:
-			return "chaque {0} {1}".format(self.intervalle, self.frequence)
+			return "Chaque {0} {1}".format(self.intervalle, self.frequence)
 ############ Signal qui génére les séances selon la fréquence 
 @receiver(post_save, sender=Cours)
 def init_seances(sender, instance, **kwargs):
-	if instance.frequence.intervalle == None :
-		if instance.frequence.frequence == "Une seance" :
-			Seance.objects.create(cours=instance)
-		elif instance.frequence.frequence =="Chaque jour" :
-			for day in date_manager.daysrange(instance.frequence.date_debut,instance.frequence.date_limite):
-				Seance.objects.create(cours=instance,date=day)#Ajouer l'attribut date dans séance 
-		elif instance.frequence.frequence =="Un jour chaque semaine":
-			for day in date_manager.weeksrange(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.jour):
-				Seance.objects.create(cours=instance,date=day)
-		elif instance.frequence.frequence =="Un jour chaque mois":
-			for day in date_manager.monthsrange(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.day_of_month):
-				Seance.objects.create(cours=instance,date=day)
+	if (len(instance.seance_set.all())) == 0:#case when a "cours" is in initiation 
+		if instance.frequence.intervalle == None :
+			if instance.frequence.frequence == "Une seance" :
+				Seance.objects.create(cours=instance)
+			elif instance.frequence.frequence =="Chaque jour" :
+				for day in date_manager.daysrange(instance.frequence.date_debut,instance.frequence.date_limite):
+					Seance.objects.create(cours=instance,date=day)#Ajouer l'attribut date dans séance 
+			elif instance.frequence.frequence =="Un jour chaque semaine":
+				for day in date_manager.weeksrange(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.jour):
+					Seance.objects.create(cours=instance,date=day)
+			elif instance.frequence.frequence =="Un jour chaque mois":
+				for day in date_manager.monthsrange(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.day_of_month):
+					Seance.objects.create(cours=instance,date=day)
+		else : 
+			if instance.frequence.frequence == "Jours" :
+				for day in date_manager.spe_daysrange(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.intervalle):
+					Seance.objects.create(cours=instance,date=day)
+			elif instance.frequence.frequence == "Semaines" :
+				for day in date_manager.spe_weeksrange(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.intervalle):
+					Seance.objects.create(cours=instance,date=day)
+			elif instance.frequence.frequence == "Mois" :
+				for day in date_manager.spe_monthsrange(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.intervalle,instance.frequence.day_of_month):
+					Seance.objects.create(cours=instance,date=day)
+	else :
+		print('object already exist')#case when an frequence "cours" is updated (instance cours already exist which will create all "seance" again) work on that later   
