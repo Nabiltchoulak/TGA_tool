@@ -1,5 +1,5 @@
 from django.contrib import admin
-from TGA_tool.models import Parent,Eleve,Cours,Seance,Coach,Salle,Chapitre,Notions,Matiere,Frequence
+from TGA_tool.models import Parent,Eleve,Cours,Seance,Coach,Salle,Chapitre,Notions,Matiere,Frequence,Creneau,Curriculum
 
 # Register your models here.
 class ParentAdmin(admin.ModelAdmin):
@@ -41,7 +41,7 @@ class NotionsAdmin(admin.ModelAdmin):
 	list_filter=('chapitre',)
 	list_display=('chapitre','notion')
 class SeanceAdmin(admin.ModelAdmin):
-	list_display=('date','cours','salle','chapitre','statut')
+	list_display=('date','creneau','cours','salle','chapitre','statut')
 	list_filter=('cours','date','salle','chapitre','notions','statut')
 	fieldsets = (
 	('Cours',{
@@ -56,7 +56,9 @@ class SeanceAdmin(admin.ModelAdmin):
 	}),
 	)
 class FrequenceAdmin(admin.ModelAdmin):
-	fields=('frequence','jour','day_of_month','intervalle','date_debut','date_limite')
+	fields=('frequence','creneau','jour','day_of_month','intervalle','date_debut','date_limite')
+class CreneauAdmin(admin.ModelAdmin):
+	fields=('debut',)
 admin.site.register(Parent,ParentAdmin)
 admin.site.register(Eleve,EleveAdmin)
 admin.site.register(Cours,CoursAdmin)
@@ -67,3 +69,5 @@ admin.site.register(Chapitre,ChapitreAdmin)
 admin.site.register(Notions,NotionsAdmin)
 admin.site.register(Matiere,MatiereAdmin)
 admin.site.register(Frequence,FrequenceAdmin)
+admin.site.register(Creneau,CreneauAdmin)
+admin.site.register(Curriculum)

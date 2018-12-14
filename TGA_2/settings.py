@@ -56,7 +56,9 @@ ROOT_URLCONF = 'TGA_2.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,7 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'TGA_2.wsgi.application'
-
+ALLOWED_HOSTS =  ['adbdf3b4.ngrok.io', 'localhost','127.0.0.1']
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
