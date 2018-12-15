@@ -8,11 +8,9 @@ def acceuil(request):
         <p>Les crêpes bretonnes ça tue des mouettes en plein vol !</p>
     """)
 
-def cours(request):
-    form=CoursForm(request.POST or None)
+def parent(request):
+    form=ParentForm(request.POST or None)
     if form.is_valid():
-        curriculum=form.cleaned_data.get('curriculum')
-        matiere=form.cleaned_data.get('matiere')
-        coach=form.cleaned_data['coach']
-        frequence=form.cleaned_data['frequence']
+        form.save()
     return render(request,'cours.html',locals())
+    
