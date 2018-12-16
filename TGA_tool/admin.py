@@ -1,5 +1,5 @@
 from django.contrib import admin
-from TGA_tool.models import Parent,Eleve,Cours,Seance,Coach,Salle,Chapitre,Notions,Matiere,Frequence,Creneau,Curriculum
+from TGA_tool.models import Parent,Eleve,Cours,Seance_Cours,Seance_Coaching,Coach,Salle,Chapitre,Notions,Matiere,Frequence,Creneau,Curriculum
 
 # Register your models here.
 class ParentAdmin(admin.ModelAdmin):
@@ -40,7 +40,7 @@ class ChapitreAdmin(admin.ModelAdmin):
 class NotionsAdmin(admin.ModelAdmin):
 	list_filter=('chapitre',)
 	list_display=('chapitre','notion')
-class SeanceAdmin(admin.ModelAdmin):
+class CoursSeanceAdmin(admin.ModelAdmin):
 	list_display=('date','creneau','cours','salle','chapitre','statut')
 	list_filter=('cours','date','salle','chapitre','notions','statut')
 	fieldsets = (
@@ -62,7 +62,8 @@ class CreneauAdmin(admin.ModelAdmin):
 admin.site.register(Parent,ParentAdmin)
 admin.site.register(Eleve,EleveAdmin)
 admin.site.register(Cours,CoursAdmin)
-admin.site.register(Seance,SeanceAdmin)
+admin.site.register(Seance_Cours,CoursSeanceAdmin)
+admin.site.register(Seance_Coaching)
 admin.site.register(Coach)
 admin.site.register(Salle)
 admin.site.register(Chapitre,ChapitreAdmin)

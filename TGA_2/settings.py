@@ -71,7 +71,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'TGA_2.wsgi.application'
-ALLOWED_HOSTS =  ['adbdf3b4.ngrok.io', 'localhost','127.0.0.1']
+ALLOWED_HOSTS =  ['adbdf3b4.ngrok.io','63bf6908.ngrok.io', 'localhost','127.0.0.1']
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases

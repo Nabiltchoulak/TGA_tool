@@ -72,23 +72,39 @@ class Cours(models.Model):#Cours est un curriculum(niveau ou groupe) avec une ma
 		verbose_name="cours"
 	def __str__(self):
 		return "{0} {1}".format(self.matiere, self.curriculum)
+
 #Intersection entre éléves (cours) ressources 
-class Seance(models.Model):
+class Seance(models.Model):#Seance est une classe abstraite qui englobe les attributs en commun entre Seance_cours et seance_coaching 
 	date=models.DateField(blank=True,null=True,verbose_name="Date")
 	creneau=models.ForeignKey('Creneau',on_delete=models.CASCADE,blank=True,null=True,verbose_name="Creneau")
-	cours=models.ForeignKey('Cours',on_delete=models.CASCADE,null=True,verbose_name="Cours")
 	salle=models.ForeignKey('Salle',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Salle")
 	chapitre=models.ForeignKey('Chapitre',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Chapitre")
-	notions=models.ManyToManyField('Notions',related_name="Titre",blank=True,verbose_name="Notions")
+	notions=models.ManyToManyField('Notions',related_name="%(app_label)s_%(class)s_related",blank=True,verbose_name="Notions")#pour ne pas avoir de confusion au moment de l'appel
+	class Meta:
+		abstract=True
+class Seance_Cours(Seance):
+	cours=models.ForeignKey('Cours',on_delete=models.CASCADE,null=True,verbose_name="Cours")
 	statut_choices=(("PL","Planifiée"),("EF","Effectuée"),("AN","Annulée"),)
 	statut=models.CharField(max_length=2,choices=statut_choices,default="PL",verbose_name="Statut")
 
 	class Meta:
-		verbose_name="seance"
+		verbose_name="seance cours"
 	#date
 	def __str__(self):
 		str_cre=str(self.date)#timefield n'est pas un string ne peut étre retourné 
-		return "{0} {1}".format(str_cre, self.cours)
+		return "Cours {0} {1} ".format(self.cours,str_cre)
+
+class Seance_Coaching(Seance):
+	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,null=True,blank=True)
+	eleve=models.ManyToManyField('Eleve',related_name="eleve_coaching",blank=True)
+	class Meta:
+		verbose_name="seance coaching"
+	#date
+	def __str__(self):
+		str_cre=str(self.date)#timefield n'est pas un string ne peut étre retourné 
+		return "Coaching {0} {1} ".format(self.matiere,str_cre)
+
+
 class Matiere(models.Model):
 	matiere=models.CharField(max_length=14,verbose_name="Matiere")
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='matiere',verbose_name="Curriculum")
@@ -214,28 +230,28 @@ if len(Creneau.objects.all())==0 :
 ############ Signal qui génére les séances selon la fréquence 
 @receiver(post_save, sender=Cours)
 def init_seances(sender, instance, **kwargs):
-	if (len(instance.seance_set.all())) == 0:#case when a "cours" is in initiation not been modified 
+	if (len(instance.seance_cours_set.all())) == 0:#case when a "cours" is in initiation not been modified 
 		if instance.frequence.period == None :#Différence entre perso et proposé présence de la periodicité  
 			if instance.frequence.frequence == "Une seance" :#switch case
-				Seance.objects.create(cours=instance,creneau=instance.frequence.creneau)
+				Seance_Cours.objects.create(cours=instance,creneau=instance.frequence.creneau)
 			elif instance.frequence.frequence =="Chaque jour" :
 				for day in date_manager.daysrange(instance.frequence.date_debut,instance.frequence.date_limite):
-					Seance.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau) 
+					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau) 
 			elif instance.frequence.frequence =="Un jour chaque semaine":
 				for day in date_manager.weeksperiod(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.jour):
-					Seance.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
+					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
 			elif instance.frequence.frequence =="Un jour chaque mois":
 				for day in date_manager.monthsperiod(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.day_of_month):
-					Seance.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
+					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
 		else : #freq perso 
 			if instance.frequence.frequence == "Jours" :
 				for day in date_manager.spe_daysperiod(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.period):
-					Seance.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
+					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
 			elif instance.frequence.frequence == "Semaines" :
 				for day in date_manager.spe_weeksperiod(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.period):
-					Seance.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
+					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
 			elif instance.frequence.frequence == "Mois" :
 				for day in date_manager.spe_monthsrange(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.period,instance.frequence.day_of_month):
-					Seance.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
+					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
 	else :
 		print('object already exist')#case when an frequence "cours" is updated (instance cours already exist which will create all "seance" again) work on that later   
