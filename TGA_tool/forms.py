@@ -19,4 +19,9 @@ class EleveForm(forms.ModelForm):
     class Meta:
         model = Eleve
         fields = '__all__'
+
+class CoachForm(forms.ModelForm):
+    class Meta:
+        model = Coach
+        fields = '__all__'
         

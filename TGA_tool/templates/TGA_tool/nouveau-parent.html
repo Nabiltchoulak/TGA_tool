@@ -1,11 +1,11 @@
 {% extends "layout.html" %}
 {%load static %}
-{% block title %} Contact {% endblock %}
+{% block title %} Nouveau parent {% endblock %}
 {% block content %}
 
-{% if envoi %}Votre message a bien été envoyé !{% endif %}
+{% if envoi %} Le parent a été bien ajouté !{% endif %}
 
-<form action="{% url "nouveau_eleve" %}" method="post">
+<form action="{% url "nouveau parent" %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Submit" />

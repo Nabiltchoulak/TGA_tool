@@ -44,6 +44,7 @@ class Eleve(models.Model):
 		#ordering=['date_inscription']
 	def __str__(self):
 		return self.nom
+
 ###################################################################### Création des groupes, se fait automatiquement selon la liste pas besoin de la toucher 
 class CurriculumCreator(models.Manager):
 	def create_group(self, niveau):
