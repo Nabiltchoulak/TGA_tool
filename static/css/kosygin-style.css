@@ -1,0 +1,414 @@
+
+ * {
+    box-sizing: border-box;
+    }
+@font-face {
+    font-family: Roboto;
+    src: url(RobotoSlab-Regular.ttf);
+}
+
+body {
+  margin: 0;
+  font: 85%/1.6em Roboto Verdana, Tahoma, arial, sans-serif;
+  color: #000000; 
+  text-align: left;
+}
+
+a, a:visited {
+  text-decoration: none;
+  color: #2200CC;
+  background: inherit;
+}
+a:hover {
+  
+  background: inherit;
+  text-decoration: underline;
+}
+
+h1 {
+  font-size: 150%;  
+  font-weight: normal;
+  color: #000080;
+}
+h2 {
+  font-size: 130%;
+  color: #666666;
+}
+h3 {
+  font-size: 110%;
+  color: #666666; 
+}
+
+h1, h2, h3, p {
+  padding: 10px;    
+  margin: 0;
+}
+
+/* Style the header */
+.header {
+    background-color: #000080;
+    padding: 10px;
+    height: 135px;
+    color: #CCC;
+}
+.header h1 a {
+  position: absolute;
+  margin: 0; padding: 0;
+  font: bolder 44px 'Trebuchet MS', Arial, Sans-serif;
+  letter-spacing: -2px;
+  color: #FFF !important;
+  text-transform: none;
+  text-decoration: none;
+  background: transparent;
+  
+  /* change the values of top and left to adjust the position of the logo*/
+  top: 15px; left: 25px;  
+  }
+
+  .header p{
+     position: absolute;
+     margin: 0; padding: 0;
+     display: block;
+     top: 70px; left: 30px;  
+     color: #FFF;
+     font: normal 14px 'Trebuchet MS', Arial, Sans-serif;
+  }
+
+/* Create three equal columns that floats next to each other */
+.sidebar {
+    float: left;
+    width: 20%;
+
+    background-color: #999999;
+    
+}
+.content {
+    float: left;
+    width: 80%;
+    /*padding: 10px;*/
+    height: auto;
+    
+}
+
+/* Clear floats after the columns */
+.container:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+
+/* Style the footer */
+.footer {
+    background-color: #000080 ;
+    padding: 10px;
+    text-align: center;
+    height: 100px;
+    color: white;
+}
+
+
+.accordion {
+    background-color: #999999;
+    color: black;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+}
+
+.active, .accordion:hover {
+    background-color: #000080;
+    color: white;
+}
+
+.accordion:after {
+    content: '\002B';
+    color: #777;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+}
+
+.active:after {
+    content: "\2212";
+}
+
+.panel {
+    padding: 0 18px;
+    background-color: #ddd;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    }
+
+
+
+/* Add a black background color to the top navigation */
+.topnav {
+    position: absolute;
+    width: 100%;
+    left:0;
+    top: 87px;
+    background-color: #000080;
+    overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.topnav a {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+/* Change the color of links on hover */
+.topnav a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Style the search box inside the navigation bar */
+.topnav input[type=text], button {
+    display: block;
+    float: right;
+    padding: 6px;
+    border: none;
+    font-size: 15px;
+
+}
+
+.topnav .search-container button {
+  float: right;
+  padding: 6px;
+  margin-top: 8px;
+  margin-right: 16px;
+  background: #ddd;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+}
+
+.topnav .search-container button:hover {
+  background: #ccc;
+}
+
+
+
+/* form elements */
+form {
+  margin:10px; padding: 0 0px;
+  border: 1px solid #f2f2f2; 
+  background-color: #FAFAFA;  
+  overflow:auto;
+}
+label {
+  display:block;
+  font-weight:bold;
+  margin:5px 0;
+}
+input {
+  padding:2px;
+  border:1px solid #eee;
+  font: normal 1em Verdana, sans-serif;
+  color:#777;
+}
+textarea {
+  padding:2px;
+  font: normal 1em Verdana, sans-serif;
+  border:1px solid #eee;
+  height:100px;
+  display:block;
+  color:#777;
+}
+input.button { 
+  font: bold 12px Arial, Sans-serif; 
+  height: 24px;
+  margin: 0;
+  padding: 2px 3px; 
+  color: #FFF;
+  background: #8EB50C url(../images/button-bg.jpg) repeat-x 0 0;
+  border: none;
+}
+fieldset{
+border: none;
+}
+
+/* start - table */
+table {
+  border-collapse: collapse;
+  margin: 10px; 
+}
+th strong {
+  color: #fff;
+}
+th {
+  background: #999999;
+  height: 29px;
+  padding-left: 12px;
+  padding-right: 12px;
+  color: #FFF;
+  text-align: left;
+  border-left: 1px solid #B6D59A;
+  border-bottom: solid 2px #FFF;
+}
+form th {
+    text-align: left;
+}
+tr {
+  height: 30px;
+}
+td {
+  padding-left: 5px;
+  padding-right: 5px;
+  border-left: 1px solid #FFF;
+  border-bottom: solid 1px #ffffff;
+    text-align: left;
+}
+form td {
+    text-align: left;
+}
+td.first,th.first {
+  border-left: 0px;
+}
+tr.row-a {
+  background: #F8F8F8;
+}
+tr.row-b {
+  background: #EFEFEF;
+}
+/* end - table */
+
+
+/* Specific Front end items */
+
+#registerForm {
+margin-left: 50px;
+}
+
+ div#mynetwork {
+          width: 100%;
+          height: 500px;
+          border: 1px solid lightgray;
+        }
+
+ /* Affichage des formulaires de material transfer */
+
+        div.transfer{
+          display: block;
+          width: 100%;
+          overflow:auto;
+
+        }
+
+        
+        fieldset.from {
+            display: inline-block;
+            float:left;
+            width:45%;
+            height: 400px;
+            background-color: #e6e6e6;
+            overflow:auto;
+            border: 1px;
+            border-radius: 5px;
+
+        }
+        fieldset.to {
+            display: inline-block;
+            float:right;
+            width:45%;
+            height: 400px;
+            background-color:white;
+            overflow: auto;
+            border: 1px dashed;
+            border-radius: 5px;
+          
+
+
+        }
+        fieldset.arrow{
+          float: left;
+          width:7%;
+          height: 300px;
+          overflow:auto;
+
+          }
+          
+        
+        fieldset{
+          border: none;
+        }
+
+        div.transfer input{
+          text-align: center;
+        }
+
+        input.move_button {
+          display: block;
+          width: 100%;
+          border: none;
+          background-color: #999999;
+          padding: 14px 28px;
+          font-size: 16px;
+          cursor: pointer;
+          text-align: center;
+          color: black;
+          margin-top: 20px;
+          margin-bottom: 20px;
+        }
+        input.move_button:hover {
+          background-color: #000080;
+          color: white;
+        }
+        div.fromto{
+          display: inline-block;
+          width: 49%;
+        }
+ 
+/* Network configuration style   */
+
+.tablink1 {
+    background-color: #999999;
+    color: black;
+    display: inline-block;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    font-size: 17px;  
+    width: 16.666%;
+}
+
+.tablink1:hover {
+    background-color: #777;
+}
+
+/* Style the tab content (and add height:100% for full page content) */
+.tabcontent1 {
+
+    display: none;
+    padding: 100px 20px;
+    height: 100%;
+}
+#supplier {background-color: #d9d9d9;}
+#harbor {background-color: #d9d9d9;}
+#vessel{background-color: #d9d9d9;}
+#yard {background-color: #d9d9d9;}
+#rig {background-color: #d9d9d9;}
+#well {background-color: #d9d9d9;}
+
+

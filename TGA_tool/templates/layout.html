@@ -1,0 +1,185 @@
+{% load static%}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title> {% block title%} TGA Management Tool  {% endblock %} </title>
+    
+    <meta charset="utf-8" />
+    
+    <script src="{% static 'jquery/jquery.js' %}"></script> 
+    <link rel="stylesheet" href="{% static 'css/kosygin-style.css' %}" type="text/css" />
+
+    <style type="text/css">
+
+       /* Style en test ici avant d'être mis dans la feuille de style  */
+
+    </style>
+  </head>
+
+  <body>
+    {% block nav %}
+    <div class="header">
+        <h1><a href="/admin/">The Global Academy</a></h1>
+        <p> We fly to excellence ! </p>
+
+        
+
+        <div class="topnav" id="myTopnav">
+        
+            <a href="/admin/">Home</a>
+            <a href="#news">Notifications</a>
+            <button type="submit">Submit</button>
+            <input type="text" placeholder="Search..">
+
+        </div>
+    </div>
+
+    <div class="container">
+  
+      <div class ="sidebar">
+          <button class="accordion">Nouveau</button>
+          <div class="panel">
+          <ul>
+             <li><a href="/TGA_tool/nvparent.html">Parent</a></li>
+             <li><a href="/TGA_tool/nveleve.html"> Eleve / Etudiant  </a></li>
+             <li><a href="/TGA_tool/nvcoach.html">Coach </a></li>
+
+          </ul>
+          </div>
+
+          <button class="accordion">Lookahead</button>
+          <div class="panel">
+            <ul>
+                <li> Add operation </li>
+                <li>Generate supplier report </li>
+                <li>Import Excel</li>
+                <li>Export Excel </li>
+
+            </ul>
+          </div>
+
+          <button class="accordion">Material Import</button>
+          <div class="panel">
+            <ul>
+                <li><a href="/admin/material-insert.html">Add material</a></li>
+                <li><a href="/admin/container-insert.html">Add container</a> </li>
+                <li>Import material</li>
+                <li>Export material </li>
+            </ul>
+          </div>
+
+          <button class="accordion">Material Transfer</button>
+          <div class="panel">
+            <ul>
+                <li><a href="/admin/material-move.html">Material transfer</a> </li>
+                <li><a href="/admin/container-move.html">Move Container</a></li>
+                  <li><a href="/admin/material-consume.html"> Material consumption </a></li>
+                   <li><a href="/admin/material-checkout.html"> Material check-out </a></li>
+
+                <li>Acknowledge transfer</li>
+
+            </ul>
+          </div>
+
+            <button class="accordion">Personel Transfer</button>
+          <div class="panel">
+            <ul>
+                <li><a href="/admin/personel-insert.html">Add personel</a></li>
+                <li><a href="/admin/move-personel.html">Move Personel</a> </li>
+                <li>Acknowledge transfer</li>
+
+            </ul>
+          </div>
+
+            <button class="accordion">Cost Tracking</button>
+          <div class="panel">
+            <ul>
+                <li>Cost-up-to-date</li>
+            </ul>
+          </div>
+
+           <button class="accordion">Reports</button>
+          <div class="panel">
+            <ul>
+                <li><a href="/admin/material-report.html">Reports</a></li>
+                <li>Personel report </li>
+                <li>Cost report </li>
+
+            </ul>
+          </div>     
+
+      </div>
+
+     {% endblock %}
+      <div class="content">
+          <section id="main">
+
+             {% block content %}{% endblock %}
+        
+
+          </section>
+
+      </div>
+   
+    </div>
+
+    <div class="footer">
+      <p>TGA Excellence Center Copyright 2018</p>
+    </div>
+
+  </body>
+</html>
+
+
+<script type="text/javascript">
+
+$(function(){
+  
+// placing objects inside variables
+var content = $('.content');
+var sidebar = $('.sidebar');
+var moveContainer = $('#MoveContainer');
+var from = $('.from');
+var to = $('.to');
+
+// get content and sidebar height in variables
+var getContentHeight = content.outerHeight();
+var getSidebarHeight = sidebar.outerHeight();
+var getMoveContainerHeight = moveContainer.outerHeight();
+
+
+
+// check if content height is bigger than sidebar
+if ( getContentHeight > getSidebarHeight ) {
+  sidebar.css('min-height', getContentHeight);
+}
+
+// check if sidebar height is bigger than content
+if ( getSidebarHeight > getContentHeight ) {
+  content.css('min-height', getSidebarHeight);
+}
+
+
+
+
+
+// Accordeon
+var acc = document.getElementsByClassName("accordion");
+var i;
+
+for (i = 0; i < acc.length; i++) {
+  acc[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var panel = this.nextElementSibling;
+    if (panel.style.maxHeight){
+      panel.style.maxHeight = null;
+    } else {
+      panel.style.maxHeight = panel.scrollHeight + "px";
+    } 
+  });
+}
+
+
+});
+
+</script>

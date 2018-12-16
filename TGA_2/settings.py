@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'TGA_tool',
-    'reset_migrations',
 ]
 
 MIDDLEWARE = [

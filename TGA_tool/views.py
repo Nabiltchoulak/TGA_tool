@@ -1,16 +1,28 @@
 from django.shortcuts import render
 from .forms import *
 # Create your views here.
-def acceuil(request):
-    """ Exemple de page non valide au niveau HTML pour que l'exemple soit concis """
-    return HttpResponse("""
-        <h1>Bienvenue sur mon blog !</h1>
-        <p>Les crêpes bretonnes ça tue des mouettes en plein vol !</p>
-    """)
 
-def parent(request):
-    form=ParentForm(request.POST or None)
-    if form.is_valid():
+# Create your views here.
+def home(request):
+    return render(request, 'TGA_tool/home.html')
+
+
+def contact(request):
+    # Construire le formulaire, soit avec les données postées,
+    # soit vide si l'utilisateur accède pour la première fois
+    # à la page.
+    form = EleveForm(request.POST or None)
+    # Nous vérifions que les données envoyées sont valides
+    # Cette méthode renvoie False s'il n'y a pas de données 
+    # dans le formulaire ou qu'il contient des erreurs.
+    if form.is_valid(): 
+        # Ici nous pouvons traiter les données du formulaire
+        
         form.save()
-    return render(request,'cours.html',locals())
+
+        # Nous pourrions ici envoyer l'e-mail grâce aux données 
+        # que nous venons de récupérer
+        envoi = True
     
+    # Quoiqu'il arrive, on affiche la page du formulaire.
+    return render(request, 'TGA_tool/contact.html', locals())	
