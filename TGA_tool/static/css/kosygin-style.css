@@ -3,8 +3,8 @@
     box-sizing: border-box;
     }
 @font-face {
-    font-family: Roboto;
-    src: url(RobotoSlab-Regular.ttf);
+    font-family: 'Montserrat', arial;
+    src: url(montserrat_[fr.allfont.net].ttf);
 }
 
 body {
@@ -28,7 +28,7 @@ a:hover {
 h1 {
   font-size: 150%;  
   font-weight: normal;
-  color: #000080;
+  color: #0c7fcf;
 }
 h2 {
   font-size: 130%;
@@ -46,7 +46,7 @@ h1, h2, h3, p {
 
 /* Style the header */
 .header {
-    background-color: #000080;
+    background-color: #0c7fcf;
     padding: 10px;
     height: 135px;
     color: #CCC;
@@ -100,7 +100,7 @@ h1, h2, h3, p {
 
 /* Style the footer */
 .footer {
-    background-color: #000080 ;
+    background-color: #0c7fcf ;
     padding: 10px;
     text-align: center;
     height: 100px;
@@ -122,7 +122,7 @@ h1, h2, h3, p {
 }
 
 .active, .accordion:hover {
-    background-color: #000080;
+    background-color: #0c7fcf;
     color: white;
 }
 
@@ -154,7 +154,7 @@ h1, h2, h3, p {
     width: 100%;
     left:0;
     top: 87px;
-    background-color: #000080;
+    background-color: #0c7fcf;
     overflow: hidden;
 }
 
@@ -370,7 +370,7 @@ margin-left: 50px;
           margin-bottom: 20px;
         }
         input.move_button:hover {
-          background-color: #000080;
+          background-color: #0c7fcf;
           color: white;
         }
         div.fromto{
