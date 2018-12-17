@@ -1,11 +1,11 @@
 {% extends "layout.html" %}
 {%load static %}
-{% block title %} Contact {% endblock %}
+{% block title %} Modifier seance cours {% endblock %}
 {% block content %}
 
-{% if envoi %}Votre message a bien été envoyé !{% endif %}
+{% if envoi %}Form is valid !{% endif %}
 
-<form action="{% url "nouveau_eleve" %}" method="post">
+<form action="{% url "modifier seance cours" %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Submit" />

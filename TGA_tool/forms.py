@@ -6,8 +6,7 @@ class ContactForm(forms.Form):
     sujet = forms.CharField(max_length=100)
     message = forms.CharField(widget=forms.Textarea)
     envoyeur = forms.EmailField(label="Votre adresse e-mail", required=True)
-    renvoi = forms.BooleanField(help_text="Cochez si vous souhaitez obtenir une copie du mail envoyé.", required=False)
-
+    
 class ParentForm(forms.ModelForm):
     class Meta:
         model = Parent
@@ -33,6 +32,11 @@ class CoursForm(forms.ModelForm):
         model = Cours
         fields = '__all__'
 
+class Seance_CoursForm(forms.Form):
+    seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir le cours a éditer')
+    salle = forms.ModelChoiceField(queryset=Salle.objects.all(),help_text='Choisir la salle',required=False)
+    chapitre = forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
+    notion=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False)
 class Seance_CoachingForm(forms.ModelForm):
     class Meta:
         model = Seance_Coaching
