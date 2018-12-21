@@ -6,7 +6,8 @@ from .forms import *
 def home(request):
     return render(request, 'TGA_tool/home.html')
 
-
+def calendar(request):
+    return render(request,'TGA_tool/calendar/calendar.html')
 def nouveauEleve(request):
     # Construire le formulaire, soit avec les données postées,
     # soit vide si l'utilisateur accède pour la première fois
@@ -99,6 +100,7 @@ def seance_cours(request):
             form.fields['chapitre'].queryset=Chapitre.objects.filter(matiere=seance.cours.matiere)
             #chapitre=form.cleaned_data['chapitre']
             form.fields['notion'].queryset=Notions.objects.filter(chapitre=form.cleaned_data['chapitre'])
+            print(seance.pk)
             return render(request,'TGA_tool/modifier-seance_cours.html', locals())
             #print(notion)
             

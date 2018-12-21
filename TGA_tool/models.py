@@ -6,42 +6,41 @@ from . import date_manager
 #from django.utils.managers import InheritanceManager
 from django.db.models.signals import post_save
 from django.dispatch import receiver 
-NB_SEMAINESPARPERIODE=10
-NB_MOISPARPERIODE=2
-
+from django.contrib.auth.models import User
 class Parent(models.Model):
 	nom= models.CharField(max_length=42,verbose_name="Nom",unique=True)
 	num_tel= models.CharField(max_length=15,verbose_name="Telephone",unique=True)
-	mail= models.EmailField(verbose_name="E-mail",unique=True)
-	adresse = models.CharField(max_length=150,verbose_name="Adresse")
+	mail= models.EmailField(verbose_name="E-mail",unique=True,blank=True)
+	adresse = models.CharField(max_length=150,blank=True,verbose_name="Adresse")
 	estResponsable= models.BooleanField(verbose_name="Responsable de l'enfant")
-	
 	date_inscription = models.DateField(auto_now=True, verbose_name="Date d'inscription")
+	user = models.OneToOneField(User,on_delete=models.SET_NULL,null=True,blank=True)
 	#canal = models.
 	class Meta:
 		verbose_name="parent"
-		#ordering=['date_inscription']
+		ordering=['nom']
 
 	def __str__(self):
 		return self.nom
 
 
-class Eleve(models.Model):
-	
-	nom= models.CharField(max_length=42,verbose_name="Nom")
-	num= models.CharField(max_length=15,null=True,blank=True,verbose_name="Telephone")
-	email=models.EmailField(null=True,blank=True,verbose_name="E-mail")
-	date_naissance=models.DateField(null=True,verbose_name="Date de naissance")
-	parent_resp=models.ForeignKey('Parent',on_delete=models.CASCADE,limit_choices_to={'estResponsable':True},verbose_name="Parent responsable")#Utiliser une liste défini par un boole ou une variable d'une clé étrangére
+class Eleve(models.Model):	
+	nom= models.CharField(max_length=42,verbose_name="Nom",unique=True)
+	num= models.CharField(max_length=15,null=True,blank=True,verbose_name="Telephone",unique=True)
+	email=models.EmailField(null=True,blank=True,verbose_name="E-mail",unique=True)
+	date_naissance=models.DateField(null=True,blank=True,verbose_name="Date de naissance")
+	parent_resp=models.ForeignKey('Parent',on_delete=models.CASCADE,limit_choices_to={'estResponsable':True},verbose_name="Parent responsable")
+	#Utiliser une liste filtré par un boolean ou une variable d'une clé étrangére
 	parent_sec=models.ForeignKey('Parent',on_delete=models.SET_NULL,null=True,blank=True,limit_choices_to={'estResponsable':False},related_name="secondaire",verbose_name="Parent contact")
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,verbose_name="Curriculum")
 	cours=models.ManyToManyField('Cours',related_name='cours',blank=True,verbose_name="Cours")
-	etablissement=models.CharField(max_length=20,null=True)
+	etablissement=models.CharField(max_length=20,null=True,blank=True)
+	user = models.OneToOneField(User,on_delete=models.SET_NULL,null=True,blank=True)
 	#dz= models.BooleanField(verbose_name="Programme Algérien")
 	date_inscription = models.DateField(auto_now=True, verbose_name="Date d'inscription")
 	class Meta:
 		verbose_name="eleve"
-		#ordering=['date_inscription']
+		ordering=['nom']
 	def __str__(self):
 		return self.nom
 
@@ -53,8 +52,8 @@ class CurriculumCreator(models.Manager):
 
 class Curriculum(models.Model):
 	niveau=models.CharField(max_length=13)
-	programme=models.CharField(max_length=2)
-	objects = CurriculumCreator()#ajouter une mathode manager au object
+	programme=models.CharField(max_length=2,blank=True,null=True)
+	objects = CurriculumCreator()#ajouter une methode manager au object
 	def __str__(self):
 		return self.niveau
 NIV=['CP','CE','CE2','CM1','CM2','Sixième','Cinquième','Quatrième','DNB','Seconde','Première S','Première ES','Terminal S','Terminal ES']
@@ -63,13 +62,13 @@ if (len(Curriculum.objects.all()))<2:
 		Curriculum.objects.create_group(NIV[niv])
 #####################################################################
 class Cours(models.Model):#Cours est un curriculum(niveau ou groupe) avec une matiére et un coach
-	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='niv',verbose_name="Curriculum")
-	matiere=models.ForeignKey('Matiere',on_delete=models.SET_NULL,null=True,verbose_name="Matiere")
+	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='curriculum',verbose_name="Curriculum")
+	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,null=True,verbose_name="Matiere")
 	coach=models.ForeignKey('Coach',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Coach")
-	frequence=models.ForeignKey('Frequence',on_delete=models.SET_NULL,null=True,blank=True)
-	
+	frequence=models.OneToOneField('Frequence',on_delete=models.SET_NULL,null=True,blank=True)
 	class Meta:
 		verbose_name="cours"
+		ordering=['-curriculum','matiere']
 	def __str__(self):
 		return "{0} {1}".format(self.matiere, self.curriculum)
 
@@ -82,13 +81,15 @@ class Seance(models.Model):#Seance est une classe abstraite qui englobe les attr
 	notions=models.ManyToManyField('Notions',related_name="%(app_label)s_%(class)s_related",blank=True,verbose_name="Notions")#pour ne pas avoir de confusion au moment de l'appel
 	class Meta:
 		abstract=True
+		
 class Seance_Cours(Seance):
-	cours=models.ForeignKey('Cours',on_delete=models.CASCADE,null=True,verbose_name="Cours")
+	cours=models.ForeignKey('Cours',on_delete=models.CASCADE,verbose_name="Cours")
 	statut_choices=(("PL","Planifiée"),("EF","Effectuée"),("AN","Annulée"),)
 	statut=models.CharField(max_length=2,choices=statut_choices,default="PL",verbose_name="Statut")
 
 	class Meta:
 		verbose_name="seance cours"
+		ordering=['date','creneau']
 	#date
 	def __str__(self):
 		str_cre=str(self.date)#timefield n'est pas un string ne peut étre retourné 
@@ -99,6 +100,7 @@ class Seance_Coaching(Seance):
 	eleve=models.ManyToManyField('Eleve',related_name="eleve_coaching",blank=True)
 	class Meta:
 		verbose_name="seance coaching"
+		ordering=['date','creneau']
 	#date
 	def __str__(self):
 		str_cre=str(self.date)#timefield n'est pas un string ne peut étre retourné 
@@ -116,17 +118,19 @@ class Matiere(models.Model):
 class Chapitre(models.Model):
 	chapitre=models.CharField(max_length=50)
 	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,verbose_name="Matiere")
-	
+	details=models.TextField(blank=True,null=True,help_text='Précisions sur le chapitre')
 	def __str__(self):
 		return self.chapitre 
 	class Meta:
 		verbose_name="chapitre"
+		ordering=['matiere','chapitre']
 class Notions(models.Model):
 	notion=models.CharField(max_length=50,verbose_name="Notion")
 	details=models.TextField(blank=True,null=True,verbose_name="Details")
 	chapitre=models.ForeignKey('Chapitre',on_delete=models.CASCADE)
 	class Meta:
 		verbose_name="notions"
+		ordering=['chapitre','details']
 	def __str__(self):
 		return self.notion
 
@@ -138,23 +142,26 @@ class Resource(models.Model):
 		
 class Coach(Resource):
 	nom=models.CharField(max_length=42,verbose_name="Nom",unique=True)
-	telphone=models.CharField(max_length=15,verbose_name="Telephone",unique=True)
-	mail= models.EmailField(verbose_name="E-mail")
-	matieres=models.ManyToManyField('Matiere',related_name="enseigne",verbose_name="matieres")
+	telphone=models.CharField(max_length=15,verbose_name="Telephone",unique=True,null=True,blank=True)
+	mail= models.EmailField(verbose_name="E-mail",null=True,blank=True,unique=True)
+	matieres=models.ManyToManyField('Matiere',related_name="enseigne",verbose_name="matieres",help_text='Les matières que peut enseigner ce coach')
+	user = models.OneToOneField(User,on_delete=models.SET_NULL,null=True,blank=True)
 	#matrice_dispo
 	#matrice_polyvalence
 	class Meta:
 		verbose_name="coach"
+		ordering=['nom']
 	def __str__(self):
 		return self.nom
 
 class Salle(Resource):
 	nom=models.CharField(max_length=42,verbose_name="Nom",unique=True)
-	capcite=models.PositiveIntegerField(verbose_name="Capacité")
+	capcite=models.PositiveIntegerField(verbose_name="Capacité",null=True,blank=True)
 	ecran=models.BooleanField(verbose_name="Posséde un écean")
 	batiment=models.BooleanField(verbose_name="TGA")
 	class Meta:
 		verbose_name="salle"
+		ordering=['capcite']
 	def __str__(self):
 		return self.nom
 
@@ -198,13 +205,17 @@ class CreneauCreator(models.Manager):
 		return creneau
 class Creneau(models.Model):
 	debut=models.TimeField()
-	fin=models.TimeField(blank=True,null=True)#Va se remplir a l'appel de str
-	objects=CreneauCreator()#pour appeler
+	fin=models.TimeField(blank=True,null=True)#Va se préciser lors de l'appe de __str__
+	objects=CreneauCreator()#pour l'appel du manager
 	def __str__(self):
+		#Ici on va profiter de l'appel de __str__ pour préciser l'heure de fin pour chaque créneau qui est toujours heuredebut + 1h30
+		#
 		st_tim=str(self.debut)
-		if self.debut.minute == 30 :# 9h30-11h00
+		if self.debut.minute == 30 :
+			#Le cas 9h30-11h00
 			self.fin=time(hour=self.debut.hour +2,minute=(self.debut.minute +30)%60)
 		else :
+			#Le cas 8h-9h30
 			self.fin=time(hour=self.debut.hour +1,minute=(self.debut.minute +30)%60)
 		ed_tim=str(self.fin)
 		return "{0} - {1}".format(st_tim,ed_tim)
