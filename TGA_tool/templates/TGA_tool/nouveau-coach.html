@@ -4,10 +4,11 @@
 {% block content %}
 
 {% if envoi %} Le coach a été bien ajouté !{% endif %}
-
+<h2>Ajouter un nouveau coach</h2>
 <form action="{% url "nouveau coach" %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
+
     <input type="submit" value="Submit" />
 </form>
 {% endblock %}

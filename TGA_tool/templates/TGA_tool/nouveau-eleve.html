@@ -4,7 +4,7 @@
 {% block content %}
 
 {% if envoi %} L'élève a été bien ajouté !{% endif %}
-
+<h2>Ajouter un nouveau élève</h2>
 <form action="{% url "nouveau eleve" %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
