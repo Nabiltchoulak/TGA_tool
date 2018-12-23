@@ -16,14 +16,17 @@ def nouveauEleve(request):
     # Nous vérifions que les données envoyées sont valides
     # Cette méthode renvoie False s'il n'y a pas de données 
     # dans le formulaire ou qu'il contient des erreurs.
+    
     if form.is_valid(): 
         # Ici nous pouvons traiter les données du formulaire
         
         form.save()
 
-        # Nous pourrions ici envoyer l'e-mail grâce aux données 
-        # que nous venons de récupérer
-        envoi = True
+        if 'end' in request.POST :#test if the user choosed "submit" 
+            return render(request,'TGA_tool/home.html')
+        elif 'submit & add other' in request.POST :#or "submit && add" 
+            form=EleveForm()#Vider le formulaire 
+            return render(request,'TGA_tool/nouveau-eleve.html', locals())
     
     # Quoiqu'il arrive, on affiche la page du formulaire.
     return render(request,'TGA_tool/nouveau-eleve.html', locals())	
