@@ -1,0 +1,4 @@
+*.pyc
+__init__.py
+TGA_tool/migrations
+TGA_tool/__pycache__ 
