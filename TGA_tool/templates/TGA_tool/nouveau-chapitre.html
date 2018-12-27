@@ -1,18 +1,21 @@
 {% extends "layout.html" %}
 {%load static %}
-{% block title %} Nouveau élève {% endblock %}
+{% block title %} Nouveau  chapitre {% endblock %}
 {% block content %}
 
-{% if envoi %} L'élève a été bien ajouté !{% endif %}
+ 
 
-<form action="{% url "nouveau eleve" %}" method="post">
+<form action="{% url 'chapitre notion' id %}" method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <span>
+    {{ form_chapitre.as_p }}
+    {{ form_notions.as_p }}
+    
+   <span>
     <input type="submit" value="Submit" name="end" />
     </span>
     <span>
         <input type="submit" value="Submit & add other" name="submit & add other"/>
-    </span> 
+    </span>
 </form>
+   
 {% endblock %}

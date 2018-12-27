@@ -1,11 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from .forms import *
+from django.views.generic import TemplateView
+from django.forms import formset_factory
 # Create your views here.
 
 # Create your views here.
-def home(request):
-    return render(request, 'TGA_tool/home.html')
-
 def calendar(request):
     return render(request,'TGA_tool/calendar/calendar.html')
 def nouveauEleve(request):
@@ -115,3 +114,31 @@ def seance_cours(request):
             return render(request,'TGA_tool/home.html', locals())
             print(seance)
     return render(request,'TGA_tool/modifier-seance_cours.html', locals())	
+def matiere(request):
+    form = MatiereForm(request.POST or None)
+    if form.is_valid():
+        matiere=form.cleaned_data['matiere']
+        print(matiere.id)
+        return redirect(chapitreNotions, matiere.id)#envoyer l'id en paramétre
+       # return render(request, 'TGA_tool/nouveau-chapitre.html',{'matiere': mat} )
+    return render(request, 'TGA_tool/nouvelle-matiere.html',locals())
+
+def chapitreNotions(request, id): 
+    form_chapitre=ChapitreForm(request.POST or None)
+    NotionFormset = formset_factory(NotionForm, extra=4,max_num=4)
+    form_notions=NotionFormset(request.POST or None)
+    if form_notions.is_valid() and form_chapitre.is_valid() :
+        chapitre=Chapitre.objects.create(chapitre=form_chapitre.cleaned_data['chapitre'],matiere=Matiere.objects.get(id= id))
+        notions={}
+        for form in form_notions.forms:
+            if form.cleaned_data != {}:
+                notions[form.cleaned_data['notion']]= form.cleaned_data['details']
+        for notion_key in list(notions.keys()):
+           Notions.objects.create(notion=notion_key,details=notions[notion_key],chapitre=chapitre)
+        if 'end' in request.POST:
+            return redirect('../home.html')
+        elif 'submit & add other' in request.POST :
+            form_chapitre=ChapitreForm()
+            form_notions=NotionFormset()#Vider les formulaires
+            return render(request, 'TGA_tool/nouveau-chapitre.html',locals())
+    return render(request, 'TGA_tool/nouveau-chapitre.html',locals())

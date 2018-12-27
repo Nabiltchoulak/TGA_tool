@@ -70,7 +70,7 @@ class Cours(models.Model):#Cours est un curriculum(niveau ou groupe) avec une ma
 		verbose_name="cours"
 		ordering=['-curriculum','matiere']
 	def __str__(self):
-		return "{0} {1}".format(self.matiere, self.curriculum)
+		return "{0}".format(self.matiere)#matiere contient déjà le curriculum
 
 #Intersection entre éléves (cours) ressources 
 class Seance(models.Model):#Seance est une classe abstraite qui englobe les attributs en commun entre Seance_cours et seance_coaching 
@@ -106,15 +106,47 @@ class Seance_Coaching(Seance):
 		str_cre=str(self.date)#timefield n'est pas un string ne peut étre retourné 
 		return "Coaching {0} {1} ".format(self.matiere,str_cre)
 
+################################################################################################################### Work here on matiere 
+class MatiereCreator(models.Manager):
+	def create_matiere(self, matiere,curriculum):
+		matiere=self.create(matiere=matiere,curriculum=curriculum)
+		return matiere
 
 class Matiere(models.Model):
-	matiere=models.CharField(max_length=14,verbose_name="Matiere")
+	matiere_choices=(("Mathématiques","Mathématiques"),("Physique","Physique"),("SVT","SVT"),("Français","Français"),("Anglais","Anglais"),("Technologie","Technologie"),("SES","SES"),("Philosophie","Philosophie"),)
+	matiere=models.CharField(max_length=16,choices=matiere_choices,verbose_name="Matiere")
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='matiere',verbose_name="Curriculum")
+	objects = MatiereCreator()#ajouter une methode manager au object
 	class Meta:
 		verbose_name="matiere"
+		ordering=['curriculum','matiere']
 	def __str__(self):
-		return "{0} {1}".format(self.matiere, self.curriculum)
+		return "{0} {1}".format(self.curriculum,self.matiere)
+#Cette partie est dédiée pour générer les instances connues déjà de matière 
+#dés que le serveur commence a tourner on a un problème de "Models aren't loaded yet"
+#On va régler cela avec les middleware 
+""""
+curriculum= Curriculum.objects.all()
+matieres={}
 
+for niveau in curriculum:
+	matieres[niveau.niveau]=["Mathématiques","Physique","SVT","Français","Anglais"]
+	if niveau.niveau=='Sixième'or niveau.niveau=='Cinquième'or niveau.niveau=='Quatrième'or niveau.niveau=='DNB':
+		matieres[niveau.niveau].append("Technologie")
+	elif niveau.niveau=='CP'or niveau.niveau=='CE'or niveau.niveau=='CE2'or niveau.niveau=='CM1'or niveau.niveau=='CM2':
+		matieres[niveau.niveau].remove("Physique")
+		matieres[niveau.niveau].remove("SVT")
+	elif niveau.niveau=='Terminal S' or niveau.niveau=='Terminal ES':
+		matieres[niveau.niveau].append("Philosophie")
+	elif niveau.niveau=='Première ES' or niveau.niveau=='Terminal ES':
+		matieres[niveau.niveau].append("SES")
+if len(Matiere.objects.all())==0 :
+	for groupe in list(matieres.keys()):
+		for matiere in matieres[groupe]:
+			Matiere.objects.create_matiere(matiere,niveau)"""
+	
+
+##################################################################################################################
 class Chapitre(models.Model):
 	chapitre=models.CharField(max_length=50)
 	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,verbose_name="Matiere")

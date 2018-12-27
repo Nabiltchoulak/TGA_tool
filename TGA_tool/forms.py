@@ -6,7 +6,14 @@ class ContactForm(forms.Form):
     sujet = forms.CharField(max_length=100)
     message = forms.CharField(widget=forms.Textarea)
     envoyeur = forms.EmailField(label="Votre adresse e-mail", required=True)
-    
+
+class ChapitreForm(forms.Form):
+      chapitre = forms.CharField(max_length=100,required=True)
+
+class NotionForm(forms.Form):
+    notion = forms.CharField(max_length=50)
+    details=forms.CharField(widget=forms.Textarea,required=False)
+  
 class ParentForm(forms.ModelForm):
     class Meta:
         model = Parent
@@ -42,10 +49,8 @@ class Seance_CoachingForm(forms.ModelForm):
         model = Seance_Coaching
         fields = '__all__'
 
-class MatiereForm(forms.ModelForm):
-    class Meta:
-        model = Matiere
-        fields = '__all__'
+class MatiereForm(forms.Form):
+    matiere=forms.ModelChoiceField(queryset=Matiere.objects.all(),help_text="Choisir la matiere")
 
 class SalleForm(forms.ModelForm):
     class Meta:

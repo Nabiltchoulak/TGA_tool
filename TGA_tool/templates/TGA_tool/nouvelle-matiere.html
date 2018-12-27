@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{%load static %}
+{% block title %} Nouvelle matiere {% endblock %}
+{% block content %}
+
+<form action="{% url "nouvelle matiere" %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    
+    <input type="submit" value="Submit"  />
+</form>
+
+{% endblock %}
