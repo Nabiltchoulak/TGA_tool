@@ -13,16 +13,22 @@ class ChapitreForm(forms.Form):
 class NotionForm(forms.Form):
     notion = forms.CharField(max_length=50)
     details=forms.CharField(widget=forms.Textarea,required=False)
-  
+
+class CoursForm(forms.Form):
+    matiere=forms.ModelChoiceField(queryset=Matiere.objects.all())
+    coach=forms.ModelChoiceField(queryset=Coach.objects.all(),required=False)
+
+
 class ParentForm(forms.ModelForm):
     class Meta:
         model = Parent
-        fields = '__all__'
+        exclude = ['user']
+    
 
 class EleveForm(forms.ModelForm):
     class Meta:
         model = Eleve
-        fields = '__all__'
+        exclude=['user','date_inscription','parent_resp','parent_sec','curriculum']
 
 class CoachForm(forms.ModelForm):
     class Meta:
@@ -34,10 +40,7 @@ class CurriculumForm(forms.ModelForm):
         model = Curriculum
         fields = '__all__'
     
-class CoursForm(forms.ModelForm):
-    class Meta:
-        model = Cours
-        fields = '__all__'
+
 
 class Seance_CoursForm(forms.Form):
     seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir le cours a éditer')
