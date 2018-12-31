@@ -4,10 +4,22 @@
 {% block content %}
 
 
-
-<form action="{% url "nouveau eleve" id1 id2 %}" method="post">
+<form action="{% url "eleve arrive" %}" method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    
+    <div style="display:inline-block;">
+    {{parent_form.management_form}}
+   {% for titre,form in parents.items %}
+    <h2>{{titre}}</h2>
+    {{form}}
+    {% endfor %}
+    
+    </div>
+    <br><br>
+    <div>
+    <h2>Eleve:</h2>
+    {{eleve_form.as_p}}
+    </div>
     <span>
     <input type="submit" value="Submit" name="end" />
     </span>
