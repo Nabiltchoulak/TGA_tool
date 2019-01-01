@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Le titre du document</title>
+    <link rel='stylesheet' href='https://fullcalendar.io/js/fullcalendar-3.9.0/fullcalendar.css' />
+    <script src='http://fullcalendar.io/js/fullcalendar-3.9.0/lib/moment.min.js'></script>
+    <script src='http://fullcalendar.io/js/fullcalendar-3.9.0/lib/jquery.min.js'></script>
+    <script src='http://fullcalendar.io/js/fullcalendar-3.9.0/fullcalendar.min.js'></script>
+
+    <script>
+        $(window).on('load',
+            function() {
+
+                // page is now ready, initialize the calendar...
+
+                $('#calendar').fullCalendar({
+                    // put your options and callbacks here
+                    defaultView: 'timelineDay',
+                    header: {
+                        center: 'month,timelineFourDays'
+                    },
+                    views: {
+                        timelineFourDays: {
+                            type: 'timeline',
+                            duration: {
+                                days: 1
+                            }
+                        }
+
+                    }
+                })
+
+            });
+    </script>
+</head>
+
+<body>
+    <!-- Une ou plusieurs balises HTML pour définir le contenu du document -->
+    <span id="texteJQ"></span>
+    <div id='calendar'></div>
+
+
+</body>
+
+</html>

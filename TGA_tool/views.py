@@ -6,7 +6,8 @@ from .forms import *
 def home(request):
     return render(request, 'TGA_tool/home.html')
 
-
+def calendar(request):
+    return render(request,'TGA_tool/calendar/calendar.html')
 def nouveauEleve(request):
     # Construire le formulaire, soit avec les données postées,
     # soit vide si l'utilisateur accède pour la première fois
@@ -15,14 +16,17 @@ def nouveauEleve(request):
     # Nous vérifions que les données envoyées sont valides
     # Cette méthode renvoie False s'il n'y a pas de données 
     # dans le formulaire ou qu'il contient des erreurs.
+    
     if form.is_valid(): 
         # Ici nous pouvons traiter les données du formulaire
         
         form.save()
 
-        # Nous pourrions ici envoyer l'e-mail grâce aux données 
-        # que nous venons de récupérer
-        envoi = True
+        if 'end' in request.POST :#test if the user choosed "submit" 
+            return render(request,'TGA_tool/home.html')
+        elif 'submit & add other' in request.POST :#or "submit && add" 
+            form=EleveForm()#Vider le formulaire 
+            return render(request,'TGA_tool/nouveau-eleve.html', locals())
     
     # Quoiqu'il arrive, on affiche la page du formulaire.
     return render(request,'TGA_tool/nouveau-eleve.html', locals())	
@@ -99,6 +103,7 @@ def seance_cours(request):
             form.fields['chapitre'].queryset=Chapitre.objects.filter(matiere=seance.cours.matiere)
             #chapitre=form.cleaned_data['chapitre']
             form.fields['notion'].queryset=Notions.objects.filter(chapitre=form.cleaned_data['chapitre'])
+            print(seance.pk)
             return render(request,'TGA_tool/modifier-seance_cours.html', locals())
             #print(notion)
             

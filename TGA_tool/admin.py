@@ -56,7 +56,7 @@ class CoursSeanceAdmin(admin.ModelAdmin):
 	}),
 	)
 class FrequenceAdmin(admin.ModelAdmin):
-	fields=('frequence','creneau','jour','day_of_month','intervalle','date_debut','date_limite')
+	fields=('frequence','creneau','jour','day_of_month','period','date_debut','date_limite')
 class CreneauAdmin(admin.ModelAdmin):
 	fields=('debut',)
 admin.site.register(Parent,ParentAdmin)
@@ -72,3 +72,4 @@ admin.site.register(Matiere,MatiereAdmin)
 admin.site.register(Frequence,FrequenceAdmin)
 admin.site.register(Creneau,CreneauAdmin)
 admin.site.register(Curriculum)
+
