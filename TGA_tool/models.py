@@ -26,15 +26,19 @@ class Parent(models.Model):
 
 class Eleve(models.Model):	
 	nom= models.CharField(max_length=42,verbose_name="Nom",unique=True)
-	num= models.CharField(max_length=15,null=True,blank=True,verbose_name="Telephone",unique=True)
-	email=models.EmailField(null=True,blank=True,verbose_name="E-mail",unique=True)
+
+	num= models.CharField(max_length=15,null=True,blank=True,verbose_name="Telephone",unique=True,help_text="Optionnel")
+	email=models.EmailField(null=True,blank=True,verbose_name="E-mail",unique=True,help_text="Optionnel")
+	
 	date_naissance=models.DateField(null=True,blank=True,verbose_name="Date de naissance")
 	parent_resp=models.ForeignKey('Parent',on_delete=models.CASCADE,limit_choices_to={'estResponsable':True},verbose_name="Parent responsable")
 	#Utiliser une liste filtré par un boolean ou une variable d'une clé étrangére
 	parent_sec=models.ForeignKey('Parent',on_delete=models.SET_NULL,null=True,blank=True,limit_choices_to={'estResponsable':False},related_name="secondaire",verbose_name="Parent contact")
-	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,verbose_name="Curriculum")
+	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,verbose_name="Curriculum",blank=True,null=True)
 	cours=models.ManyToManyField('Cours',related_name='cours',blank=True,verbose_name="Cours")
+
 	etablissement=models.CharField(max_length=20,null=True,blank=True)
+
 	user = models.OneToOneField(User,on_delete=models.SET_NULL,null=True,blank=True)
 	#dz= models.BooleanField(verbose_name="Programme Algérien")
 	date_inscription = models.DateField(auto_now=True, verbose_name="Date d'inscription")
@@ -65,12 +69,14 @@ class Cours(models.Model):#Cours est un curriculum(niveau ou groupe) avec une ma
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='curriculum',verbose_name="Curriculum")
 	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,null=True,verbose_name="Matiere")
 	coach=models.ForeignKey('Coach',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Coach")
+	
 	frequence=models.OneToOneField('Frequence',on_delete=models.SET_NULL,null=True,blank=True)
 	class Meta:
 		verbose_name="cours"
 		ordering=['-curriculum','matiere']
+
 	def __str__(self):
-		return "{0} {1}".format(self.matiere, self.curriculum)
+		return "{0}".format(self.matiere)#matiere contient déjà le curriculum
 
 #Intersection entre éléves (cours) ressources 
 class Seance(models.Model):#Seance est une classe abstraite qui englobe les attributs en commun entre Seance_cours et seance_coaching 
@@ -106,15 +112,47 @@ class Seance_Coaching(Seance):
 		str_cre=str(self.date)#timefield n'est pas un string ne peut étre retourné 
 		return "Coaching {0} {1} ".format(self.matiere,str_cre)
 
+################################################################################################################### Work here on matiere 
+class MatiereCreator(models.Manager):
+	def create_matiere(self, matiere,curriculum):
+		matiere=self.create(matiere=matiere,curriculum=curriculum)
+		return matiere
 
 class Matiere(models.Model):
-	matiere=models.CharField(max_length=14,verbose_name="Matiere")
+	matiere_choices=(("Mathématiques","Mathématiques"),("Physique","Physique"),("SVT","SVT"),("Français","Français"),("Anglais","Anglais"),("Technologie","Technologie"),("SES","SES"),("Philosophie","Philosophie"),)
+	matiere=models.CharField(max_length=16,choices=matiere_choices,verbose_name="Matiere")
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='matiere',verbose_name="Curriculum")
+	objects = MatiereCreator()#ajouter une methode manager au object
 	class Meta:
 		verbose_name="matiere"
+		ordering=['-curriculum','matiere']
 	def __str__(self):
-		return "{0} {1}".format(self.matiere, self.curriculum)
+		return "{0} {1}".format(self.curriculum,self.matiere)
+#Cette partie est dédiée pour générer les instances connues déjà de matière 
+#dés que le serveur commence a tourner on a un problème de "Models aren't loaded yet"
+#On va régler cela avec les middleware 
+""""
+curriculum= Curriculum.objects.all()
+matieres={}
 
+for niveau in curriculum:
+	matieres[niveau.niveau]=["Mathématiques","Physique","SVT","Français","Anglais"]
+	if niveau.niveau=='Sixième'or niveau.niveau=='Cinquième'or niveau.niveau=='Quatrième'or niveau.niveau=='DNB':
+		matieres[niveau.niveau].append("Technologie")
+	elif niveau.niveau=='CP'or niveau.niveau=='CE'or niveau.niveau=='CE2'or niveau.niveau=='CM1'or niveau.niveau=='CM2':
+		matieres[niveau.niveau].remove("Physique")
+		matieres[niveau.niveau].remove("SVT")
+	elif niveau.niveau=='Terminal S' or niveau.niveau=='Terminal ES':
+		matieres[niveau.niveau].append("Philosophie")
+	elif niveau.niveau=='Première ES' or niveau.niveau=='Terminal ES':
+		matieres[niveau.niveau].append("SES")
+if len(Matiere.objects.all())==0 :
+	for groupe in list(matieres.keys()):
+		for matiere in matieres[groupe]:
+			Matiere.objects.create_matiere(matiere,niveau)"""
+	
+
+##################################################################################################################
 class Chapitre(models.Model):
 	chapitre=models.CharField(max_length=50)
 	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,verbose_name="Matiere")
@@ -172,25 +210,25 @@ class Frequence(models.Model):
 		('Frequence',(
 			("Une seance","Une séance"),
 			("Chaque jour","Chaque jour"),
-			("Un jour chaque semaine","Un jour chaque semaine"),
-			("Un jour chaque mois","Un jour chaque mois"),
+			("Un jour chaque semaine","Chaque semaine"),
+			("Un jour chaque mois","Chaque mois"),
 				)
 			),
 		('Personalisé',(
-			("Jours",'Chaque x jours'),
-			("Semaines",'Chaque x semaines'),
-			("Mois",'Chaque x mois'),
+			("Jours",'Chaque X jours'),
+			("Semaines",'Chaque X semaines'),
+			("Mois",'Chaque X mois'),
 				)
 			),
 	)
-	frequence=models.CharField(max_length=30,choices=freq_choices,default="Une seance",verbose_name="Fréquence")
-	period=models.PositiveIntegerField(verbose_name="Chaque",help_text="Periodicité dans l'intervalle de temps",blank=True,null=True)#x times each week/month/day
 	day_choices=((7,'Dimanche'),(1,'Lundi'),(2,'Mardi'),(3,'Mercredi'),(4,'Jeudi'),(5,'Vendredi'),(6,'Samedi'),)#les numéros font référence a l'isoweekday
-	jour=models.PositiveIntegerField(blank=True,null=True,choices=day_choices)#jour de la semaine iso 
-	day_of_month=models.PositiveIntegerField(verbose_name="Jour du mois",blank=True,null=True)
-	date_limite=models.DateField(verbose_name="Fin de la période",blank=True,null=True)
-	date_debut=models.DateField(verbose_name="Debut de la période",blank=True,null=True)#le premier jour de la semiane dans la calendrier iso est le lundi
-	creneau=models.ForeignKey('Creneau',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Creneau")
+	frequence=models.CharField(max_length=30,choices=freq_choices,default="Une seance",verbose_name="Fréquence")
+	creneau=models.ForeignKey('Creneau',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Creneau",help_text="Créneau dans la journée")
+	jour=models.PositiveIntegerField(blank=True,null=True,choices=day_choices,verbose_name="Jour de la semaine",help_text="Pour les fréquences: ''Chaque semaine'' et ''Chaque X semaines''")#jour de la semaine iso 
+	day_of_month=models.PositiveIntegerField(verbose_name="Jour du mois",blank=True,null=True,help_text="Pour les fréquences: ""Chaque mois"" et ''Chaque X mois' ")
+	period=models.PositiveIntegerField(verbose_name="Période",help_text="Chaque X jours/semaines/mois",blank=True,null=True)#x times each week/month/day
+	date_debut=models.DateField(verbose_name="Debut du cours",blank=True,null=True,help_text="Date du début du cours")#le premier jour de la semiane dans la calendrier iso est le lundi
+	date_limite=models.DateField(verbose_name="Fin du cours",blank=True,null=True,help_text="Date de la fin du cours")
 	class Meta:
 		verbose_name="fréquence"
 	def __str__(self):

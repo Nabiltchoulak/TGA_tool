@@ -37,6 +37,7 @@ class MatiereAdmin(admin.ModelAdmin):
 class ChapitreAdmin(admin.ModelAdmin):
 	list_filter=('matiere',)
 	list_display=('chapitre','matiere')
+	fields=('matiere','chapitre')
 class NotionsAdmin(admin.ModelAdmin):
 	list_filter=('chapitre',)
 	list_display=('chapitre','notion')

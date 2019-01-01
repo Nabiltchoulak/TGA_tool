@@ -1,0 +1,7 @@
+TGA_tool/migrations/__init__.py
+TGA_tool/migrations/__pycache__/*
+TGA_tool/__pycache__/*
+TGA_tool/migrations/*
+TGA_tool/__init__.py
+TGA_2/__init__.py
+TGA_2/__pycache__/*
