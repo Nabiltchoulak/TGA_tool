@@ -8,6 +8,11 @@
     
     <script src="{% static 'jquery/jquery.js' %}"></script> 
     <link rel="stylesheet" href="{% static 'css/kosygin-style.css' %}" type="text/css" />
+    <link rel='stylesheet' href="{% static 'calendar/fullcalendar.css' %}" type ="text/css"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'calendar/fullcalendar.print.min.css' %}" media="print" /> 
+    <script src="{% static 'calendar/lib/moment.min.js' %}"></script>
+    <script src="{% static 'calendar/lib/jquery.min.js' %}"></script>
+    <script src="{% static 'calendar/fullcalendar.min.js' %}"></script>   
 
     <style type="text/css">
 
@@ -28,6 +33,13 @@
         
             <a href="/TGA_tool/home.html">Home</a>
             <a href="#news">Notifications</a>
+            {% if user.is_authenticated %}
+            <a href = "/TGA_tool/deconnexion"> Déconnexion </a>
+            
+            {% else %}
+            <a href = "/TGA_tool/connexion"> Connexion </a>
+            {% endif %}
+
             <button type="submit">Submit</button>
             <input type="text" placeholder="Search..">
 
@@ -40,9 +52,8 @@
           <button class="accordion">Inscription</button>
           <div class="panel">
           <ul>
-             <li><a href="/TGA_tool/eleve-arrive.html"> +Eleve </a></li>
-            
-             <li><a href="/TGA_tool/nouveau-coach.html"> Coach </a></li>
+            <li><a href="/TGA_tool/nouvelle-famille.html"> +Famille </a></li>      
+             <li><a href="/TGA_tool/nouveau-coach.html"> +Coach </a></li>
 
           </ul>
           </div>
@@ -52,21 +63,20 @@
             <ul>
                 <li><a href="/TGA_tool/nouveau-cours.html"> +Cours</a> </li>
                 <li><a href="/TGA_tool/modifier-seance_cours.html">Séance cours</a></li>
-                <li><a href="/TGA_tool/nouvelle-matiere.html">Programme</a></li>
-                <li><a href="/TGA_tool/calendar.html">Calendrier</a></li>
+                <li><a href="/TGA_tool/nouvelle-matiere.html">+Matière</a></li>
+                
                 <li> autre ... </li>
 
             </ul>
           </div>
 
-          <button class="accordion">Suivi cours</button>
+          <button class="accordion">Suivi pédagogique</button>
           <div class="panel">
             <ul>
-                <li><a href="/admin/material-insert.html">Add material</a></li>
-                <li><a href="/admin/container-insert.html">Add container</a> </li>
-                <li>Suivi présence</li>
-                <li>Suivi pédagogique </li>
-            </ul>
+                <li><a href="/TGA_tool/mes-cours.html"> Mes cours</a></li>
+                <li><a href="/TGA_tool/calendar.html">Mon planning des séances </a></li>
+                <li><a href="/admin/container-insert.html">Déclaration de séance</a> </li>
+                <li><a href="/admin/container-insert.html">Relevé des absences</a> </li>
           </div>
 
           <button class="accordion">Suivi paiements</button>
@@ -100,7 +110,6 @@
           <section id="main">
 
              {% block content %}{% endblock %}
-        
 
           </section>
 
@@ -111,10 +120,11 @@
     <div class="footer">
       <p>TGA Excellence Center Copyright 2018</p>
     </div>
-
+}
   </body>
 </html>
 
+{% block javascript %}{% endblock %}
 
 <script type="text/javascript">
 
@@ -143,10 +153,6 @@ if ( getContentHeight > getSidebarHeight ) {
 if ( getSidebarHeight > getContentHeight ) {
   content.css('min-height', getSidebarHeight);
 }
-
-
-
-
 
 // Accordeon
 var acc = document.getElementsByClassName("accordion");

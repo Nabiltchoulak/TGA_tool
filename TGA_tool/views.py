@@ -5,57 +5,137 @@ from django.forms import formset_factory
 from django.forms.models import modelformset_factory
 from django.urls import reverse
 from urllib.parse import urlencode
+from django.contrib.auth import authenticate, login, logout
+from django.db.models import Q
+import datetime
+import json
+from django.http import JsonResponse
+
 
 # Create your views here.
+def home(request):
+    return render(request, 'TGA_tool/home.html')
 
-# Create your views here.
 def calendar(request):
-    return render(request,'TGA_tool/calendar/calendar.html')
+    return render(request,'TGA_tool/calendar.html')
 
-    
+def nouvelleFamille(request):
+    form = FamilleForm(request.POST or None)
+    if form.is_valid():
+        famille = form.save()
+        envoi = True
+        return redirect(nouveauParent, famille.id)#envoyer l'id en paramétre
+        
+    return render(request, 'TGA_tool/nouvelle-famille.html',locals())
+
+def nouveauParent(request, id):
+    form = ParentForm(request.POST or None)
+    if form.is_valid(): 
+        parent = form.save(commit=False)
+        parent.famille = Famille.objects.get(id=id)
+        print(parent.famille.id)
+        parent.save()
+        form.save_m2m()
+
+        if 'end' in request.POST :#test if the user choosed "submit" 
+            return redirect(nouveauEleve, id) #renvoyer vers le formulaire d'ajout d'élèves avec l'id famille en paramétre
+        elif 'submit & add other' in request.POST :#or "submit && add" 
+            form=ParentForm()#Vider le formulaire 
+            return render(request,'TGA_tool/nouveau-parent.html', locals())
+
+    return render(request, 'TGA_tool/nouveau-parent.html', locals())    
+
+def nouveauEleve(request, id):
+    form = EleveForm(request.POST or None)
+    if form.is_valid(): 
+        eleve = form.save(commit=False)
+        eleve.famille = Famille.objects.get(id=id)
+        eleve.save()
+        form.save_m2m()
+
+        if 'end' in request.POST :#test if the user choosed "submit" 
+            return render(request,'TGA_tool/home.html')
+        elif 'submit & add other' in request.POST :#or "submit && add" 
+            form=EleveForm()#Vider le formulaire 
+            return render(request,'TGA_tool/nouveau-eleve.html', locals())
+
     # Quoiqu'il arrive, on affiche la page du formulaire.
     return render(request,'TGA_tool/nouveau-eleve.html', locals())	
 
-
-def nouveauParent(request):
-    # Construire le formulaire, soit avec les données postées,
-    # soit vide si l'utilisateur accède pour la première fois
-    # à la page.
-    form = ParentForm(request.POST or None)
-    # Nous vérifions que les données envoyées sont valides
-    # Cette méthode renvoie False s'il n'y a pas de données 
-    # dans le formulaire ou qu'il contient des erreurs.
-    if form.is_valid(): 
-        # Ici nous pouvons traiter les données du formulaire
-        
-        form.save()
-
-        # Nous pourrions ici envoyer l'e-mail grâce aux données 
-        # que nous venons de récupérer
-        envoi = True
-    
-    # Quoiqu'il arrive, on affiche la page du formulaire.
-    return render(request, 'TGA_tool/nouveau-parent.html', locals())	
-
 def nouveauCoach(request):
-    # Construire le formulaire, soit avec les données postées,
-    # soit vide si l'utilisateur accède pour la première fois
-    # à la page.
     form = CoachForm(request.POST or None)
-    # Nous vérifions que les données envoyées sont valides
-    # Cette méthode renvoie False s'il n'y a pas de données 
-    # dans le formulaire ou qu'il contient des erreurs.
     if form.is_valid(): 
-        # Ici nous pouvons traiter les données du formulaire
-        
-        form.save()
+        #Création de l'utilisateur 
+        user = User.objects.create_user(form.cleaned_data["prenom"], form.cleaned_data["email"] , 'TGA123')
 
-        # Nous pourrions ici envoyer l'e-mail grâce aux données 
-        # que nous venons de récupérer
+        #Extension du profile
+        coach = form.save(commit=False)
+        coach.user = user
+        coach.save()    
+        form.save_m2m()
         envoi = True
+
+    if 'end' in request.POST :#test if the user choosed "submit" 
+        return render(request,'TGA_tool/home.html')
+    elif 'submit & add other' in request.POST :#or "submit && add" 
+        form=CoachForm()#Vider le formulaire 
+        return render(request,'TGA_tool/nouveau-coach.html', locals())
     
-    # Quoiqu'il arrive, on affiche la page du formulaire.
     return render(request, 'TGA_tool/nouveau-coach.html', locals())	
+
+def connexion(request):
+    error = False
+    form = ConnexionForm(request.POST or None)
+    if form.is_valid():
+        username = form.cleaned_data["username"]
+        password = form.cleaned_data["password"]
+        user = authenticate(username=username, password=password)  # Nous vérifions si les données sont correctes
+        if user is not None:  # Si l'objet renvoyé n'est pas None
+            login(request, user)  # nous connectons l'utilisateur
+            return redirect('home.html')
+        else: # sinon une erreur sera affichée
+            error = True
+  
+    return render(request, 'TGA_tool/login-coach.html', locals())
+
+def deconnexion(request):
+    logout(request)
+    return redirect("connexion")
+
+#@login_required
+def mesCours(request):
+    id = request.user.id
+    coach = Coach.objects.get(user = id)
+    cours = Cours.objects.filter(coach = coach.id)
+
+    listecours =[]
+
+    for cour in cours:
+        listecours.append({'id': cour.id, 'curriculum': cour.matiere.curriculum.niveau, 'matiere': cour.matiere.matiere, 'frequence': cour.frequence.frequence})
+
+    
+    return render(request,'TGA_tool/cours-du-coach.html', locals())
+
+def mesSeances(request):
+    username = request.GET.get('id', None)
+    i = 1
+    id = request.user.id
+    coach = Coach.objects.get(user = id)
+    cours = Cours.objects.filter(coach = coach.id)
+    listeseances =[]
+    for cour in cours:
+        seances = Seance_Cours.objects.filter(cours = cour.id)
+        for seance in seances:
+             #listeseances.append({'id': seance.id, 'curriculum': seance.cours.matiere.curriculum.niveau, 'matiere': seance.cours.matiere.matiere, 'date' : str(seance.date), 'start' : str(seance.creneau.debut)})       
+            listeseances.append({'title': seance.cours.matiere.curriculum.niveau + " - " + seance.cours.matiere.matiere, 'start' : str(seance.date)+"T"+str(seance.creneau.debut)})
+    
+    data = listeseances
+    #data = json.dumps({"seances": listeseances})
+    
+    #return render(request,'TGA_tool/home.html', locals())
+    return JsonResponse(data, safe=False)
+
+
 
 def contact(request):
     # Construire le formulaire, soit avec les données postées,
@@ -100,6 +180,7 @@ def seance_cours(request):
             return render(request,'TGA_tool/home.html', locals())
             print(seance)
     return render(request,'TGA_tool/modifier-seance_cours.html', locals())	
+
 def matiere(request):
     form = MatiereForm(request.POST or None)
     if form.is_valid():
@@ -145,6 +226,8 @@ def nouveauCours(request):
             return render(request, 'TGA_tool/nouveau-cours.html',locals())
     return render(request, 'TGA_tool/nouveau-cours.html',locals())
 
+
+
 def eleveArrive(request):
     parents_titles=['Parent responsable','Parent contact']
     ParentFormset = modelformset_factory(Parent,form=ParentForm,extra=2,max_num=2)
@@ -188,21 +271,3 @@ def eleveArrive(request):
             url = '{}?{}'.format(base_url, query_string)  # 3 /products/?category=42"""
             return redirect(nouveauEleve,args=ids)   
     return render(request, 'TGA_tool/eleve-arrive.html',locals())
-
-def nouveauEleve(request,ids):
-    #print(request.GET.get('ids'))
-    print(request.GET)
-    """
-    form = EleveForm(request.POST or None)
-    if form.is_valid(): 
-        eleve=form.save(commit=False)
-        eleve.parent_resp=Parent.objects.get(id=ids[0])
-        eleve.parent_sec=Parent.objects.get(id=ids[1])
-        eleve.save()
-        form.save_m2m()
-        if 'end' in request.POST :#test if the user choosed "submit" 
-            return render(request,'TGA_tool/home.html')
-        elif 'submit & add other' in request.POST :#or "submit && add" 
-            form=EleveForm()#Vider le formulaire 
-            return render(request,'TGA_tool/nouveau-eleve.html', locals())"""
-    return render(request, 'TGA_tool/nouveau-eleve.html',locals())

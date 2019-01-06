@@ -7,42 +7,87 @@ from . import date_manager
 from django.db.models.signals import post_save
 from django.dispatch import receiver 
 from django.contrib.auth.models import User
+
+class Resource(models.Model):
+	disponibilite=models.CharField(max_length=15,blank=True)
+
+	class Meta:
+		abstract=True
+
+
+class Famille(models.Model):
+	nom= models.CharField(max_length=42,verbose_name="Nom de famille", unique= False)
+	adresse = models.CharField(max_length=42,verbose_name="Adresse de famille", unique = True)
+
+	class Meta:
+		verbose_name="Famille"
+		ordering=['nom']
+
+	def __str__(self):
+		return '%s %s' % (self.nom, self.adresse)
+
 class Parent(models.Model):
-	nom= models.CharField(max_length=42,verbose_name="Nom",unique=True)
-	num_tel= models.CharField(max_length=15,verbose_name="Telephone",unique=True)
-	mail= models.EmailField(verbose_name="E-mail",unique=True,blank=True)
-	adresse = models.CharField(max_length=150,blank=True,verbose_name="Adresse")
-	estResponsable= models.BooleanField(verbose_name="Responsable de l'enfant")
+	# Information générales
+	genre_choices=(("M.","Monsieur"),("Mme.","Madame"),("Mlle","Mademoiselle"),)
+	genre=models.CharField(max_length=10,choices=genre_choices,default="M.",verbose_name="Civilité")
+	prenom = models.CharField(max_length=42,verbose_name="Prénom",unique=False, default="")
+	nom= models.CharField(max_length=42,verbose_name="Nom",unique=False)
+	telephone= models.CharField(max_length=15,verbose_name="Telephone",unique=True)
+	email= models.EmailField(verbose_name="E-mail",unique=True,blank=True)
+	famille = models.ForeignKey('Famille', on_delete = models.CASCADE, verbose_name="Famille - adresse", null=False,default= 1)
+	estResponsable= models.BooleanField(verbose_name="Parent principal", default=False)
+	
+	# Information du compte utilisateur
 	date_inscription = models.DateField(auto_now=True, verbose_name="Date d'inscription")
 	user = models.OneToOneField(User,on_delete=models.SET_NULL,null=True,blank=True)
-	#canal = models.
+
 	class Meta:
 		verbose_name="parent"
 		ordering=['nom']
 
 	def __str__(self):
-		return self.nom
+		return '%s %s' % (self.prenom, self.nom)
 
 
 class Eleve(models.Model):	
+
+	# Informations générales
 	nom= models.CharField(max_length=42,verbose_name="Nom",unique=True)
+	date_naissance=models.DateField(null=True,blank=True,verbose_name="Date de naissance")
 	num= models.CharField(max_length=15,null=True,blank=True,verbose_name="Telephone",unique=True,help_text="Optionnel")
 	email=models.EmailField(null=True,blank=True,verbose_name="E-mail",unique=True,help_text="Optionnel")
+	famille = models.ForeignKey('Famille',on_delete=models.CASCADE,verbose_name="Famille - adresse", default=1)
+
+	# Informations scolarités
 	etablissement=models.CharField(max_length=20,null=True,blank=True)
-	date_naissance=models.DateField(null=True,blank=True,verbose_name="Date de naissance")
-	parent_resp=models.ForeignKey('Parent',on_delete=models.CASCADE,limit_choices_to={'estResponsable':True},verbose_name="Parent responsable")
-	#Utiliser une liste filtré par un boolean ou une variable d'une clé étrangére
-	parent_sec=models.ForeignKey('Parent',on_delete=models.SET_NULL,null=True,blank=True,limit_choices_to={'estResponsable':False},related_name="secondaire",verbose_name="Parent contact")
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,verbose_name="Curriculum",blank=True,null=True)
 	cours=models.ManyToManyField('Cours',related_name='cours',blank=True,verbose_name="Cours")
+
+	# Information du compte utilisateur
 	user = models.OneToOneField(User,on_delete=models.SET_NULL,null=True,blank=True)
-	#dz= models.BooleanField(verbose_name="Programme Algérien")
 	date_inscription = models.DateField(auto_now=True, verbose_name="Date d'inscription")
 	class Meta:
 		verbose_name="eleve"
 		ordering=['nom']
 	def __str__(self):
 		return self.nom
+
+class Coach(Resource):
+	genre_choices=(("M.","Monsieur"),("Mme.","Madame"),("Mlle","Mademoiselle"),)
+	genre=models.CharField(max_length=10,choices=genre_choices,default="M.",verbose_name="Civilité")
+	prenom=models.CharField(max_length=42,verbose_name="Prénom",unique=True, default="")
+	nom=models.CharField(max_length=42,verbose_name="Nom",unique=True)
+	telephone=models.CharField(max_length=15,verbose_name="Telephone",unique=True,null=True,blank=True)
+	email= models.EmailField(verbose_name="E-mail",null=True,blank=True,unique=True)
+	matieres=models.ManyToManyField('Matiere',related_name="enseigne",verbose_name="matieres",help_text='Les matières que peut enseigner ce coach')
+	user = models.OneToOneField(User, on_delete = models.CASCADE)
+	#matrice_dispo pour gérer les disponibilités
+	#matrice_polyvalence pour gérer la polyvalence des coachs
+	class Meta:
+		verbose_name="coach"	
+		ordering=['nom']
+	def __str__(self):
+		return "{0} {1}".format(self.prenom,self.nom)
 
 ###################################################################### Création des groupes, se fait automatiquement selon la liste pas besoin de la toucher 
 class CurriculumCreator(models.Manager):
@@ -60,15 +105,18 @@ NIV=['CP','CE','CE2','CM1','CM2','Sixième','Cinquième','Quatrième','DNB','Sec
 if (len(Curriculum.objects.all()))<2:
 	for niv in range(13):
 		Curriculum.objects.create_group(NIV[niv])
+
 #####################################################################
 class Cours(models.Model):#Cours est un curriculum(niveau ou groupe) avec une matiére et un coach
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='curriculum',verbose_name="Curriculum")
 	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,null=True,verbose_name="Matiere")
 	coach=models.ForeignKey('Coach',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Coach")
-	frequence=models.ForeignKey('Frequence',on_delete=models.SET_NULL,null=True,blank=True)
+	frequence=models.OneToOneField('Frequence',on_delete=models.SET_NULL,null=True,blank=True)
+
 	class Meta:
 		verbose_name="cours"
-		ordering=['matiere']
+		ordering=['-curriculum','matiere']
+
 	def __str__(self):
 		return "{0}".format(self.matiere)#matiere contient déjà le curriculum
 
@@ -114,6 +162,7 @@ class MatiereCreator(models.Manager):
 
 class Matiere(models.Model):
 	matiere_choices=(("Mathématiques","Mathématiques"),("Physique","Physique"),("SVT","SVT"),("Français","Français"),("Anglais","Anglais"),("Technologie","Technologie"),("SES","SES"),("Philosophie","Philosophie"),)
+	
 	matiere=models.CharField(max_length=16,choices=matiere_choices,verbose_name="Matiere")
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='matiere',verbose_name="Curriculum")
 	objects = MatiereCreator()#ajouter une methode manager au object
@@ -122,6 +171,7 @@ class Matiere(models.Model):
 		ordering=['-curriculum','matiere']
 	def __str__(self):
 		return "{0} {1}".format(self.curriculum,self.matiere)
+
 #Cette partie est dédiée pour générer les instances connues déjà de matière 
 #dés que le serveur commence a tourner on a un problème de "Models aren't loaded yet"
 #On va régler cela avec les middleware 
@@ -156,6 +206,7 @@ class Chapitre(models.Model):
 	class Meta:
 		verbose_name="chapitre"
 		ordering=['matiere','chapitre']
+
 class Notions(models.Model):
 	notion=models.CharField(max_length=50,verbose_name="Notion")
 	details=models.TextField(blank=True,null=True,verbose_name="Details")
@@ -166,25 +217,8 @@ class Notions(models.Model):
 	def __str__(self):
 		return self.notion
 
-class Resource(models.Model):
-	disponibilité=models.CharField(max_length=15,blank=True)
 
-	class Meta:
-		abstract=True
-		
-class Coach(Resource):
-	nom=models.CharField(max_length=42,verbose_name="Nom",unique=True)
-	telphone=models.CharField(max_length=15,verbose_name="Telephone",unique=True,null=True,blank=True)
-	mail= models.EmailField(verbose_name="E-mail",null=True,blank=True,unique=True)
-	matieres=models.ManyToManyField('Matiere',related_name="enseigne",verbose_name="matieres",help_text='Les matières que peut enseigner ce coach')
-	user = models.OneToOneField(User,on_delete=models.SET_NULL,null=True,blank=True)
-	#matrice_dispo
-	#matrice_polyvalence
-	class Meta:
-		verbose_name="coach"
-		ordering=['nom']
-	def __str__(self):
-		return self.nom
+
 
 class Salle(Resource):
 	nom=models.CharField(max_length=42,verbose_name="Nom",unique=True)
@@ -235,9 +269,11 @@ class CreneauCreator(models.Manager):
 	def create_creneau(self,debut):
 		creneau=self.create(debut=debut)
 		return creneau
+
 class Creneau(models.Model):
 	debut=models.TimeField()
-	fin=models.TimeField(blank=True,null=True)#Va se préciser lors de l'appe de __str__
+	fin=models.TimeField(blank=True,null=True)#Va se préciser lors de l'appel de __str__
+	
 	objects=CreneauCreator()#pour l'appel du manager
 	def __str__(self):
 		#Ici on va profiter de l'appel de __str__ pour préciser l'heure de fin pour chaque créneau qui est toujours heuredebut + 1h30

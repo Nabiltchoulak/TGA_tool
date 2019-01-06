@@ -3,9 +3,10 @@
 {% block title %} Nouveau élève {% endblock %}
 {% block content %}
 
+{% if envoi %} L'élève a été bien ajouté !{% endif %}
+<h2>Ajouter un nouveau élève</h2>
+<form action="{% url "nouveau eleve" id %}" method="post">
 
-
-<form action="{% url "nouveau eleve" id1 id2 %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <span>
