@@ -22,31 +22,37 @@ class CoursForm(forms.Form):
 class ParentForm(forms.ModelForm):
     class Meta:
         model = Parent
-        exclude = ['user']
+        exclude = ['user', 'famille']
     
 
 class EleveForm(forms.ModelForm):
     class Meta:
         model = Eleve
-        exclude=['user','date_inscription','parent_resp','parent_sec','curriculum']
+        exclude=['user','date_inscription', 'famille']
 
 class CoachForm(forms.ModelForm):
     class Meta:
         model = Coach
-        fields = '__all__'
+        exclude = ['disponibilite', 'user']
 
 class CurriculumForm(forms.ModelForm):
     class Meta:
         model = Curriculum
         fields = '__all__'
+
+class FamilleForm(forms.ModelForm):
+    class Meta:
+        model = Famille
+        fields = '__all__'
     
 
-
 class Seance_CoursForm(forms.Form):
-    seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir le cours a éditer')
+    seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir le cours a éditer', widget=forms.CheckboxInput)
     salle = forms.ModelChoiceField(queryset=Salle.objects.all(),help_text='Choisir la salle',required=False)
     chapitre = forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
     notion=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False)
+
+
 class Seance_CoachingForm(forms.ModelForm):
     class Meta:
         model = Seance_Coaching
@@ -64,3 +70,7 @@ class FrequenceForm(forms.ModelForm):
     class Meta:
         model = Frequence
         fields = '__all__'
+
+class ConnexionForm(forms.Form):
+    username = forms.CharField(label="Nom d'utilisateur", max_length=30)
+    password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput)

@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{%load static %}
+{% block title %} Nouvelle famille {% endblock %}
+{% block content %}
+
+{% if envoi %} La famille a été bien ajoutée !{% endif %}
+<h2>Ajouter une nouvelle famille </h2>
+<form action="{% url "nouvelle famille" %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit" />
+</form>
+{% endblock %}

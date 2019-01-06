@@ -5,9 +5,14 @@
 
 {% if envoi %} Le parent a été bien ajouté !{% endif %}
 <h2>Ajouter un nouveau parent</h2>
-<form action="{% url "nouveau parent" %}" method="post">
+<form action="{% url "nouveau parent" id %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Submit" />
+     <span>
+    <input type="submit" value="Submit" name="end" />
+    </span>
+    <span>
+        <input type="submit" value="Submit & add other" name="submit & add other"/>
+    </span> 
 </form>
 {% endblock %}

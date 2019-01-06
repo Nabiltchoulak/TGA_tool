@@ -3,14 +3,14 @@ from TGA_tool.models import Parent,Eleve,Cours,Seance_Cours,Seance_Coaching,Coac
 
 # Register your models here.
 class ParentAdmin(admin.ModelAdmin):
-	list_display   = ('nom', 'mail', 'num_tel', 'mail','adresse','estResponsable')
+	list_display   = ('nom', 'email', 'telephone', 'email','estResponsable')
 	list_filter    = ('estResponsable','date_inscription', )
     #date_hierarchy = 'date_inscription'
 	ordering       = ('date_inscription', )
-	search_fields  = ('nom', 'num_tel','date_inscription')
+	search_fields  = ('nom', 'telephone','date_inscription')
 class EleveAdmin(admin.ModelAdmin):
-	list_display   = ('nom','date_naissance','num', 'email','etablissement','parent_resp','parent_sec','curriculum')
-	list_filter    = ('date_inscription','parent_resp','parent_sec','curriculum','cours','etablissement' )
+	list_display   = ('nom','date_naissance','num', 'email','etablissement','famille','curriculum')
+	list_filter    = ('date_inscription','famille','curriculum','cours','etablissement' )
     #date_hierarchy = 'date_inscription'
 	ordering       = ('date_inscription', )
 	search_fields  = ('nom','num','date_inscription')
@@ -18,9 +18,9 @@ class EleveAdmin(admin.ModelAdmin):
 		('Coordonnés',{
 		'fields':('nom','num','email','date_naissance','etablissement')			
 			}),
-		('Parents',{
-			'description':'Tuteurs de l\'élève',
-			'fields':('parent_resp','parent_sec',)
+		('Famille',{
+			'description':'Famille de l\'élève',
+			'fields':('famille',)
 			}),
 		('Matiere',{
 			'fields':('curriculum','cours',)
