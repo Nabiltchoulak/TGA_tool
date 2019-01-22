@@ -29,5 +29,5 @@ urlpatterns = [
     url(r'^mes-seances.html/$',views.mesSeances, name= 'mes seances'), #id du coach
     path('displayseance.html/<int:id>',views.displaySeance,name='display seance'),
     path('annulerseance.html/<int:id>',views.annulerSeance,name='annuler seance'),
-
+    path('edit-seance.html/<int:id>',views.modifierSeance,name='edit seance'),
 ]

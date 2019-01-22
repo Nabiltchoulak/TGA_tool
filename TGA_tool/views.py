@@ -132,9 +132,7 @@ def mesSeances(request):
                 'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "displayseance.html/" + str(seance.id)})
     
     data = listeseances
-    #data = json.dumps({"seances": listeseances})
-    
-    #return render(request,'TGA_tool/home.html', locals())
+
     return JsonResponse(data, safe=False)
 
 def displaySeance(request,id):
@@ -163,6 +161,15 @@ def annulerSeance(request,id):
     seance.save()
     messages.add_message(request, messages.SUCCESS, 'La séance a été annulée !')
     return redirect(displaySeance, id)
+
+def modifierSeance(request,id):
+    seance = Seance_Cours.objects.get(id=id)
+    form = SeanceForm(request.POST or None, instance= seance)
+
+    if form.is_valid():
+        form.save()
+        return redirect(displaySeance, id)
+    return render(request, 'TGA_tool/edit-seance.html', locals()) 
 
 
 #def declarerSeance(request,id):
