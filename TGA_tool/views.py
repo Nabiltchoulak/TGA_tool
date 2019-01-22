@@ -8,8 +8,10 @@ from urllib.parse import urlencode
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
 import datetime
+from datetime import timedelta  
 import json
 from django.http import JsonResponse
+from django.contrib import messages
 
 
 # Create your views here.
@@ -117,8 +119,7 @@ def mesCours(request):
     return render(request,'TGA_tool/cours-du-coach.html', locals())
 
 def mesSeances(request):
-    username = request.GET.get('id', None)
-    i = 1
+ 
     id = request.user.id
     coach = Coach.objects.get(user = id)
     cours = Cours.objects.filter(coach = coach.id)
@@ -127,7 +128,8 @@ def mesSeances(request):
         seances = Seance_Cours.objects.filter(cours = cour.id)
         for seance in seances:
              #listeseances.append({'id': seance.id, 'curriculum': seance.cours.matiere.curriculum.niveau, 'matiere': seance.cours.matiere.matiere, 'date' : str(seance.date), 'start' : str(seance.creneau.debut)})       
-            listeseances.append({'title': seance.cours.matiere.curriculum.niveau + " - " + seance.cours.matiere.matiere, 'start' : str(seance.date)+"T"+str(seance.creneau.debut)})
+            listeseances.append({'title': seance.cours.matiere.curriculum.niveau + " - " + seance.cours.matiere.matiere, 
+                'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "displayseance.html/" + str(seance.id)})
     
     data = listeseances
     #data = json.dumps({"seances": listeseances})
@@ -135,7 +137,47 @@ def mesSeances(request):
     #return render(request,'TGA_tool/home.html', locals())
     return JsonResponse(data, safe=False)
 
+def displaySeance(request,id):
+    #Cette vue permet d'afficher les détails d'une séance 
+    # infos de la séances (date,heure, salle, chapitre, notions)
+    # groupe d'élève de la séance
+    # trois boutons : annuler, modifier,   déclarer
+    seance = Seance_Cours.objects.get(id = id)
+    seance_id =seance.id
+    date_seance = str(seance.date)
+    heure_seance = str(seance.creneau.debut)
+    salle_seance =  seance.salle
+    matiere = seance.cours.matiere.matiere
+    chapitre = seance.chapitre
+    notions = seance.notions
+    eleves = Eleve.objects.filter(cours=seance.cours.id)
+    statut = seance.statut
+    displayMode = 1 # 1 : par défaut, 2 : modifier, 3 : déclarer
 
+
+    return render(request, 'TGA_tool/display-seance.html', locals())
+
+def annulerSeance(request,id):
+    seance = Seance_Cours.objects.get(id = id)
+    seance.statut = "AN"
+    seance.save()
+    messages.add_message(request, messages.SUCCESS, 'La séance a été annulée !')
+    return redirect(displaySeance, id)
+
+
+#def declarerSeance(request,id):
+    #seance = Seance_Cours.objects.get(id = id)
+    # Renseigner le chapitre et notions vues dans le cours
+
+    # déclarer les élèves présents
+
+    # Changer le status de la séance
+
+    # Créer un avoir pour les parents des élèves en fonction du type de la séance
+
+    # optionnel : envoi d'un email au parent
+
+    
 
 def contact(request):
     # Construire le formulaire, soit avec les données postées,

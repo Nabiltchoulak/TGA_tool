@@ -25,7 +25,9 @@ urlpatterns = [
     path('eleve-arrive.html', views.eleveArrive, name="eleve arrive"),
 
     # Les urls du profile du coach
-     path('mes-cours.html',views.mesCours,name='mes cours'), # id du coach
-     url(r'^mes-seances.html/$',views.mesSeances, name= 'mes seances'), #id du coach
+    path('mes-cours.html',views.mesCours,name='mes cours'), # id du coach
+    url(r'^mes-seances.html/$',views.mesSeances, name= 'mes seances'), #id du coach
+    path('displayseance.html/<int:id>',views.displaySeance,name='display seance'),
+    path('annulerseance.html/<int:id>',views.annulerSeance,name='annuler seance'),
 
 ]
