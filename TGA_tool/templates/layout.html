@@ -6,7 +6,12 @@
     
     <meta charset="utf-8" />
     
+
     <script src="{% static 'jquery/jquery.js' %}"></script> 
+    <!--
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    -->
     <link rel="stylesheet" href="{% static 'css/kosygin-style.css' %}" type="text/css" />
     <link rel='stylesheet' href="{% static 'calendar/fullcalendar.css' %}" type ="text/css"/>
     <link rel="stylesheet" type="text/css" href="{% static 'calendar/fullcalendar.print.min.css' %}" media="print" /> 
@@ -108,6 +113,14 @@
      {% endblock %}
       <div class="content">
           <section id="main">
+                <!-- Affichage des messages à l'utilisateur  -->
+                {% if messages %}
+                <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+                </ul>
+                {% endif %}
 
              {% block content %}{% endblock %}
 
@@ -120,7 +133,6 @@
     <div class="footer">
       <p>TGA Excellence Center Copyright 2018</p>
     </div>
-}
   </body>
 </html>
 

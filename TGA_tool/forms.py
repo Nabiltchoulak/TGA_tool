@@ -46,8 +46,15 @@ class FamilleForm(forms.ModelForm):
         fields = '__all__'
     
 
+
+class SeanceForm(forms.ModelForm):
+    class Meta:
+        model = Seance_Cours
+        exclude = ['cours']
+
+
 class Seance_CoursForm(forms.Form):
-    seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir le cours a éditer', widget=forms.CheckboxInput)
+    seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir la séance a éditer') 
     salle = forms.ModelChoiceField(queryset=Salle.objects.all(),help_text='Choisir la salle',required=False)
     chapitre = forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
     notion=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False)
