@@ -145,6 +145,7 @@ def displaySeance(request,id):
     date_seance = str(seance.date)
     heure_seance = str(seance.creneau.debut)
     salle_seance =  seance.salle
+    niveau = seance.cours.curriculum
     matiere = seance.cours.matiere.matiere
     chapitre = seance.chapitre
     notions = seance.notions
@@ -157,7 +158,7 @@ def displaySeance(request,id):
 
 def annulerSeance(request,id):
     seance = Seance_Cours.objects.get(id = id)
-    seance.statut = "AN"
+    seance.statut = "Annulé"
     seance.save()
     messages.add_message(request, messages.SUCCESS, 'La séance a été annulée !')
     return redirect(displaySeance, id)
@@ -172,11 +173,27 @@ def modifierSeance(request,id):
     return render(request, 'TGA_tool/edit-seance.html', locals()) 
 
 
-#def declarerSeance(request,id):
-    #seance = Seance_Cours.objects.get(id = id)
+def declarerSeance(request,id):
+    seance = Seance_Cours.objects.get(id = id)
+    seance_id =seance.id
+    date_seance = str(seance.date)
+    heure_seance = str(seance.creneau.debut)
+    salle_seance =  seance.salle
+    matiere = seance.cours.matiere.matiere
+    chapitre = seance.chapitre
+    notions = seance.notions
+    eleves = Eleve.objects.filter(cours=seance.cours.id)
+    statut = seance.statut
+
     # Renseigner le chapitre et notions vues dans le cours
 
     # déclarer les élèves présents
+        # recupérer les éleves cochés présents
+    form = ReportSeanceForm(seance, request.POST or None)
+    
+    if form.is_valid():
+        salle = form.cleaned_data['eleves']
+        # les ajouter à la séance en question
 
     # Changer le status de la séance
 
@@ -184,7 +201,7 @@ def modifierSeance(request,id):
 
     # optionnel : envoi d'un email au parent
 
-    
+    return render(request, 'TGA_tool/report-seance.html', locals()) 
 
 def contact(request):
     # Construire le formulaire, soit avec les données postées,

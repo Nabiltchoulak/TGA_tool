@@ -59,7 +59,32 @@ class Seance_CoursForm(forms.Form):
     chapitre = forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
     notion=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False)
 
+"""
+class ReportSeanceForm(forms.Form):
+    salle = forms.ModelChoiceField(queryset=Salle.objects.all(),help_text='Choisir la salle',required=False)
+    chapitre = forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
+    notions=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False, widget=forms.CheckboxSelectMultiple)
+    eleves = forms.ModelChoiceField(queryset=Eleve.objects.all(),help_text='Cocher les élèves présents', required=True, widget=forms.CheckboxSelectMultiple)
+    rapport = forms.CharField(label='Rapport de séance', max_length = 300, widget=forms.Textarea)
+"""
 
+class ReportSeanceForm(forms.ModelForm):
+    """docstring for ReportSeanceForm"""
+    eleves = forms.ModelChoiceField(queryset=Eleve.objects.all(),help_text='Cocher les élèves présents', required=True, widget=forms.CheckboxSelectMultiple)
+    # A afficher avec du Jquerry en fonction du chapitre choisi (donner la possibilité d'ajouter une nouvelle notion au chapitre)
+    notions=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False, widget=forms.CheckboxSelectMultiple)
+    rapport = forms.CharField(label='Rapport de séance', max_length = 300, widget=forms.Textarea)
+    def __init__(self, seance, arg):
+        super(ReportSeanceForm, self).__init__()
+        self.arg = arg
+        self.fields['eleves'].queryset = Eleve.objects.filter(cours= seance.cours.id) # Montrer que les élèves inscrits à la séance
+        self.fields['chapitre'].queryset = Chapitre.objects.filter(matiere = seance.cours.matiere.id) # Montrer que les chapitres de la matière de la séance
+        #self.fields['notions'].queryset = Notions.objects.filter(chapitre=seance.chapitre.id)  
+    class Meta:
+        model = Seance_Cours
+        exclude = ['cours']
+
+        
 class Seance_CoachingForm(forms.ModelForm):
     class Meta:
         model = Seance_Coaching

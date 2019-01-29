@@ -14,7 +14,7 @@ class Resource(models.Model):
 	class Meta:
 		abstract=True
 
-
+########################### UTILISATEURS #######################################################
 class Famille(models.Model):
 	nom= models.CharField(max_length=42,verbose_name="Nom de famille", unique= False)
 	adresse = models.CharField(max_length=42,verbose_name="Adresse de famille", unique = True)
@@ -80,7 +80,7 @@ class Coach(Resource):
 	telephone=models.CharField(max_length=15,verbose_name="Telephone",unique=True,null=True,blank=True)
 	email= models.EmailField(verbose_name="E-mail",null=True,blank=True,unique=True)
 	matieres=models.ManyToManyField('Matiere',related_name="enseigne",verbose_name="matieres",help_text='Les matières que peut enseigner ce coach')
-	user = models.OneToOneField(User, on_delete = models.CASCADE)
+	user = models.OneToOneField(User, on_delete = models.CASCADE, default=1)
 	#matrice_dispo pour gérer les disponibilités
 	#matrice_polyvalence pour gérer la polyvalence des coachs
 	class Meta:
@@ -89,7 +89,8 @@ class Coach(Resource):
 	def __str__(self):
 		return "{0} {1}".format(self.prenom,self.nom)
 
-###################################################################### Création des groupes, se fait automatiquement selon la liste pas besoin de la toucher 
+
+#########################Création des groupes 
 class CurriculumCreator(models.Manager):
 	def create_group(self, niveau):
 		group=self.create(niveau=niveau,programme='FR')
@@ -106,7 +107,6 @@ if (len(Curriculum.objects.all()))<2:
 	for niv in range(13):
 		Curriculum.objects.create_group(NIV[niv])
 
-#####################################################################
 class Cours(models.Model):#Cours est un curriculum(niveau ou groupe) avec une matiére et un coach
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='curriculum',verbose_name="Curriculum")
 	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,null=True,verbose_name="Matiere")
@@ -131,9 +131,10 @@ class Seance(models.Model):#Seance est une classe abstraite qui englobe les attr
 		abstract=True
 		
 class Seance_Cours(Seance):
-	cours=models.ForeignKey('Cours',on_delete=models.CASCADE,verbose_name="Cours")
-	statut_choices=(("PL","Planifiée"),("EF","Effectuée"),("AN","Annulée"),)
+	statut_choices=(("Planifié","Planifiée"),("Done","Effectué"),("Annulé","Annulée"),)
 	statut=models.CharField(max_length=2,choices=statut_choices,default="PL",verbose_name="Statut")
+	cours=models.ForeignKey('Cours',on_delete=models.CASCADE,verbose_name="Cours")
+	eleves = models.ManyToManyField	('Eleve',related_name="presence")
 
 	class Meta:
 		verbose_name="seance cours"
@@ -161,7 +162,7 @@ class MatiereCreator(models.Manager):
 		return matiere
 
 class Matiere(models.Model):
-	matiere_choices=(("Mathématiques","Mathématiques"),("Physique","Physique"),("SVT","SVT"),("Français","Français"),("Anglais","Anglais"),("Technologie","Technologie"),("SES","SES"),("Philosophie","Philosophie"),)
+	matiere_choices=(("Mathematiques","Mathematiques"),("Physique","Physique"),("SVT","SVT"),("Français","Français"),("Anglais","Anglais"),("Technologie","Technologie"),("SES","SES"),("Philosophie","Philosophie"),)
 	
 	matiere=models.CharField(max_length=16,choices=matiere_choices,verbose_name="Matiere")
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='matiere',verbose_name="Curriculum")

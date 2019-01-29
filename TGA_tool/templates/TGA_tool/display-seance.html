@@ -12,6 +12,7 @@
 <br/>
 <br/>
 <h2> Description séance </h2>
+<h3>Niveau : </h3> {{niveau}}
 <h3>Matière : </h3> {{matiere}}
 <h3>Chapitre : </h3>{{chapitre}}
 <h3>Notions</h3> {{notions}}
@@ -29,6 +30,6 @@
 
 <a href="{% url 'annuler seance' seance_id %}"> Annuler la séance </a>
 <a href="{% url 'edit seance' seance_id %}">Modifier la séance</a>
-<a href="">Déclarer la séance</a>
+<a href="{% url 'report seance' seance_id %}">Déclarer la séance</a>
 
 {% endblock %}

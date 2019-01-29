@@ -30,4 +30,5 @@ urlpatterns = [
     path('displayseance.html/<int:id>',views.displaySeance,name='display seance'),
     path('annulerseance.html/<int:id>',views.annulerSeance,name='annuler seance'),
     path('edit-seance.html/<int:id>',views.modifierSeance,name='edit seance'),
+    path('report-seance.html/<int:id>',views.declarerSeance,name='report seance'),
 ]
