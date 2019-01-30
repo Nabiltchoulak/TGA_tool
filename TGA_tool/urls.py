@@ -15,7 +15,8 @@ urlpatterns = [
     path('nouveau-parent.html/<int:id>', views.nouveauParent, name="nouveau parent"),
     path('nouveau-coach.html', views.nouveauCoach, name="nouveau coach"),
     path('nouvelle-famille.html', views.nouvelleFamille, name="nouvelle famille"),
-    
+    path('liste-famille',views.listeFamilles, name="liste famille"),
+    path('initiate-data', views.init_data, name="initiate data"),
     path('modifier-seance_cours.html', views.seance_cours, name='modifier seance cours'),
 
     url(r'^home.html$',TemplateView.as_view(template_name="TGA_tool/home.html")),#Test des vues génériques
@@ -31,4 +32,5 @@ urlpatterns = [
     path('annulerseance.html/<int:id>',views.annulerSeance,name='annuler seance'),
     path('edit-seance.html/<int:id>',views.modifierSeance,name='edit seance'),
     path('report-seance.html/<int:id>',views.declarerSeance,name='report seance'),
+    
 ]

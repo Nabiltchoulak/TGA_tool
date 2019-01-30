@@ -12,7 +12,7 @@ from datetime import timedelta
 import json
 from django.http import JsonResponse
 from django.contrib import messages
-
+from TGA_tool.utils import *
 
 # Create your views here.
 def home(request):
@@ -24,7 +24,10 @@ def calendar(request):
 def nouvelleFamille(request):
     form = FamilleForm(request.POST or None)
     if form.is_valid():
-        famille = form.save()
+        famille = form.save(commit=False)
+        if len(Famille.objects.filter(nom=famille.nom))>0 and len(Famille.objects.filter(adresse=famille.adresse))>0 :
+            famille.nom=famille.nom+" "+str(len(Famille.objects.filter(nom=famille.nom))+1)
+        famille.save()
         envoi = True
         return redirect(nouveauParent, famille.id)#envoyer l'id en paramétre
         
@@ -292,6 +295,33 @@ def nouveauCours(request):
             return render(request, 'TGA_tool/nouveau-cours.html',locals())
     return render(request, 'TGA_tool/nouveau-cours.html',locals())
 
+def init_data(request):
+    
+    if "Creneaux" in request.POST :
+        if len(Creneau.objects.all())<20 :
+            init_creneaux()
+            done=True
+        else:
+            already=True
+
+        return render(request,'TGA_tool/initial-data.html',locals())
+    elif "Curricilum" in request.POST :
+        if(len(Curriculum.objects.all()))==0:
+            init_curriculums()#Cette fonction se trouve dans le fichier utils.py
+            done=True
+        else:
+            already=True
+        return render(request,'TGA_tool/initial-data.html',locals())
+
+    elif "Matiere" in request.POST :
+        if len(Matiere.objects.all())<200 :    
+            init_matieres()
+            done=True
+        else:
+            already=True
+        return render(request,'TGA_tool/initial-data.html',locals())
+    
+    return render(request, 'TGA_tool/initial-data.html',locals())
 
 
 def eleveArrive(request):
@@ -337,3 +367,7 @@ def eleveArrive(request):
             url = '{}?{}'.format(base_url, query_string)  # 3 /products/?category=42"""
             return redirect(nouveauEleve,args=ids)   
     return render(request, 'TGA_tool/eleve-arrive.html',locals())
+
+def listeFamilles(request):
+    familles = Famille.objects.all()
+    return render(request,'TGA_tool/liste-famille.html', locals())

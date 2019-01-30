@@ -90,7 +90,7 @@ class Coach(Resource):
 		return "{0} {1}".format(self.prenom,self.nom)
 
 
-#########################Création des groupes 
+######################### Création des groupes 
 class CurriculumCreator(models.Manager):
 	def create_group(self, niveau):
 		group=self.create(niveau=niveau,programme='FR')
@@ -102,10 +102,7 @@ class Curriculum(models.Model):
 	objects = CurriculumCreator()#ajouter une methode manager au object
 	def __str__(self):
 		return self.niveau
-NIV=['CP','CE','CE2','CM1','CM2','Sixième','Cinquième','Quatrième','DNB','Seconde','Première S','Première ES','Terminal S','Terminal ES']
-if (len(Curriculum.objects.all()))<2:
-	for niv in range(13):
-		Curriculum.objects.create_group(NIV[niv])
+
 
 class Cours(models.Model):#Cours est un curriculum(niveau ou groupe) avec une matiére et un coach
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='curriculum',verbose_name="Curriculum")
@@ -173,29 +170,6 @@ class Matiere(models.Model):
 	def __str__(self):
 		return "{0} {1}".format(self.curriculum,self.matiere)
 
-#Cette partie est dédiée pour générer les instances connues déjà de matière 
-#dés que le serveur commence a tourner on a un problème de "Models aren't loaded yet"
-#On va régler cela avec les middleware 
-""""
-curriculum= Curriculum.objects.all()
-matieres={}
-
-for niveau in curriculum:
-	matieres[niveau.niveau]=["Mathématiques","Physique","SVT","Français","Anglais"]
-	if niveau.niveau=='Sixième'or niveau.niveau=='Cinquième'or niveau.niveau=='Quatrième'or niveau.niveau=='DNB':
-		matieres[niveau.niveau].append("Technologie")
-	elif niveau.niveau=='CP'or niveau.niveau=='CE'or niveau.niveau=='CE2'or niveau.niveau=='CM1'or niveau.niveau=='CM2':
-		matieres[niveau.niveau].remove("Physique")
-		matieres[niveau.niveau].remove("SVT")
-	elif niveau.niveau=='Terminal S' or niveau.niveau=='Terminal ES':
-		matieres[niveau.niveau].append("Philosophie")
-	elif niveau.niveau=='Première ES' or niveau.niveau=='Terminal ES':
-		matieres[niveau.niveau].append("SES")
-if len(Matiere.objects.all())==0 :
-	for groupe in list(matieres.keys()):
-		for matiere in matieres[groupe]:
-			Matiere.objects.create_matiere(matiere,niveau)"""
-	
 
 ##################################################################################################################
 class Chapitre(models.Model):
@@ -265,7 +239,10 @@ class Frequence(models.Model):
 			return self.frequence
 		else:
 			return "Chaque {0} {1}".format(self.period, self.frequence)
-###########################################################################################  Créneaux 
+####################################################################  Créneaux #####################################################################
+
+
+
 class CreneauCreator(models.Manager):
 	def create_creneau(self,debut):
 		creneau=self.create(debut=debut)
@@ -291,23 +268,12 @@ class Creneau(models.Model):
 	class Meta :
 		verbose_name="créneau"
 
-CRE=[]
-#Nous allons parcourir les séances de la journée 
-for i in range(2):#Séances de la matinée i=0 / ceux de l'aprem i=1
-	init_hour=8 + 5*i
-	for j in range(3+i):
-		if j%2==0 and j>0:#ex: 9h30-11h00
-			init_hour+=2
-		else :
-			if j>0 : init_hour+=1#ex: 8h00-9h30 
-		CRE.append(time(hour=init_hour,minute= (30*j)%60))
-#Si on n'a pas de créneau crée le tout 
-if len(Creneau.objects.all())==0 :
-	for cren in range(len(CRE)):
-		Creneau.objects.create_creneau(CRE[cren])
-		#print(Creneau.objects.get())
 
-############ Signal qui génére les séances selon la fréquence 
+
+###################################################################   Signaux  #######################################################################
+
+
+
 @receiver(post_save, sender=Cours)
 def init_seances(sender, instance, **kwargs):
 	if (len(instance.seance_cours_set.all())) == 0:#case when a "cours" is in initiation not been modified 
