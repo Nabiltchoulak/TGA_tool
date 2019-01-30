@@ -27,7 +27,7 @@ def nouvelleFamille(request):
         famille = form.save(commit=False)
         if len(Famille.objects.filter(nom=famille.nom))>0 and len(Famille.objects.filter(adresse=famille.adresse))>0 :
             famille.nom=famille.nom+" "+str(len(Famille.objects.filter(nom=famille.nom))+1)
-        famille.save()
+        famille.save() 
         envoi = True
         return redirect(nouveauParent, famille.id)#envoyer l'id en paramétre
         
