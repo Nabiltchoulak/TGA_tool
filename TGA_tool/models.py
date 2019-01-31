@@ -90,7 +90,9 @@ class Coach(Resource):
 		return "{0} {1}".format(self.prenom,self.nom)
 
 
-######################### Création des groupes 
+############################################################### Curriculums ########################################################################""
+
+
 class CurriculumCreator(models.Manager):
 	def create_group(self, niveau):
 		group=self.create(niveau=niveau,programme='FR')
@@ -124,12 +126,13 @@ class Seance(models.Model):#Seance est une classe abstraite qui englobe les attr
 	salle=models.ForeignKey('Salle',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Salle")
 	chapitre=models.ForeignKey('Chapitre',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Chapitre")
 	notions=models.ManyToManyField('Notions',related_name="%(app_label)s_%(class)s_related",blank=True,verbose_name="Notions")#pour ne pas avoir de confusion au moment de l'appel
+	statut_choices=(("Planifié","Planifiée"),("Done","Effectué"),("Annulé","Annulée"),)
+	statut=models.CharField(max_length=8,choices=statut_choices,default="PL",verbose_name="Statut")
 	class Meta:
 		abstract=True
 		
 class Seance_Cours(Seance):
-	statut_choices=(("Planifié","Planifiée"),("Done","Effectué"),("Annulé","Annulée"),)
-	statut=models.CharField(max_length=2,choices=statut_choices,default="PL",verbose_name="Statut")
+	
 	cours=models.ForeignKey('Cours',on_delete=models.CASCADE,verbose_name="Cours")
 	eleves = models.ManyToManyField	('Eleve',related_name="presence")
 
@@ -144,6 +147,7 @@ class Seance_Cours(Seance):
 class Seance_Coaching(Seance):
 	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,null=True,blank=True)
 	eleve=models.ManyToManyField('Eleve',related_name="eleve_coaching",blank=True)
+	coach=models.ForeignKey('Coach', verbose_name="Coach", on_delete=models.SET_NULL,null=True,blank=True)
 	class Meta:
 		verbose_name="seance coaching"
 		ordering=['date','creneau']
@@ -152,7 +156,9 @@ class Seance_Coaching(Seance):
 		str_cre=str(self.date)#timefield n'est pas un string ne peut étre retourné 
 		return "Coaching {0} {1} ".format(self.matiere,str_cre)
 
-################################################################################################################### Work here on matiere 
+######################################################################## Matieres ##########################################################
+
+
 class MatiereCreator(models.Manager):
 	def create_matiere(self, matiere,curriculum):
 		matiere=self.create(matiere=matiere,curriculum=curriculum)
@@ -171,7 +177,7 @@ class Matiere(models.Model):
 		return "{0} {1}".format(self.curriculum,self.matiere)
 
 
-##################################################################################################################
+
 class Chapitre(models.Model):
 	chapitre=models.CharField(max_length=50)
 	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,verbose_name="Matiere")
