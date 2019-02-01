@@ -13,7 +13,7 @@ import json
 from django.http import JsonResponse
 from django.contrib import messages
 from TGA_tool.utils import *
-
+from django.db import models
 # Create your views here.
 def home(request):
     return render(request, 'TGA_tool/home.html')
@@ -199,10 +199,15 @@ def declarerSeance(request,id):
     # déclarer les élèves présents
         # recupérer les éleves cochés présents
     form = ReportSeanceForm(seance, request.POST or None)
-    
+    """
     if form.is_valid():
+        
         salle = form.cleaned_data['eleves']
-        # les ajouter à la séance en question
+        seance = form.save(commit=False)
+        seance.statut= "Done"
+        seance.save()
+        
+        # les ajouter à la séance en question"""
 
     # Changer le status de la séance
 
@@ -307,21 +312,24 @@ def seance_cours(request):
     
     if form.is_valid() :
         seance=form.cleaned_data['seance']
-        while form.cleaned_data['chapitre'] == None or form.cleaned_data['salle']==None or form.cleaned_data['notion']==None :
+        while not(form.cleaned_data['chapitre']) or not(form.cleaned_data['salle']) or not(form.cleaned_data['notion']) :
             form.fields['chapitre'].queryset=Chapitre.objects.filter(matiere=seance.cours.matiere)
             #chapitre=form.cleaned_data['chapitre']
             form.fields['notion'].queryset=Notions.objects.filter(chapitre=form.cleaned_data['chapitre'])
-            print(seance.pk)
+            #print(seance.pk)
             return render(request,'TGA_tool/modifier-seance_cours.html', locals())
             #print(notion)
             
         seance.salle=form.cleaned_data['salle']
         seance.chapitre=form.cleaned_data['chapitre']
-        seance.notion=form.cleaned_data['notion']
-        
-        if seance.notion != None :
+        if form.cleaned_data['notion']:
+            seance.save()
+            seance.notions.set(form.cleaned_data['notion'])
+            
+        if seance.notions :
+            seance.save()
             return render(request,'TGA_tool/home.html', locals())
-            print(seance)
+            
     return render(request,'TGA_tool/modifier-seance_cours.html', locals())	
 
 def matiere(request):
