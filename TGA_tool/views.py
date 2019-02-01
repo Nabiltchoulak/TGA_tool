@@ -203,6 +203,14 @@ def declarerSeance(request,id):
 
     return render(request, 'TGA_tool/report-seance.html', locals()) 
 
+def makePayement(request):
+    form = PayementForm(request.POST or None)
+    if form.is_valid():
+        payement = form.save() 
+    
+    return render(request, 'TGA_tool/make-payement.html', locals())
+    
+
 def contact(request):
     # Construire le formulaire, soit avec les données postées,
     # soit vide si l'utilisateur accède pour la première fois

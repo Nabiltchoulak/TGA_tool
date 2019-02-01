@@ -31,4 +31,7 @@ urlpatterns = [
     path('annulerseance.html/<int:id>',views.annulerSeance,name='annuler seance'),
     path('edit-seance.html/<int:id>',views.modifierSeance,name='edit seance'),
     path('report-seance.html/<int:id>',views.declarerSeance,name='report seance'),
+    # les urls du paiement
+    path('make-payement.html',views.makePayement,name='make payement'),
+
 ]

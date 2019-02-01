@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{%load static %}
+{% block title %} Réaliser un paiement {% endblock %}
+{% block content %}
+
+
+<h2> Renseigner votre paiement </h2>
+
+<form action="{% url 'make payement'%}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit" />
+</form>
+
+{% endblock %}

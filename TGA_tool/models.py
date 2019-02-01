@@ -36,7 +36,7 @@ class Parent(models.Model):
 	email= models.EmailField(verbose_name="E-mail",unique=True,blank=True)
 	famille = models.ForeignKey('Famille', on_delete = models.CASCADE, verbose_name="Famille - adresse", null=False,default= 1)
 	estResponsable= models.BooleanField(verbose_name="Parent principal", default=False)
-	
+
 	# Information du compte utilisateur
 	date_inscription = models.DateField(auto_now=True, verbose_name="Date d'inscription")
 	user = models.OneToOneField(User,on_delete=models.SET_NULL,null=True,blank=True)
@@ -89,6 +89,16 @@ class Coach(Resource):
 	def __str__(self):
 		return "{0} {1}".format(self.prenom,self.nom)
 
+class Payement(models.Model):
+	date=models.DateField(blank=True,null=True,verbose_name="Date")
+	montant = models.DecimalField(max_digits=8, decimal_places=2)
+	parent = models.ForeignKey('Parent', on_delete=models.CASCADE, blank=False, null = False, verbose_name = 'Parent payeur')
+
+	class Meta:
+		verbose_name = "Paiement"
+
+	def __str__(self):
+		return 'Paiement de {0} par parent {1}' . format(self.montant, self.parent)
 
 #########################Création des groupes 
 class CurriculumCreator(models.Manager):
@@ -129,6 +139,8 @@ class Seance(models.Model):#Seance est une classe abstraite qui englobe les attr
 	notions=models.ManyToManyField('Notions',related_name="%(app_label)s_%(class)s_related",blank=True,verbose_name="Notions")#pour ne pas avoir de confusion au moment de l'appel
 	class Meta:
 		abstract=True
+
+
 		
 class Seance_Cours(Seance):
 	statut_choices=(("Planifié","Planifiée"),("Done","Effectué"),("Annulé","Annulée"),)

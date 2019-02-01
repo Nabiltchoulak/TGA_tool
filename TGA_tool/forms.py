@@ -53,6 +53,11 @@ class SeanceForm(forms.ModelForm):
         exclude = ['cours']
 
 
+class PayementForm(forms.ModelForm):
+    class Meta:
+        model = Payement
+        fields = '__all__'
+
 class Seance_CoursForm(forms.Form):
     seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir la séance a éditer') 
     salle = forms.ModelChoiceField(queryset=Salle.objects.all(),help_text='Choisir la salle',required=False)
