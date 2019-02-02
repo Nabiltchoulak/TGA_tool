@@ -35,8 +35,8 @@ class Parent(models.Model):
 	telephone= models.CharField(max_length=15,verbose_name="Telephone",unique=True)
 	email= models.EmailField(verbose_name="E-mail",unique=True,blank=True)
 	famille = models.ForeignKey('Famille', on_delete = models.CASCADE, verbose_name="Famille - adresse", null=False,default= 1)
-	estResponsable= models.BooleanField(verbose_name="Parent principal", default=False)
-	
+	estResponsable= models.BooleanField(verbose_name="Parent à contacter", default=False)
+	solde = models.IntegerField(default=0)
 	# Information du compte utilisateur
 	date_inscription = models.DateField(auto_now=True, verbose_name="Date d'inscription")
 	user = models.OneToOneField(User,on_delete=models.SET_NULL,null=True,blank=True)
@@ -81,6 +81,7 @@ class Coach(Resource):
 	email= models.EmailField(verbose_name="E-mail",null=True,blank=True,unique=True)
 	matieres=models.ManyToManyField('Matiere',related_name="enseigne",verbose_name="matieres",help_text='Les matières que peut enseigner ce coach')
 	user = models.OneToOneField(User, on_delete = models.CASCADE, default=1)
+	salaire = models.DecimalField(max_digits=8, decimal_places=2,default=0)
 	#matrice_dispo pour gérer les disponibilités
 	#matrice_polyvalence pour gérer la polyvalence des coachs
 	class Meta:
@@ -88,6 +89,19 @@ class Coach(Resource):
 		ordering=['nom']
 	def __str__(self):
 		return "{0} {1}".format(self.prenom,self.nom)
+
+class Payement(models.Model):
+	date=models.DateField(blank=True,null=True,verbose_name="Date")
+	montant = models.DecimalField(max_digits=8, decimal_places=2)
+	parent = models.ForeignKey('Parent', on_delete=models.CASCADE, blank=False, null = False, verbose_name = 'Parent payeur')
+
+	class Meta:
+		verbose_name = "Paiement"
+		ordering=['date']
+
+	def __str__(self):
+		return 'Paiement de {0} par parent {1}' . format(self.montant, self.parent)
+
 
 
 ############################################################### Curriculums ########################################################################""
@@ -127,7 +141,7 @@ class Seance(models.Model):#Seance est une classe abstraite qui englobe les attr
 	chapitre=models.ForeignKey('Chapitre',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Chapitre")
 	notions=models.ManyToManyField('Notions',related_name="%(app_label)s_%(class)s_related",blank=True,verbose_name="Notions")#pour ne pas avoir de confusion au moment de l'appel
 	statut_choices=(("Planifié","Planifiée"),("Done","Effectué"),("Annulé","Annulée"),)
-	statut=models.CharField(max_length=8,choices=statut_choices,default="PL",verbose_name="Statut")
+	statut=models.CharField(max_length=8,choices=statut_choices,default="Planifié",verbose_name="Statut")
 	class Meta:
 		abstract=True
 		

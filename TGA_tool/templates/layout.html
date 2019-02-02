@@ -87,7 +87,7 @@
           <button class="accordion">Suivi paiements</button>
           <div class="panel">
             <ul>
-                <li><a href="/admin/material-move.html"> déclarer un paiement</a> </li>
+                <li><a href="/TGA_tool/make-payement.html"> déclarer un paiement</a> </li>
                 <li><a href="/admin/container-move.html"> éditer une facture</a></li>
                   <li><a href="/admin/material-consume.html"> xxx </a></li>
                    <li><a href="/admin/material-checkout.html"> yyy</a></li>
@@ -100,9 +100,13 @@
             <button class="accordion"> Tableau de bord </button>
           <div class="panel">
             <ul>
-                <li><a href="/admin/personel-insert.html">xxx</a></li>
-                <li><a href="/admin/move-personel.html">yyy</a> </li>
-                <li>zzzz</li>
+                <li><a href="{% url 'display' "1" %}">Familles</a></li>
+                <li><a href="{% url 'display' "2" %}">Parents</a> </li>
+                <li><a href="{% url 'display' "3" %}">Eleves</a> </li>
+                <li><a href="{% url 'display' "4" %}">Paiements</a> </li>
+                <li><a href="{% url 'display' "5" %}">Coachs</a> </li>
+                <li><a href="{% url 'display' "6" %}">Cours</a> </li>
+                <li><a href="{% url 'display' "7" %}">Salles</a> </li>
 
             </ul>
           </div>

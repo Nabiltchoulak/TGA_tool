@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{%load static %}
+{% block title %} Réaliser un paiement {% endblock %}
+{% block content %}
+
+{% if paid %}
+<h1>Votre paiement a bien été effectué</h1>
+
+{% else %}
+ <h2> Renseigner votre paiement </h2>
+
+ <form action="{% url 'make payement'%}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Payer" name="did_paid"/>
+    <input type="submit" value="Effectuer un autre paiement" name="will_pay"/>
+</form>
+{% endif %}
+ {% endblock %} 

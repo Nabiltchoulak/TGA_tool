@@ -1,5 +1,5 @@
 from django.contrib import admin
-from TGA_tool.models import Parent,Eleve,Cours,Seance_Cours,Seance_Coaching,Coach,Salle,Chapitre,Notions,Matiere,Frequence,Creneau,Curriculum
+from TGA_tool.models import Parent,Eleve,Cours,Famille,Seance_Cours,Seance_Coaching,Coach,Salle,Chapitre,Notions,Matiere,Frequence,Creneau,Curriculum
 
 # Register your models here.
 class ParentAdmin(admin.ModelAdmin):
@@ -67,6 +67,7 @@ admin.site.register(Seance_Cours,CoursSeanceAdmin)
 admin.site.register(Seance_Coaching)
 admin.site.register(Coach)
 admin.site.register(Salle)
+admin.site.register(Famille)
 admin.site.register(Chapitre,ChapitreAdmin)
 admin.site.register(Notions,NotionsAdmin)
 admin.site.register(Matiere,MatiereAdmin)
