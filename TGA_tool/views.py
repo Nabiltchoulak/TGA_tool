@@ -12,7 +12,7 @@ from datetime import timedelta
 import json
 from django.http import JsonResponse
 from django.contrib import messages
-
+from TGA_tool.utils import *
 
 # Create your views here.
 def home(request):
@@ -24,7 +24,10 @@ def calendar(request):
 def nouvelleFamille(request):
     form = FamilleForm(request.POST or None)
     if form.is_valid():
-        famille = form.save()
+        famille = form.save(commit=False)
+        if len(Famille.objects.filter(nom=famille.nom))>0 and len(Famille.objects.filter(adresse=famille.adresse))>0 :
+            famille.nom=famille.nom+" "+str(len(Famille.objects.filter(nom=famille.nom))+1)
+        famille.save() 
         envoi = True
         return redirect(nouveauParent, famille.id)#envoyer l'id en paramétre
         
@@ -47,20 +50,28 @@ def nouveauParent(request, id):
 
     return render(request, 'TGA_tool/nouveau-parent.html', locals())    
 
-def nouveauEleve(request, id):
-    form = EleveForm(request.POST or None)
-    if form.is_valid(): 
-        eleve = form.save(commit=False)
-        eleve.famille = Famille.objects.get(id=id)
-        eleve.save()
-        form.save_m2m()
+def nouveauEleve(request, id=0):
 
-        if 'end' in request.POST :#test if the user choosed "submit" 
-            return render(request,'TGA_tool/home.html')
-        elif 'submit & add other' in request.POST :#or "submit && add" 
-            form=EleveForm()#Vider le formulaire 
-            return render(request,'TGA_tool/nouveau-eleve.html', locals())
+    if id>0:
+        form = EleveForm(request.POST or None)
+        famille = True 
+        if form.is_valid(): 
+            eleve = form.save(commit=False)
+            eleve.famille = Famille.objects.get(id=id)
+            eleve.save()
+            form.save_m2m()
 
+            if 'end' in request.POST :#test if the user choosed "submit" 
+                return render(request,'TGA_tool/home.html')
+            elif 'submit & add other' in request.POST :#or "submit && add" 
+                form=EleveForm()#Vider le formulaire 
+                return render(request,'TGA_tool/nouveau-eleve.html', locals())
+    else:
+        form = EleveForm2(request.POST or None)
+        famille = False
+        if form.is_valid():
+            eleve = form.save()
+            return redirect('home.html')
     # Quoiqu'il arrive, on affiche la page du formulaire.
     return render(request,'TGA_tool/nouveau-eleve.html', locals())	
 
@@ -106,17 +117,21 @@ def deconnexion(request):
 
 #@login_required
 def mesCours(request):
-    id = request.user.id
-    coach = Coach.objects.get(user = id)
-    cours = Cours.objects.filter(coach = coach.id)
-
     listecours =[]
+    if request.GET['cours']=='all':
+        cours = Cours.objects.all()
+        for cour in cours:
+            listecours.append({'id': cour.id, 'curriculum': cour.matiere.curriculum.niveau, 'matiere': cour.matiere.matiere, 'frequence': cour.frequence.frequence})
 
-    for cour in cours:
-        listecours.append({'id': cour.id, 'curriculum': cour.matiere.curriculum.niveau, 'matiere': cour.matiere.matiere, 'frequence': cour.frequence.frequence})
-
+    else:
+        id = request.user.id
+        coach = Coach.objects.get(user = id)
+        cours = Cours.objects.filter(coach = coach.id)  
+        for cour in cours:
+            listecours.append({'id': cour.id, 'curriculum': cour.matiere.curriculum.niveau, 'matiere': cour.matiere.matiere, 'frequence': cour.frequence.frequence})
     
     return render(request,'TGA_tool/cours-du-coach.html', locals())
+
 
 def mesSeances(request):
  
@@ -131,6 +146,12 @@ def mesSeances(request):
             listeseances.append({'title': seance.cours.matiere.curriculum.niveau + " - " + seance.cours.matiere.matiere, 
                 'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "displayseance.html/" + str(seance.id)})
     
+    #Cette partie va récupérer les seances de coaching 
+    coachings=Seance_Coaching.objects.filter(coach= coach.id)
+    for seance in coachings:
+        listeseances.append({'title': seance.matiere.curriculum.niveau + " - " + seance.matiere.matiere, 
+                'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "display-seance-coaching.html/" + str(seance.id)})
+
     data = listeseances
 
     return JsonResponse(data, safe=False)
@@ -203,13 +224,81 @@ def declarerSeance(request,id):
 
     return render(request, 'TGA_tool/report-seance.html', locals()) 
 
+
 def makePayement(request):
     form = PayementForm(request.POST or None)
     if form.is_valid():
         payement = form.save() 
     
-    return render(request, 'TGA_tool/make-payement.html', locals())
+    return render(request, 'TGA_tool/make-payement.html', locals())    
+
+def displaySeanceCoaching(request,id):
+    seance = Seance_Coaching.objects.get(id = id)
+    seance_id =seance.id
+    date_seance = str(seance.date)
+    heure_seance = str(seance.creneau.debut)
+    salle_seance =  seance.salle
+    niveau = seance.matiere.curriculum
+    matiere = seance.matiere.matiere
+    chapitre = seance.chapitre
+    notions = seance.notions
+    eleves = seance.eleve.all()
+ 
+    statut = seance.statut
     
+
+
+    return render(request, 'TGA_tool/display-seance-coaching.html', locals())
+
+
+def annulerSeanceCoaching(request,id):
+    seance = Seance_Coaching.objects.get(id = id)
+    seance.statut = "Annulé"
+    seance.save()
+    messages.add_message(request, messages.SUCCESS, 'La séance a été annulée !')
+    return redirect(displaySeanceCoaching, id)
+
+def modifierSeanceCoaching(request,id):
+    seance = Seance_Coaching.objects.get(id=id)
+    form = Seance_CoachingForm(request.POST or None, instance= seance)
+
+    if form.is_valid():
+        form.save()
+        return redirect(displaySeanceCoaching, id)
+    return render(request, 'TGA_tool/edit-seance-coaching.html', locals()) 
+
+
+def declarerSeanceCoaching(request,id):
+    seance = Seance_Coaching.objects.get(id = id)
+    seance_id =seance.id
+    date_seance = str(seance.date)
+    heure_seance = str(seance.creneau.debut)
+    salle_seance =  seance.salle
+    """matiere = seance.matiere.matiere
+    chapitre = seance.chapitre
+    notions = seance.notions
+    eleves = seance.eleve.all()"""
+    statut = seance.statut
+
+    # Renseigner le chapitre et notions vues dans le cours
+
+    # déclarer les élèves présents
+        # recupérer les éleves cochés présents
+    form = ReportSeanceCoachingForm(seance, request.POST or None)
+    
+    if form.is_valid():
+        salle = form.cleaned_data['eleves']
+        # les ajouter à la séance en question
+
+    # Changer le status de la séance
+
+    # Créer un avoir pour les parents des élèves en fonction du type de la séance
+
+    # optionnel : envoi d'un email au parent
+
+    return render(request, 'TGA_tool/report-seance-coaching.html', locals())
+
+
 
 def contact(request):
     # Construire le formulaire, soit avec les données postées,
@@ -300,6 +389,33 @@ def nouveauCours(request):
             return render(request, 'TGA_tool/nouveau-cours.html',locals())
     return render(request, 'TGA_tool/nouveau-cours.html',locals())
 
+def init_data(request):
+    
+    if "Creneaux" in request.POST :
+        if len(Creneau.objects.all())<20 :
+            init_creneaux()
+            done=True
+        else:
+            already=True
+
+        return render(request,'TGA_tool/initial-data.html',locals())
+    elif "Curricilum" in request.POST :
+        if(len(Curriculum.objects.all()))==0:
+            init_curriculums()#Cette fonction se trouve dans le fichier utils.py
+            done=True
+        else:
+            already=True
+        return render(request,'TGA_tool/initial-data.html',locals())
+
+    elif "Matiere" in request.POST :
+        if len(Matiere.objects.all())<200 :    
+            init_matieres()
+            done=True
+        else:
+            already=True
+        return render(request,'TGA_tool/initial-data.html',locals())
+    
+    return render(request, 'TGA_tool/initial-data.html',locals())
 
 
 def eleveArrive(request):
@@ -345,3 +461,7 @@ def eleveArrive(request):
             url = '{}?{}'.format(base_url, query_string)  # 3 /products/?category=42"""
             return redirect(nouveauEleve,args=ids)   
     return render(request, 'TGA_tool/eleve-arrive.html',locals())
+
+def listeFamilles(request):
+    familles = Famille.objects.all()
+    return render(request,'TGA_tool/familles.html', locals())

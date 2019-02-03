@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 {%load static %}
-{% block title %} Modifier seance {% endblock %}
+{% block title %} Modifier seance coaching{% endblock %}
 {% block content %}
 
-<form action="{% url 'edit seance' id %}" method="post">
+<form action="{% url 'edit seance coaching' id %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Submit" />
