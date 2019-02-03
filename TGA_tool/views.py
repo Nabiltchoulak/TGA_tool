@@ -13,7 +13,7 @@ import json
 from django.http import JsonResponse
 from django.contrib import messages
 from TGA_tool.utils import *
-
+from django.db import models 
 # Create your views here.
 def home(request):
     return render(request, 'TGA_tool/home.html')
@@ -149,7 +149,7 @@ def mesSeances(request):
     #Cette partie va récupérer les seances de coaching 
     coachings=Seance_Coaching.objects.filter(coach= coach.id)
     for seance in coachings:
-        listeseances.append({'title': seance.matiere.curriculum.niveau + " - " + seance.matiere.matiere, 
+        listeseances.append({'title': "Coaching " + seance.matiere.curriculum.niveau + " - " + seance.matiere.matiere, 
                 'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "display-seance-coaching.html/" + str(seance.id)})
 
     data = listeseances
@@ -210,10 +210,24 @@ def declarerSeance(request,id):
 
     # déclarer les élèves présents
         # recupérer les éleves cochés présents
-    form = ReportSeanceForm(seance, request.POST or None)
-    
+    form = ReportSeanceForm(request.POST or None)
+    form.fields['eleves'].queryset=Eleve.objects.filter(cours= seance.cours.id)
+        
     if form.is_valid():
-        salle = form.cleaned_data['eleves']
+        
+        seance.statut="Done"
+        eleves=form.cleaned_data['eleves']
+        seance.eleves.set(eleves)
+        for eleve in eleves :
+                parent=Parent.objects.filter(estResponsable=True).get(famille=eleve.famille)
+                print(parent)
+                parent.solde-=3000
+                parent.save()
+        coach=seance.cours.coach        
+        coach.salaire+=1000
+        coach.save()
+        seance.save()
+
         # les ajouter à la séance en question
 
     # Changer le status de la séance
@@ -276,18 +290,29 @@ def declarerSeanceCoaching(request,id):
     salle_seance =  seance.salle
     """matiere = seance.matiere.matiere
     chapitre = seance.chapitre
-    notions = seance.notions
-    eleves = seance.eleve.all()"""
+    notions = seance.notions"""
+    eleves = seance.eleve.all()
     statut = seance.statut
 
     # Renseigner le chapitre et notions vues dans le cours
 
     # déclarer les élèves présents
         # recupérer les éleves cochés présents
-    form = ReportSeanceCoachingForm(seance, request.POST or None)
-    
+    form = ReportSeanceCoachingForm(request.POST or None)
+    form.fields['eleves'].queryset=eleves
     if form.is_valid():
-        salle = form.cleaned_data['eleves']
+        seance.statut="Done"
+        eleves_presents=form.cleaned_data['eleves']
+        seance.eleve.set(eleves_presents)
+        for eleve in eleves_presents:
+            parent=Parent.objects.filter(estResponsable=True).get(famille=eleve.famille)
+            parent.solde-=5000
+            parent.save()
+        coach=seance.coach
+        coach.salaire+=1000
+        coach.save()
+        seance.save()
+        return render(request, 'TGA_tool/home.html', locals())
         # les ajouter à la séance en question
 
     # Changer le status de la séance
@@ -298,7 +323,25 @@ def declarerSeanceCoaching(request,id):
 
     return render(request, 'TGA_tool/report-seance-coaching.html', locals())
 
+def makePayement(request):
+    form = PayementForm(request.POST or None)
+    if form.is_valid():
+        payement = form.save()
+        parent = form.cleaned_data['parent']
+        montant= form.cleaned_data['montant']
+        print(parent.solde)
+        parent.solde+=montant
+        print(parent.solde)
+        parent.save()
+        if "did_paid" in request.POST:
+            paid=True
+        elif "will_pay" in request.POST :
+            form=PayementForm()
+            return render(request, 'TGA_tool/make-payement.html', locals())
+        return render(request, 'TGA_tool/make-payement.html', locals())
 
+
+    return render(request, 'TGA_tool/make-payement.html', locals())
 
 def contact(request):
     # Construire le formulaire, soit avec les données postées,
@@ -327,21 +370,24 @@ def seance_cours(request):
     
     if form.is_valid() :
         seance=form.cleaned_data['seance']
-        while form.cleaned_data['chapitre'] == None or form.cleaned_data['salle']==None or form.cleaned_data['notion']==None :
+        while not(form.cleaned_data['chapitre']) or not(form.cleaned_data['salle']) or not(form.cleaned_data['notion']) :
             form.fields['chapitre'].queryset=Chapitre.objects.filter(matiere=seance.cours.matiere)
             #chapitre=form.cleaned_data['chapitre']
             form.fields['notion'].queryset=Notions.objects.filter(chapitre=form.cleaned_data['chapitre'])
-            print(seance.pk)
+            #print(seance.pk)
             return render(request,'TGA_tool/modifier-seance_cours.html', locals())
             #print(notion)
             
         seance.salle=form.cleaned_data['salle']
         seance.chapitre=form.cleaned_data['chapitre']
-        seance.notion=form.cleaned_data['notion']
-        
-        if seance.notion != None :
+        if form.cleaned_data['notion']:
+            seance.save()
+            seance.notions.set(form.cleaned_data['notion'])
+
+        if seance.notions :
+            seance.save()
             return render(request,'TGA_tool/home.html', locals())
-            print(seance)
+            
     return render(request,'TGA_tool/modifier-seance_cours.html', locals())	
 
 def matiere(request):
@@ -464,4 +510,53 @@ def eleveArrive(request):
 
 def listeFamilles(request):
     familles = Famille.objects.all()
-    return render(request,'TGA_tool/familles.html', locals())
+
+    return render(request,'TGA_tool/liste-famille.html', locals())
+
+def display(request,type):
+    if type=="1":
+        #Cette partie redirige vers une vue qui liste les membres de la famille 
+        #avec des détails sur la consommation totale de la famille et avec les 
+        #rapports pédagogiques
+        familles=Famille.objects.all() 
+    elif type=="2":
+        parents=Parent.objects.filter(estResponsable=True)
+        #Cette partie est utile si l'utilisateur veut contacter les parents
+        #Si la personne responsable ne répond pas on va vers le parent contact qui va 
+        #se trouver dans les détails de famille 
+    elif type=="3":
+        eleves=Eleve.objects.all()
+    elif type=="4":
+        paiements=Payement.objects.all()
+    elif type=="5":
+        coachs=Coach.objects.all()
+        #Dirige vers une vue qui contient le salaire du coachs avec les
+        #séances qu'il a enseigné
+    elif type=="6":
+        cours=Cours.objects.all()
+    elif type=="7":
+        salles=Salle.objects.all()#Cette partie redirige vers une page qui aura les details de 
+                                  #la salle a savoir : capacité,calendrier,prise/libre ...
+    
+    return render(request,'TGA_tool/display.html', locals())
+
+def details(request,type,id):
+    if type=="5" :
+        coach=Coach.objects.get(id=id)
+        cours=Cours.objects.filter(coach=coach)
+        listSeancesEnseigne=[]
+        listSeancesRestant=[]
+        for cour in cours:
+            seances_done = Seance_Cours.objects.filter(cours = cour.id).filter(statut="Done")
+            seances_planifie= Seance_Cours.objects.filter(cours = cour.id).filter(statut="Planifié")
+            listSeancesEnseigne.append(seances_done)
+            listSeancesRestant.append(seances_planifie)    
+        listSeancesEnseigne.append(Seance_Coaching.objects.filter(coach = coach.id).filter(statut="Done"))
+        listSeancesRestant.append(Seance_Coaching.objects.filter(coach = coach.id).filter(statut="Planifié"))
+        print(listSeancesEnseigne)
+        print(listSeancesRestant)
+        sancesDone=len(listSeancesEnseigne)
+        seancesRestant=len(listSeancesRestant)
+
+
+    return render(request,'TGA_tool/details.html', locals())    

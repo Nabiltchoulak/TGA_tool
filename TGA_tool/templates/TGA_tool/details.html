@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{%load static %}
+{% block title %} Tableau de bord {% endblock %}
+{% block content %}
+
+
+{% if type == "5" %}
+<h2 style="text-align: center;"> {{coach}} </h2>
+<h3>Matières que peut enseigner: </h3> {% for matiere in coach.matieres.all %} {{matiere}}, {% endfor %}
+<h3>Cours enseignés: </h3> {% for cour in cours %} {{cour}}, {% endfor %}
+
+<br/>
+<br/>
+<h3>Nombre de séances enseignés: </h3> {{sancesDone}}
+<h3>Nombre de séances restant: </h3> {{seancesRestant}}
+<h3>Salaire: </h3> {{coach.salaire}} DA
+{% endif %}
+
+
+
+
+
+
+{% endblock %}

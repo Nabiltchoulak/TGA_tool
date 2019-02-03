@@ -101,9 +101,13 @@
             <button class="accordion"> Tableau de bord </button>
           <div class="panel">
             <ul>
-                <li><a href="/TGA_tool/liste-famille">Liste des familles </a></li>
-                <li><a href="/TGA_tool/mes-cours.html?cours=all">Liste des cours</a> </li>
-                <li>zzzz</li>
+                <li><a href="{% url 'display' "1" %}">Familles</a></li>
+                <li><a href="{% url 'display' "2" %}">Parents</a> </li>
+                <li><a href="{% url 'display' "3" %}">Eleves</a> </li>
+                <li><a href="{% url 'display' "4" %}">Paiements</a> </li>
+                <li><a href="{% url 'display' "5" %}">Coachs</a> </li>
+                <li><a href="{% url 'display' "6" %}">Cours</a> </li>
+                <li><a href="{% url 'display' "7" %}">Salles</a> </li>
 
             </ul>
           </div>

@@ -13,7 +13,9 @@ class FamilleForm(forms.ModelForm):
 class ParentForm(forms.ModelForm):
     class Meta:
         model = Parent
-        exclude = ['user', 'famille']
+        exclude = ['user', 'famille','solde']
+    
+
 
 class EleveForm(forms.ModelForm): #creation après la famille
     date_naissance = forms.DateField(widget=forms.DateInput(attrs={'class':'datepicker'}))
@@ -65,7 +67,7 @@ class Seance_CoursForm(forms.Form):
     seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir la séance a éditer') 
     salle = forms.ModelChoiceField(queryset=Salle.objects.all(),help_text='Choisir la salle',required=False)
     chapitre = forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
-    notion=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False)
+    notion=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False,widget=forms.CheckboxSelectMultiple)
 
 
 class FrequenceForm(forms.ModelForm):
@@ -81,29 +83,31 @@ class SalleForm(forms.ModelForm):
 
 #Suivi séances
 
-class ReportSeanceForm(forms.ModelForm):
+class ReportSeanceForm(forms.Form):
     """docstring for ReportSeanceForm"""
-    eleves = forms.ModelChoiceField(queryset=Eleve.objects.all(),help_text='Cocher les élèves présents', required=True, widget=forms.CheckboxSelectMultiple)
+    eleves = forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),help_text='Cocher les élèves présents', widget=forms.CheckboxSelectMultiple)
     # A afficher avec du Jquerry en fonction du chapitre choisi (donner la possibilité d'ajouter une nouvelle notion au chapitre)
+    chapitre=forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
     notions=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False, widget=forms.CheckboxSelectMultiple)
-    rapport = forms.CharField(label='Rapport de séance', max_length = 300, widget=forms.Textarea)
-    def __init__(self, seance, arg):
+    rapport = forms.CharField(label='Rapport de séance', max_length = 300, widget=forms.Textarea,required=False)
+    """def __init__(self, seance, arg):
         super(ReportSeanceForm, self).__init__()
         self.arg = arg
-        self.fields['eleves'].queryset = Eleve.objects.filter(cours= seance.cours.id) # Montrer que les élèves inscrits à la séance
-        self.fields['chapitre'].queryset = Chapitre.objects.filter(matiere = seance.cours.matiere.id) # Montrer que les chapitres de la matière de la séance
+        self.fields['eleves'].queryset = Eleve.objects.filter(cours= seance.cours.id) # Montrer que les élèves inscrits à la séance"""
+        #self.fields['chapitre'].queryset = Chapitre.objects.filter(matiere = seance.cours.matiere.id) # Montrer que les chapitres de la matière de la séance
         #self.fields['notions'].queryset = Notions.objects.filter(chapitre=seance.chapitre.id)  
-    class Meta:
+    """class Meta:
         model = Seance_Cours
-        exclude = ['cours']
+        exclude = ['cours']"""
 
-class ReportSeanceCoachingForm(forms.ModelForm):
+class ReportSeanceCoachingForm(forms.Form):
     """docstring for ReportSeanceForm"""
-    eleves = forms.ModelChoiceField(queryset=Eleve.objects.all(),help_text='Cocher les élèves présents', required=True, widget=forms.CheckboxSelectMultiple)
+    eleves = forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),help_text='Cocher les élèves présents', required=True, widget=forms.CheckboxSelectMultiple)
     # A afficher avec du Jquerry en fonction du chapitre choisi (donner la possibilité d'ajouter une nouvelle notion au chapitre)
+    chapitre=forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
     notions=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False, widget=forms.CheckboxSelectMultiple)
-    rapport = forms.CharField(label='Rapport de séance', max_length = 300, widget=forms.Textarea)
-    def __init__(self, seance, arg):
+    rapport = forms.CharField(label='Rapport de séance', max_length = 300,required=False, widget=forms.Textarea)
+    """def __init__(self, seance, arg):
         super(ReportSeanceCoachingForm, self).__init__()
         self.arg = arg
         self.fields['eleves'].queryset = seance.eleve.all() # Montrer que les élèves inscrits à la séance
@@ -111,7 +115,7 @@ class ReportSeanceCoachingForm(forms.ModelForm):
         #self.fields['notions'].queryset = Notions.objects.filter(chapitre=seance.chapitre.id)  
     class Meta:
         model = Seance_Coaching
-        fields = '__all__'
+        fields = '__all__'"""
 
         
 class Seance_CoachingForm(forms.ModelForm):
@@ -125,7 +129,6 @@ class PayementForm(forms.ModelForm):
     class Meta:
         model = Payement
         fields = '__all__'
-
 
 
 #Connexion
