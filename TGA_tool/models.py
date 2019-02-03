@@ -24,7 +24,7 @@ class Famille(models.Model):
 		ordering=['nom']
 
 	def __str__(self):
-		return '%s %s' % (self.nom, self.adresse)
+		return '{0} - {1}'.format(self.nom, self.adresse)
 
 class Parent(models.Model):
 	# Information générales
@@ -34,9 +34,10 @@ class Parent(models.Model):
 	nom= models.CharField(max_length=42,verbose_name="Nom",unique=False)
 	telephone= models.CharField(max_length=15,verbose_name="Telephone",unique=True)
 	email= models.EmailField(verbose_name="E-mail",unique=True,blank=True)
-	famille = models.ForeignKey('Famille', on_delete = models.CASCADE, verbose_name="Famille - adresse", null=False,default= 1)
-	estResponsable= models.BooleanField(verbose_name="Parent à contacter", default=False)
+	famille = models.ForeignKey('Famille', on_delete = models.CASCADE, verbose_name="Famille", null=False,default= 1)
+	estResponsable= models.BooleanField(verbose_name="Parent principal", default=False)
 	solde = models.IntegerField(default=0)
+
 	# Information du compte utilisateur
 	date_inscription = models.DateField(auto_now=True, verbose_name="Date d'inscription")
 	user = models.OneToOneField(User,on_delete=models.SET_NULL,null=True,blank=True)
@@ -46,17 +47,17 @@ class Parent(models.Model):
 		ordering=['nom']
 
 	def __str__(self):
-		return '%s %s' % (self.prenom, self.nom)
+		return '{0} {1}'.format(self.prenom, self.nom)
 
 
 class Eleve(models.Model):	
 
 	# Informations générales
-	nom= models.CharField(max_length=42,verbose_name="Nom",unique=True)
+	nom= models.CharField(max_length=42,verbose_name="Prenom",unique=False)
 	date_naissance=models.DateField(null=True,blank=True,verbose_name="Date de naissance")
 	num= models.CharField(max_length=15,null=True,blank=True,verbose_name="Telephone",unique=True,help_text="Optionnel")
 	email=models.EmailField(null=True,blank=True,verbose_name="E-mail",unique=True,help_text="Optionnel")
-	famille = models.ForeignKey('Famille',on_delete=models.CASCADE,verbose_name="Famille - adresse", default=1)
+	famille = models.ForeignKey('Famille',on_delete=models.CASCADE,verbose_name="Famille", default=1)
 
 	# Informations scolarités
 	etablissement=models.CharField(max_length=20,null=True,blank=True)
@@ -103,7 +104,6 @@ class Payement(models.Model):
 		return 'Paiement de {0} par parent {1}' . format(self.montant, self.parent)
 
 
-
 ############################################################### Curriculums ########################################################################""
 
 
@@ -144,6 +144,8 @@ class Seance(models.Model):#Seance est une classe abstraite qui englobe les attr
 	statut=models.CharField(max_length=8,choices=statut_choices,default="Planifié",verbose_name="Statut")
 	class Meta:
 		abstract=True
+
+
 		
 class Seance_Cours(Seance):
 	
@@ -246,12 +248,13 @@ class Frequence(models.Model):
 	)
 	day_choices=((7,'Dimanche'),(1,'Lundi'),(2,'Mardi'),(3,'Mercredi'),(4,'Jeudi'),(5,'Vendredi'),(6,'Samedi'),)#les numéros font référence a l'isoweekday
 	frequence=models.CharField(max_length=30,choices=freq_choices,default="Une seance",verbose_name="Fréquence")
-	creneau=models.ForeignKey('Creneau',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Creneau",help_text="Créneau dans la journée")
 	jour=models.PositiveIntegerField(blank=True,null=True,choices=day_choices,verbose_name="Jour de la semaine",help_text="Pour les fréquences: ''Chaque semaine'' et ''Chaque X semaines''")#jour de la semaine iso 
-	day_of_month=models.PositiveIntegerField(verbose_name="Jour du mois",blank=True,null=True,help_text="Pour les fréquences: ""Chaque mois"" et ''Chaque X mois' ")
-	period=models.PositiveIntegerField(verbose_name="Période",help_text="Chaque X jours/semaines/mois",blank=True,null=True)#x times each week/month/day
+	creneau=models.ForeignKey('Creneau',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Creneau",help_text="Créneau dans la journée")
 	date_debut=models.DateField(verbose_name="Debut du cours",blank=True,null=True,help_text="Date du début du cours")#le premier jour de la semiane dans la calendrier iso est le lundi
 	date_limite=models.DateField(verbose_name="Fin du cours",blank=True,null=True,help_text="Date de la fin du cours")
+	day_of_month=models.PositiveIntegerField(verbose_name="Jour du mois",blank=True,null=True,help_text="Pour les fréquences: ""Chaque mois"" et ''Chaque X mois' ")
+	period=models.PositiveIntegerField(verbose_name="Période",help_text="Chaque X jours/semaines/mois",blank=True,null=True)#x times each week/month/day
+	
 	class Meta:
 		verbose_name="fréquence"
 	def __str__(self):

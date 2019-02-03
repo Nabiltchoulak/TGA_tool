@@ -50,20 +50,28 @@ def nouveauParent(request, id):
 
     return render(request, 'TGA_tool/nouveau-parent.html', locals())    
 
-def nouveauEleve(request, id):
-    form = EleveForm(request.POST or None)
-    if form.is_valid(): 
-        eleve = form.save(commit=False)
-        eleve.famille = Famille.objects.get(id=id)
-        eleve.save()
-        form.save_m2m()
+def nouveauEleve(request, id=0):
 
-        if 'end' in request.POST :#test if the user choosed "submit" 
-            return render(request,'TGA_tool/home.html')
-        elif 'submit & add other' in request.POST :#or "submit && add" 
-            form=EleveForm()#Vider le formulaire 
-            return render(request,'TGA_tool/nouveau-eleve.html', locals())
+    if id>0:
+        form = EleveForm(request.POST or None)
+        famille = True 
+        if form.is_valid(): 
+            eleve = form.save(commit=False)
+            eleve.famille = Famille.objects.get(id=id)
+            eleve.save()
+            form.save_m2m()
 
+            if 'end' in request.POST :#test if the user choosed "submit" 
+                return render(request,'TGA_tool/home.html')
+            elif 'submit & add other' in request.POST :#or "submit && add" 
+                form=EleveForm()#Vider le formulaire 
+                return render(request,'TGA_tool/nouveau-eleve.html', locals())
+    else:
+        form = EleveForm2(request.POST or None)
+        famille = False
+        if form.is_valid():
+            eleve = form.save()
+            return redirect('home.html')
     # Quoiqu'il arrive, on affiche la page du formulaire.
     return render(request,'TGA_tool/nouveau-eleve.html', locals())	
 
@@ -109,17 +117,21 @@ def deconnexion(request):
 
 #@login_required
 def mesCours(request):
-    id = request.user.id
-    coach = Coach.objects.get(user = id)
-    cours = Cours.objects.filter(coach = coach.id)
-
     listecours =[]
-    
-    for cour in cours:
-        listecours.append({'id': cour.id, 'curriculum': cour.matiere.curriculum.niveau, 'matiere': cour.matiere.matiere, 'frequence': cour.frequence.frequence})
+    if request.GET['cours']=='all':
+        cours = Cours.objects.all()
+        for cour in cours:
+            listecours.append({'id': cour.id, 'curriculum': cour.matiere.curriculum.niveau, 'matiere': cour.matiere.matiere, 'frequence': cour.frequence.frequence})
 
+    else:
+        id = request.user.id
+        coach = Coach.objects.get(user = id)
+        cours = Cours.objects.filter(coach = coach.id)  
+        for cour in cours:
+            listecours.append({'id': cour.id, 'curriculum': cour.matiere.curriculum.niveau, 'matiere': cour.matiere.matiere, 'frequence': cour.frequence.frequence})
     
     return render(request,'TGA_tool/cours-du-coach.html', locals())
+
 
 def mesSeances(request):
  
@@ -225,6 +237,14 @@ def declarerSeance(request,id):
     # optionnel : envoi d'un email au parent
 
     return render(request, 'TGA_tool/report-seance.html', locals()) 
+
+
+def makePayement(request):
+    form = PayementForm(request.POST or None)
+    if form.is_valid():
+        payement = form.save() 
+    
+    return render(request, 'TGA_tool/make-payement.html', locals())    
 
 def displaySeanceCoaching(request,id):
     seance = Seance_Coaching.objects.get(id = id)
@@ -490,6 +510,7 @@ def eleveArrive(request):
 
 def listeFamilles(request):
     familles = Famille.objects.all()
+
     return render(request,'TGA_tool/liste-famille.html', locals())
 
 def display(request,type):

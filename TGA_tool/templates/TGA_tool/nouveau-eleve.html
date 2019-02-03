@@ -3,10 +3,11 @@
 {% block title %} Nouveau élève {% endblock %}
 {% block content %}
 
-{% if envoi %} L'élève a été bien ajouté !{% endif %}
-<h2>Ajouter un nouveau élève</h2>
-<form action="{% url "nouveau eleve" id %}" method="post">
 
+<h2>Ajouter un nouveau élève</h2>
+
+{% if famille %}
+<form action="{% url 'nouveau eleve' id %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <span>
@@ -14,6 +15,17 @@
     </span>
     <span>
         <input type="submit" value="Submit & add other" name="submit & add other"/>
-    </span> 
+    </span>
 </form>
-{% endblock %}
+
+{% else %}
+<form action="{% url 'nouveau eleve' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit" name="end" />
+</form>
+	
+
+{% endif %}
+
+{% endblock %}	

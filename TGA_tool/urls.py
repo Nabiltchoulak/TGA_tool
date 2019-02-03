@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^connexion$', views.connexion, name='connexion'),
     url(r'^deconnexion$', views.deconnexion, name='deconnexion'),
     #url(r'^connexion$', auth_views.LoginView.as_view()),
+    path('nouveau-eleve.html', views.nouveauEleve, name="nouveau eleve"),
     path('nouveau-eleve.html/<int:id>', views.nouveauEleve, name="nouveau eleve"),
     path('nouveau-parent.html/<int:id>', views.nouveauParent, name="nouveau parent"),
     path('nouveau-coach.html', views.nouveauCoach, name="nouveau coach"),
@@ -39,5 +40,7 @@ urlpatterns = [
     path('report-seance-coaching.html/<int:id>',views.declarerSeanceCoaching,name='report seance coaching'),
     # les urls du paiement
     path('make-payement.html',views.makePayement,name='make payement'),
+
     
+
 ]
