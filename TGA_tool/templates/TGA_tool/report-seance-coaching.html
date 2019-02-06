@@ -7,10 +7,12 @@
 <h2> Description séance </h2>
 <h3>Date : </h3>{{ date_seance }} <br/>
 <h3>Heure : </h3>{{ heure_seance }} <br/>
-<h3>Statut : </h3> {{ statut}} <br/>
+<h3>Salle : </h3> {{salle_seance}} <br/>
 <br/>
 <br/>
-
+<h3>Chapitres : </h3> {{chapitre}} <br/>
+<h3>Notions : </h3> <br/> {% for notion in notions %} {{notion}} <br/> {% endfor %}
+<h3>Statut : </h3> {{statut}}
 <br/>
 <br/>
 

@@ -36,7 +36,10 @@ class Parent(models.Model):
 	email= models.EmailField(verbose_name="E-mail",unique=True,blank=True)
 	famille = models.ForeignKey('Famille', on_delete = models.CASCADE, verbose_name="Famille", null=False,default= 1)
 	estResponsable= models.BooleanField(verbose_name="Parent principal", default=False)
+	credit=models.IntegerField(default=0)
+	debit=models.IntegerField(default=0)
 	solde = models.IntegerField(default=0)
+	
 
 	# Information du compte utilisateur
 	date_inscription = models.DateField(auto_now=True, verbose_name="Date d'inscription")
@@ -49,14 +52,21 @@ class Parent(models.Model):
 	def __str__(self):
 		return '{0} {1}'.format(self.prenom, self.nom)
 
+class ElevePotentiel(models.Model):
+	nom= models.CharField(max_length=42,verbose_name="Prenom",unique=False)
+	num= models.CharField(max_length=15,blank=True,verbose_name="Telephone")
+	email=models.EmailField(blank=True,verbose_name="E-mail")
+	matieres=models.ManyToManyField("Matiere",through="Requete", verbose_name="Cours potentiels demandes",blank=True)
+	def __str__(self):
+		return self.nom
 
-class Eleve(models.Model):	
+class Eleve(ElevePotentiel):	
 
 	# Informations générales
-	nom= models.CharField(max_length=42,verbose_name="Prenom",unique=False)
+	#nom= models.CharField(max_length=42,verbose_name="Prenom",unique=False)
 	date_naissance=models.DateField(null=True,blank=True,verbose_name="Date de naissance")
-	num= models.CharField(max_length=15,null=True,blank=True,verbose_name="Telephone",unique=True,help_text="Optionnel")
-	email=models.EmailField(null=True,blank=True,verbose_name="E-mail",unique=True,help_text="Optionnel")
+	#num= models.CharField(max_length=15,null=True,blank=True,verbose_name="Telephone",unique=True,help_text="Optionnel")
+	#email=models.EmailField(null=True,blank=True,verbose_name="E-mail",unique=True,help_text="Optionnel")
 	famille = models.ForeignKey('Famille',on_delete=models.CASCADE,verbose_name="Famille", default=1)
 
 	# Informations scolarités
@@ -73,6 +83,17 @@ class Eleve(models.Model):
 	def __str__(self):
 		return self.nom
 
+
+class Requete(models.Model):
+	eleve=models.ForeignKey("ElevePotentiel", on_delete=models.CASCADE)
+	matiere = models.ForeignKey("Matiere", on_delete=models.SET_NULL,null=True,blank=True)
+	day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
+	jour=models.CharField(null=True,blank=True,choices=day_choices, max_length=70)
+	creneau=models.ManyToManyField("Creneau",verbose_name='Créneau',blank=True)
+	def __str_(self):
+		return "{0} demande {1}".format(self.eleve, self.matiere)
+
+
 class Coach(Resource):
 	genre_choices=(("M.","Monsieur"),("Mme.","Madame"),("Mlle","Mademoiselle"),)
 	genre=models.CharField(max_length=10,choices=genre_choices,default="M.",verbose_name="Civilité")
@@ -83,6 +104,8 @@ class Coach(Resource):
 	matieres=models.ManyToManyField('Matiere',related_name="enseigne",verbose_name="matieres",help_text='Les matières que peut enseigner ce coach')
 	user = models.OneToOneField(User, on_delete = models.CASCADE, default=1)
 	salaire = models.DecimalField(max_digits=8, decimal_places=2,default=0)
+	grade_choices=(("Junior","Junior"),("Senior","Senior"),("Excellence","Excellence"),)
+	grade=models.CharField(max_length=10,choices=grade_choices,default="",blank=True)
 	#matrice_dispo pour gérer les disponibilités
 	#matrice_polyvalence pour gérer la polyvalence des coachs
 	class Meta:
@@ -248,13 +271,12 @@ class Frequence(models.Model):
 	)
 	day_choices=((7,'Dimanche'),(1,'Lundi'),(2,'Mardi'),(3,'Mercredi'),(4,'Jeudi'),(5,'Vendredi'),(6,'Samedi'),)#les numéros font référence a l'isoweekday
 	frequence=models.CharField(max_length=30,choices=freq_choices,default="Une seance",verbose_name="Fréquence")
-	jour=models.PositiveIntegerField(blank=True,null=True,choices=day_choices,verbose_name="Jour de la semaine",help_text="Pour les fréquences: ''Chaque semaine'' et ''Chaque X semaines''")#jour de la semaine iso 
 	creneau=models.ForeignKey('Creneau',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Creneau",help_text="Créneau dans la journée")
-	date_debut=models.DateField(verbose_name="Debut du cours",blank=True,null=True,help_text="Date du début du cours")#le premier jour de la semiane dans la calendrier iso est le lundi
-	date_limite=models.DateField(verbose_name="Fin du cours",blank=True,null=True,help_text="Date de la fin du cours")
+	jour=models.PositiveIntegerField(blank=True,null=True,choices=day_choices,verbose_name="Jour de la semaine",help_text="Pour les fréquences: ''Chaque semaine'' et ''Chaque X semaines''")#jour de la semaine iso 
 	day_of_month=models.PositiveIntegerField(verbose_name="Jour du mois",blank=True,null=True,help_text="Pour les fréquences: ""Chaque mois"" et ''Chaque X mois' ")
 	period=models.PositiveIntegerField(verbose_name="Période",help_text="Chaque X jours/semaines/mois",blank=True,null=True)#x times each week/month/day
-	
+	date_debut=models.DateField(verbose_name="Debut du cours",blank=True,null=True,help_text="Date du début du cours")#le premier jour de la semiane dans la calendrier iso est le lundi
+	date_limite=models.DateField(verbose_name="Fin du cours",blank=True,null=True,help_text="Date de la fin du cours")
 	class Meta:
 		verbose_name="fréquence"
 	def __str__(self):
@@ -290,7 +312,6 @@ class Creneau(models.Model):
 		return "{0} - {1}".format(st_tim,ed_tim)
 	class Meta :
 		verbose_name="créneau"
-
 
 
 ###################################################################   Signaux  #######################################################################
