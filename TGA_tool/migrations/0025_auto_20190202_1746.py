@@ -10,15 +10,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='payement',
-            options={'ordering': ['date'], 'verbose_name': 'Paiement'},
-        ),
-        migrations.AlterField(
-            model_name='seance_coaching',
-            name='statut',
-            field=models.CharField(choices=[('Planifié', 'Planifiée'), ('Done', 'Effectué'), ('Annulé', 'Annulée')], default='Planifié', max_length=8, verbose_name='Statut'),
-        ),
+        
+        
         migrations.AlterField(
             model_name='seance_cours',
             name='statut',

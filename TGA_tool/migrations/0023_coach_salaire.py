@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('TGA_tool', '0022_parent_solde'),
+        ('TGA_tool', '0019_seance_coaching_statut'),
     ]
 
     operations = [

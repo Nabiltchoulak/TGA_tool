@@ -24,6 +24,7 @@ urlpatterns = [
     path('nouvelle-matiere.html', views.matiere, name="nouvelle matiere"),
     path('nouveau-chapitre.html/<int:id>',views.chapitreNotions,name='chapitre notion'),
     path('nouveau-cours.html', views.nouveauCours, name="nouveau cours"),
+    path('nouvelle-requete.html', views.requete, name="nouvelle requete"),
     path('eleve-arrive.html', views.eleveArrive, name="eleve arrive"),
     path('display.html/<str:type>',views.display,name='display'),
     path('details.html/<str:type>/<int:id>',views.details,name='details'),

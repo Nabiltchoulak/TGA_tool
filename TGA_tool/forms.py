@@ -13,7 +13,7 @@ class FamilleForm(forms.ModelForm):
 class ParentForm(forms.ModelForm):
     class Meta:
         model = Parent
-        exclude = ['user', 'famille','solde']
+        exclude = ['user', 'famille','solde','debit','credit']
     
 
 
@@ -21,17 +21,17 @@ class EleveForm(forms.ModelForm): #creation après la famille
     date_naissance = forms.DateField(widget=forms.DateInput(attrs={'class':'datepicker'}))
     class Meta:
         model = Eleve
-        exclude=['user','date_inscription', 'famille']
+        exclude=['user','date_inscription', 'famille','matieres']
 
 class EleveForm2(forms.ModelForm): #creation pour un famille existante
     class Meta:
         model = Eleve
-        exclude=['user','date_inscription']
+        exclude=['user','date_inscription','matieres']
 
 class CoachForm(forms.ModelForm):
     class Meta:
         model = Coach
-        exclude = ['disponibilite', 'user']
+        exclude = ['disponibilite', 'user','salaire','grade']
 
 # Création du contenu pédagogique
 
@@ -61,7 +61,7 @@ class CoursForm(forms.Form):
 class SeanceForm(forms.ModelForm):
     class Meta:
         model = Seance_Cours
-        exclude = ['cours']
+        exclude = ['cours','statut']
 
 class Seance_CoursForm(forms.Form):
     seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir la séance a éditer') 
@@ -80,6 +80,15 @@ class SalleForm(forms.ModelForm):
         model = Salle
         fields = '__all__'
 
+class RequeteForm(forms.Form):
+    matiere=forms.ModelMultipleChoiceField(queryset=Matiere.objects.all(),help_text="Matieres", widget=forms.CheckboxSelectMultiple)
+    creneau=forms.ModelMultipleChoiceField(queryset=Creneau.objects.all(),help_text="Créneau",required=False, widget=forms.CheckboxSelectMultiple)
+    day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
+    jour=forms.MultipleChoiceField(choices=day_choices,required=False,help_text="Jours", widget=forms.CheckboxSelectMultiple)
+class ElevePotentielForm(forms.ModelForm):
+    class Meta:
+        model =ElevePotentiel
+        exclude=['matieres']
 
 #Suivi séances
 
@@ -121,7 +130,7 @@ class ReportSeanceCoachingForm(forms.Form):
 class Seance_CoachingForm(forms.ModelForm):
     class Meta:
         model = Seance_Coaching
-        fields = '__all__'
+        exclude =['statut']
 
 
 #Suivi paiement 
