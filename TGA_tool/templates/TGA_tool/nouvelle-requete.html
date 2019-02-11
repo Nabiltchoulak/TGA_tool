@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{%load static %}
+{% block title %} Nouvelle requete {% endblock %}
+{% block content %}
+
+ 
+
+<form action="{% url 'nouvelle requete' type %}" method="post">
+    {% csrf_token %}
+   {% if  type == "1" %}
+    {{eleve_potentiel_form.as_p}}
+    {% elif type == "2" %}
+    {{ eleve_form.as_p }}
+    {% endif %}
+    <br><br>
+    
+    {{requete_form.as_p}}
+    
+   <span>
+    <input type="submit" value="Submit" name="end" />
+    </span>
+    <span>
+        <input type="submit" value="Submit & add other" name="submit & add other"/>
+    </span>
+</form>
+   
+{% endblock %}

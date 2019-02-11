@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{%load static %}
+{% block title %} Affichage seance {% endblock %}
+{% block content %}
+
+
+<h2> Description séance </h2>
+<h3>Date : </h3>{{ date_seance }} <br/>
+<h3>Heure : </h3>{{ heure_seance }} <br/>
+<h3>Salle : </h3> {{ salle_seance}} <br/>
+<h3>Statut : </h3> {{ statut}} <br/>
+<br/>
+<br/>
+<h2> Description séance </h2>
+<h3>Niveau : </h3> {{niveau}}
+<h3>Matière : </h3> {{matiere}}
+<h3>Chapitre : </h3>{{chapitre}}
+<h3>Notions</h3> {{notions}}
+
+
+<br/>
+<br/>
+
+<h2> Eleves inscrits </h2>
+<ul>
+{% for eleve in eleves %}
+    <li>{{ eleve }}</li>
+{% endfor %}
+</ul>
+{% if statut != "Done" %}
+<a href="{% url 'annuler seance coaching' seance_id %}"> Annuler la séance </a>
+<a href="{% url 'edit seance coaching' seance_id %}">Modifier la séance</a>
+<a href="{% url 'report seance coaching' seance_id %}">Déclarer la séance</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{%load static %}
+{% block title %} Tableau de bord {% endblock %}
+{% block content %}
+
+<table>
+{% if  type == "1" %}
+<tr><th>Famille</th> <th>Adresse</th></tr>
+{% for famille in familles  %}
+<tr>
+<td>{{ famille.nom }}</td> <td>{{ famille.adresse }}</td> 
+</tr>
+{% endfor %}
+{% elif type == "2" %}
+<tr><th>Parent</th> <th>Telephone</th> <th>Email</th><th>Adresse</th></tr>
+{% for parent in parents  %}
+<tr>
+<td>{{ parent }}</td> <td>{{ parent.telephone }}</td><td>{{ parent.email }}</td><td>{{ parent.famille.adresse }}</td>
+</tr>
+{% endfor %}
+{% elif type == "3" %}
+<tr><th>Eleve</th> <th>Niveau</th></tr>
+{% for eleve in eleves  %}
+<tr>
+<td>{{ eleve }}</td> <td>{{ eleve.curriculum }}</td> 
+</tr>
+{% endfor %}
+{% elif type == "4" %}
+<tr><th>Date</th> <th>Client</th><th>Montant</th></tr>
+{% for paiement in paiements  %}
+<tr>
+<td>{{ paiement.date }}</td> <td>{{ paiement.parent }}</td> <td>{{ paiement.montant }}</td> 
+</tr>
+{% endfor %}
+{% elif type == "5" %}
+<tr><th>Coach</th> <th>Telephone</th><th>Email</th><th>Matiere</th></tr>
+{% for coach in coachs  %}
+<tr>
+<td><a href="{% url 'details' "5" coach.id %}">{{ coach }}</a></td> <td>{{ coach.telephone }}</td> <td>{{ coach.email }}</td><td>{% for matiere in coach.matieres.all %} {{matiere}}, {% endfor %} </td> 
+</tr>
+{% endfor %}
+{% elif type == "6"%}
+<tr><th>Curriculum </th><th>Matière</th><th> Fréquence </th></tr>
+{% for cour in cours %}
+<tr>
+<td>{{ cour.curriculum }}</td> <td>{{ cour.matiere }}</td> <td>{{ cour.frequence }}</td>
+</tr>
+{% endfor %}
+{% elif type == "7" %}
+<tr><th>Salle </th>
+
+{% for salle in salles %}
+<tr>
+<td><a href="TGA_tool/details.html"> {{ salle }}</a></td> 
+</tr>
+{% endfor %}
+{% elif type == "8" %}
+<tr><th> Requetes </th></tr>
+
+{% for requete in requetes %}
+<tr>
+
+<td>{{ requete }}</td>
+</tr>
+{% endfor %}
+{% endif %}
+</table>
+
+
+
+
+
+{% endblock %}
