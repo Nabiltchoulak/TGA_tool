@@ -5,11 +5,13 @@
 
  
 
-<form action="{% url 'nouvelle requete' %}" method="post">
+<form action="{% url 'nouvelle requete' type %}" method="post">
     {% csrf_token %}
-   
+   {% if  type == "1" %}
     {{eleve_potentiel_form.as_p}}
-    
+    {% elif type == "2" %}
+    {{ eleve_form.as_p }}
+    {% endif %}
     <br><br>
     
     {{requete_form.as_p}}

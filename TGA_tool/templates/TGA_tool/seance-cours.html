@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{%load static %}
+{% block title %} Nouvelle séance cours {% endblock %}
+{% block content %}
+
+{% if envoi %} La séance a été bien ajouté !{% endif %}
+<h2>Séance cours</h2>
+<form action="{% url "seance cours" %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+     <span>
+    <input type="submit" value="Submit" name="end" />
+    </span>
+    <span>
+        <input type="submit" value="Submit & add other" name="submit & add other"/>
+    </span> 
+</form>
+{% endblock %}

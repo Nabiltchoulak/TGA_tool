@@ -45,7 +45,7 @@ def init_matieres():
             matieres[niveau.niveau].remove("SVT")
         elif niveau.niveau=='Terminal S' or niveau.niveau=='Terminal ES':
             matieres[niveau.niveau].append("Philosophie")
-        elif niveau.niveau=='Première ES' or niveau.niveau=='Terminal ES':
+        elif niveau.niveau=='Première ES' or niveau.niveau=='Terminal ES' or "Seconde":
             matieres[niveau.niveau].append("SES")
         
     

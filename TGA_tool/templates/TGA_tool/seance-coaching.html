@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{%load static %}
+{% block title %} Nouvelle séance coaching {% endblock %}
+{% block content %}
+
+{% if envoi %} La séance a été bien ajouté !{% endif %}
+<h2>Séance coaching</h2>
+<form action="{% url "seance coaching" %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+     <span>
+    <input type="submit" value="Submit" name="end" />
+    </span>
+    <span>
+        <input type="submit" value="Submit & add other" name="submit & add other"/>
+    </span> 
+</form>
+{% endblock %}

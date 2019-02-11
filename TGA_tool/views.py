@@ -71,9 +71,11 @@ def nouveauEleve(request, id=0):
                 eleve.elevepotentiel_ptr.num=form.cleaned_data["num"]
                 eleve.save()
                 form.save_m2m()
-                #if Requete.object.filter(eleve=elevepotentiel).get(matiere=eleve.cours.matiere):
-                #    requete=Requete.object.filter(eleve=elevepotentiel).get(matiere=eleve.cours.matiere)
-                #    requete.delete()
+                for cours in form.cleaned_data["cours"] :
+                    
+                    if Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere):
+                        requete=Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere)
+                        requete.delete()
 
             else :
                 eleve = form.save()
@@ -95,10 +97,12 @@ def nouveauEleve(request, id=0):
                 eleve.elevepotentiel_ptr.num=form.cleaned_data["num"]
                 eleve.save()
                 form.save_m2m()
-                #if Requete.objects.filter(eleve=elevepotentiel).get(matiere=eleve.cours.matiere):
-                    #requete=Requete.objects.filter(eleve=elevepotentiel).get(matiere=eleve.cours.matiere)
-                    #requete.delete()
+                for cours in form.cleaned_data["cours"] :
                     
+                    if Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere):
+                        requete=Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere)
+                        requete.delete()
+                        
 
             else :
                 eleve = form.save()
@@ -374,6 +378,34 @@ def makePayement(request):
 
     return render(request, 'TGA_tool/make-payement.html', locals())
 
+def nouvelleSeanceCoaching(request) :
+    form= Seance_CoachingForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+    if 'end' in request.POST:
+            return redirect('home.html')
+    elif 'submit & add other' in request.POST :
+        form=Seance_CoachingForm()
+        #Vider les formulaires
+        return render(request, 'TGA_tool/seance-coaching.html',locals())
+    return render(request, 'TGA_tool/seance-coaching.html', locals())
+
+def nouvelleSeanceCours(request) :
+    form= SeanceForm2(request.POST or None)
+    #form.fields['eleves'].queryset=Eleve.objects.filter(matiere=seance.cours.matiere)
+    if form.is_valid():
+        form.save()
+    if 'end' in request.POST:
+            return redirect('home.html')
+    elif 'submit & add other' in request.POST :
+        form=Seance_CoachingForm()
+        #Vider les formulaires
+        return render(request, 'TGA_tool/seance-coaching.html',locals())
+    return render(request, 'TGA_tool/seance-coaching.html', locals())
+
+
+
+
 def contact(request):
     # Construire le formulaire, soit avec les données postées,
     # soit vide si l'utilisateur accède pour la première fois
@@ -494,7 +526,7 @@ def init_data(request):
     
     return render(request, 'TGA_tool/initial-data.html',locals())
 
-
+"""
 def eleveArrive(request):
     parents_titles=['Parent responsable','Parent contact']
     ParentFormset = modelformset_factory(Parent,form=ParentForm,extra=2,max_num=2)
@@ -533,11 +565,8 @@ def eleveArrive(request):
                 ids.append(eleve.parent_sec.id)
             else :
                 ids.append(-1)
-            """base_url = reverse(nouveauEleve)
-            query_string =  urlencode({'ids': ids})  
-            url = '{}?{}'.format(base_url, query_string)  # 3 /products/?category=42"""
-            return redirect(nouveauEleve,args=ids)   
-    return render(request, 'TGA_tool/eleve-arrive.html',locals())
+           
+    return render(request, 'TGA_tool/eleve-arrive.html',locals())"""
 
 
 def display(request,type):
@@ -564,6 +593,8 @@ def display(request,type):
     elif type=="7":
         salles=Salle.objects.all()#Cette partie redirige vers une page qui aura les details de 
                                   #la salle a savoir : capacité,calendrier,prise/libre ...
+    elif type=="8":
+        requetes=Requete.objects.all()
     
     return render(request,'TGA_tool/display.html', locals())
 
@@ -588,29 +619,44 @@ def details(request,type,id):
 
     return render(request,'TGA_tool/details.html', locals())    
 
-def requete(request):
-    eleve_potentiel_form=ElevePotentielForm(request.POST or None)
+def requete(request,type):#1 pour une requete externe / 2 pour une requete interne 
     requete_form=RequeteForm(request.POST or None)
-    ind=True#Pour éviter la création de plusieurs instances de eleve potentiel
-    if eleve_potentiel_form.is_valid() and requete_form.is_valid():
-        if ind: 
-            eleve_potentiel=eleve_potentiel_form.save()
-            ind=False
-        for matiere in requete_form.cleaned_data['matiere']:
-            if requete_form.cleaned_data['creneau']:
+    eleve_form=SelectEleveForm(request.POST or None)
+    eleve_potentiel_form=ElevePotentielForm(request.POST or None)
+    if type == "1":        
+        ind=True#Pour éviter la création de plusieurs instances de eleve potentiel
+        if eleve_potentiel_form.is_valid() and requete_form.is_valid():
+            if ind: 
+                eleve_potentiel=eleve_potentiel_form.save()
+                ind=False
+            for matiere in requete_form.cleaned_data['matiere']:
+                if requete_form.cleaned_data['creneau']:#On doit vérifier l'existence d'un créneau pour utiliser la fonction .set
                 
-                requete=Requete.objects.create(matiere=matiere,jour=requete_form.cleaned_data['jour'],eleve=eleve_potentiel)
-                requete.creneau.set(requete_form.cleaned_data['creneau'])
+                    requete=Requete.objects.create(matiere=matiere,jour=requete_form.cleaned_data['jour'],eleve=eleve_potentiel)
+                    requete.creneau.set(requete_form.cleaned_data['creneau'])
 
-            else :
-                Requete.objects.create(matiere=matiere,jour=requete_form.cleaned_data['jour'],eleve=eleve_potentiel)
+                else :
+                    Requete.objects.create(matiere=matiere,jour=requete_form.cleaned_data['jour'],eleve=eleve_potentiel)
+    
+    elif type == "2":
+        
+        if eleve_form.is_valid() and requete_form.is_valid():
+            for matiere in requete_form.cleaned_data['matiere']:
+                if requete_form.cleaned_data['creneau']:#On doit vérifier l'existence d'un créneau pour utiliser la fonction .set
+                
+                    requete=Requete.objects.create(matiere=matiere,jour=requete_form.cleaned_data['jour'],eleve=eleve_form.cleaned_data['eleve'])
+                    requete.creneau.set(requete_form.cleaned_data['creneau'])
+
+                else :
+                    Requete.objects.create(matiere=matiere,jour=requete_form.cleaned_data['jour'],eleve=eleve_form.cleaned_data['eleve'])
+            
+    
     if 'end' in request.POST:
             return redirect('home.html')
-    
-    
     elif 'submit & add other' in request.POST :
+        requete_form=RequeteForm()
+        eleve_form=SelectEleveForm()
         eleve_potentiel_form=ElevePotentielForm()
-        requete_form=RequeteForm()#Vider les formulaires
         return render(request, 'TGA_tool/nouvelle-requete.html',locals())
     
     

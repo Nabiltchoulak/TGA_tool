@@ -27,9 +27,9 @@
     <li>{{ eleve }}</li>
 {% endfor %}
 </ul>
-
+{% if statut != "Done" %}
 <a href="{% url 'annuler seance coaching' seance_id %}"> Annuler la séance </a>
 <a href="{% url 'edit seance coaching' seance_id %}">Modifier la séance</a>
 <a href="{% url 'report seance coaching' seance_id %}">Déclarer la séance</a>
-
+{% endif %}
 {% endblock %}

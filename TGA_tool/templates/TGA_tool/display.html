@@ -54,6 +54,15 @@
 <td><a href="TGA_tool/details.html"> {{ salle }}</a></td> 
 </tr>
 {% endfor %}
+{% elif type == "8" %}
+<tr><th> Requetes </th></tr>
+
+{% for requete in requetes %}
+<tr>
+
+<td>{{ requete }}</td>
+</tr>
+{% endfor %}
 {% endif %}
 </table>
 

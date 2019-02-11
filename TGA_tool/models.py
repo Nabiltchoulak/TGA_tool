@@ -17,7 +17,7 @@ class Resource(models.Model):
 ########################### UTILISATEURS #######################################################
 class Famille(models.Model):
 	nom= models.CharField(max_length=42,verbose_name="Nom de famille", unique= False)
-	adresse = models.CharField(max_length=42,verbose_name="Adresse de famille", unique = True)
+	adresse = models.CharField(max_length=100,verbose_name="Adresse de famille", unique = True)
 
 	class Meta:
 		verbose_name="Famille"
@@ -32,7 +32,7 @@ class Parent(models.Model):
 	genre=models.CharField(max_length=10,choices=genre_choices,default="M.",verbose_name="Civilité")
 	prenom = models.CharField(max_length=42,verbose_name="Prénom",unique=False, default="")
 	nom= models.CharField(max_length=42,verbose_name="Nom",unique=False)
-	telephone= models.CharField(max_length=15,verbose_name="Telephone",unique=True)
+	telephone= models.CharField(max_length=40,verbose_name="Telephone",unique=True)
 	email= models.EmailField(verbose_name="E-mail",unique=True,blank=True)
 	famille = models.ForeignKey('Famille', on_delete = models.CASCADE, verbose_name="Famille", null=False,default= 1)
 	estResponsable= models.BooleanField(verbose_name="Parent principal", default=False)
@@ -53,7 +53,7 @@ class Parent(models.Model):
 		return '{0} {1}'.format(self.prenom, self.nom)
 
 class ElevePotentiel(models.Model):
-	nom= models.CharField(max_length=42,verbose_name="Prenom",unique=False)
+	nom= models.CharField(max_length=42,verbose_name="Nom complet",unique=False)
 	num= models.CharField(max_length=15,blank=True,verbose_name="Telephone")
 	email=models.EmailField(blank=True,verbose_name="E-mail")
 	matieres=models.ManyToManyField("Matiere",through="Requete", verbose_name="Cours potentiels demandes",blank=True)
@@ -90,15 +90,15 @@ class Requete(models.Model):
 	day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
 	jour=models.CharField(null=True,blank=True,choices=day_choices, max_length=70)
 	creneau=models.ManyToManyField("Creneau",verbose_name='Créneau',blank=True)
-	def __str_(self):
+	def __str__(self):
 		return "{0} demande {1}".format(self.eleve, self.matiere)
 
 
 class Coach(Resource):
 	genre_choices=(("M.","Monsieur"),("Mme.","Madame"),("Mlle","Mademoiselle"),)
 	genre=models.CharField(max_length=10,choices=genre_choices,default="M.",verbose_name="Civilité")
-	prenom=models.CharField(max_length=42,verbose_name="Prénom",unique=True, default="")
-	nom=models.CharField(max_length=42,verbose_name="Nom",unique=True)
+	prenom=models.CharField(max_length=42,verbose_name="Prénom", default="")
+	nom=models.CharField(max_length=42,verbose_name="Nom")
 	telephone=models.CharField(max_length=15,verbose_name="Telephone",unique=True,null=True,blank=True)
 	email= models.EmailField(verbose_name="E-mail",null=True,blank=True,unique=True)
 	matieres=models.ManyToManyField('Matiere',related_name="enseigne",verbose_name="matieres",help_text='Les matières que peut enseigner ce coach')
@@ -204,9 +204,9 @@ class MatiereCreator(models.Manager):
 		return matiere
 
 class Matiere(models.Model):
-	matiere_choices=(("Mathematiques","Mathematiques"),("Physique","Physique"),("SVT","SVT"),("Français","Français"),("Anglais","Anglais"),("Technologie","Technologie"),("SES","SES"),("Philosophie","Philosophie"),)
+	#matiere_choices=(("Mathematiques","Mathematiques"),("Physique","Physique"),("SVT","SVT"),("Français","Français"),("Anglais","Anglais"),("Technologie","Technologie"),("SES","SES"),("Philosophie","Philosophie"),)
 	
-	matiere=models.CharField(max_length=16,choices=matiere_choices,verbose_name="Matiere")
+	matiere=models.CharField(max_length=30,verbose_name="Matiere")
 	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='matiere',verbose_name="Curriculum")
 	objects = MatiereCreator()#ajouter une methode manager au object
 	class Meta:

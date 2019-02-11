@@ -19,16 +19,19 @@ class ParentForm(forms.ModelForm):
 
 class EleveForm(forms.ModelForm): #creation après la famille
     date_naissance = forms.DateField(widget=forms.DateInput(attrs={'class':'datepicker'}))
+    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
     class Meta:
         model = Eleve
         exclude=['user','date_inscription', 'famille','matieres']
 
 class EleveForm2(forms.ModelForm): #creation pour un famille existante
+    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
     class Meta:
         model = Eleve
         exclude=['user','date_inscription','matieres']
 
 class CoachForm(forms.ModelForm):
+    matieres=forms.ModelMultipleChoiceField(queryset=Matiere.objects.all(),widget=forms.CheckboxSelectMultiple)
     class Meta:
         model = Coach
         exclude = ['disponibilite', 'user','salaire','grade']
@@ -62,6 +65,14 @@ class SeanceForm(forms.ModelForm):
     class Meta:
         model = Seance_Cours
         exclude = ['cours','statut']
+
+class SeanceForm2(forms.ModelForm):
+    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
+    notions=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),widget=forms.CheckboxSelectMultiple)
+    eleves=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
+    class Meta:
+        model = Seance_Cours
+        exclude = ['statut']
 
 class Seance_CoursForm(forms.Form):
     seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir la séance a éditer') 
@@ -145,7 +156,9 @@ class ConnexionForm(forms.Form):
     username = forms.CharField(label="Nom d'utilisateur", max_length=30)
     password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput)
 
-
+class SelectEleveForm(forms.Form):
+    curriculum=forms.ModelChoiceField(queryset=Eleve.objects.all(),help_text="Choisir le curriculum")
+    eleve=forms.ModelChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
 
 
 
