@@ -110,6 +110,7 @@ def nouveauEleve(request, id=0):
         form = EleveForm2(request.POST or None)
         famille = False#Cet élève posséde déja une famille 
         
+        
         if request.POST:
             
             id_2=int(request.POST['curriculum_id'])
@@ -427,8 +428,31 @@ def makePayement(request):
 
 def nouvelleSeanceCoaching(request) :
     form= Seance_CoachingForm(request.POST or None)
+    if request.POST:
+        print(form.errors.as_data())
+        if 'curriculum_id' in list(request.POST.keys()):
+            id=int(request.POST['curriculum_id'])
+            curriculum= Curriculum.objects.get(id=id)
+            form.fields['eleve'].queryset=Eleve.objects.filter(curriculum=curriculum)
+            form.fields['matiere'].queryset=Matiere.objects.filter(curriculum=curriculum)
+            #Change this one to "matieres" of the student selected
+            data=form['eleve'] #+ 'iii' + form['matiere'] 
+            return HttpResponse(data)
+        
+        elif 'matiere_id' in list(request.POST.keys()):
+            id=int(request.POST['matiere_id'])
+            matiere= Matiere.objects.get(id=id)
+            form.fields['chapitre'].queryset=Chapitre.objects.filter(matiere=matiere)
+            return HttpResponse(form['chapitre'])
+        elif 'chapitre_id' in list(request.POST.keys()):
+            id=int(request.POST['chapitre_id'])
+            chapitre= Chapitre.objects.get(id=id)
+            form.fields['notions'].queryset=Notions.objects.filter(chapitre=chapitre)
+            return HttpResponse(form['notions'])
+    
     if form.is_valid():
         form.save()
+    
     if 'end' in request.POST:
             return redirect('home.html')
     elif 'submit & add other' in request.POST :
@@ -439,9 +463,28 @@ def nouvelleSeanceCoaching(request) :
 
 def nouvelleSeanceCours(request) :
     form= SeanceForm2(request.POST or None)
+    if request.POST:
+        if 'curriculum_id' in list(request.POST.keys()):
+            id=int(request.POST['curriculum_id'])
+            curriculum= Curriculum.objects.get(id=id)
+            form.fields['cours'].queryset=Cours.objects.filter(curriculum=curriculum)
+            return HttpResponse(form['cours'])
+        elif 'cours_id' in list(request.POST.keys()):
+            id=int(request.POST['cours_id'])
+            cours= Cours.objects.get(id=id)
+            form.fields['chapitre'].queryset=Chapitre.objects.filter(matiere=cours.matiere)
+            return HttpResponse(form['chapitre'])
+        elif 'chapitre_id' in list(request.POST.keys()):
+            id=int(request.POST['chapitre_id'])
+            chapitre= Chapitre.objects.get(id=id)
+            form.fields['notions'].queryset=Notions.objects.filter(chapitre=chapitre)
+            return HttpResponse(form['notions'])
+          
     #form.fields['eleves'].queryset=Eleve.objects.filter(matiere=seance.cours.matiere)
     if form.is_valid():
         form.save()
+    #elif request.POST:
+        #raise form.errors
     if 'end' in request.POST:
             return redirect('home.html')
     elif 'submit & add other' in request.POST :

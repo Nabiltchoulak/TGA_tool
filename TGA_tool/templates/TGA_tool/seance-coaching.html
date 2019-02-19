@@ -7,7 +7,60 @@
 <h2>Séance coaching</h2>
 <form action="{% url "seance coaching" %}" method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    <p id="curriculum_id">
+    {{form.curriculum.errors}}
+    {{form.curriculum.label_tag}}
+    {{form.curriculum}}
+    {{form.curriculum.help_text}}
+    </p>
+    <p id="eleve_id">
+    {{form.eleve.errors}}
+    {{form.eleve.label_tag}}
+    {{form.eleve}}
+    {{form.eleve.help_text}}
+    </p>
+    <p id="matiere_id">
+    {{form.matiere.errors}}
+    {{form.matiere.label_tag}}
+    {{form.matiere}}
+    {{form.matiere.help_text}}
+    </p>
+    <p id="coach_id">
+    {{form.coach.errors}}
+    {{form.coach.label_tag}}
+    {{form.coach}}
+    {{form.coach.help_text}}
+    </p>
+    <p id="date_id">
+    {{form.date.errors}}
+    {{form.date.label_tag}}
+    {{form.date}}
+    {{form.date.help_text}}
+    </p>
+    <p id="creneau_id">
+    {{form.creneau.errors}}
+    {{form.creneau.label_tag}}
+    {{form.creneau}}
+    {{form.creneau.help_text}}
+    </p>
+    <p id="salle_id">
+    {{form.salle.errors}}
+    {{form.salle.label_tag}}
+    {{form.salle}}
+    {{form.salle.help_text}}
+    </p>
+    <p id="chapitre_id">
+    {{form.chapitre.errors}}
+    {{form.chapitre.label_tag}}
+    {{form.chapitre}}
+    {{form.chapitre.help_text}}
+    </p>
+    <p id="notions_id">
+    {{form.notions.errors}}
+    {{form.notions.label_tag}}
+    {{form.notions}}
+    {{form.notions.help_text}}
+    </p>
      <span>
     <input type="submit" value="Submit" name="end" />
     </span>
@@ -15,4 +68,88 @@
         <input type="submit" value="Submit & add other" name="submit & add other"/>
     </span> 
 </form>
+{% endblock %}
+{% block javascript %}
+<script>
+        function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        
+        $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+        }   
+});
+        var csrftoken = Cookies.get('csrftoken');
+       $(function() {
+            
+            $chapitre=$('#chapitre_id');
+            $notions=$('#id_notions , #notions_id');
+            $chapitre.hide();
+            $notions.hide();
+            $('#id_curriculum').on("change",function() {
+
+    var $option = $(this).find('option:selected');
+    var value = $option.val(); //returns the value of the selected option.
+    
+    $.post(
+        '/TGA_tool/seance-coaching.html',
+        {
+            curriculum_id : value
+        },
+        function(data){
+            
+            $("#id_eleve").empty()            
+            $("#id_eleve").append(data);
+        },
+        'html',
+    );
+    
+    
+
+});
+$('#id_matiere').on("change",function() {
+    var $option = $(this).find('option:selected');
+    var value = $option.val(); //returns the value of the selected option.
+    console.log(value)
+    $.post(
+        '/TGA_tool/seance-coaching.html',
+        {
+            matiere_id : value
+        },
+        function(data){
+            
+            $("#id_chapitre").empty()            
+        $("#id_chapitre").append(data);
+        $chapitre.show();
+        },
+        'html',
+    );
+
+});
+$('#id_chapitre').on("change",function() {
+    var $option = $(this).find('option:selected');
+    var value = $option.val(); //returns the value of the selected option.
+    
+    $.post(
+        '/TGA_tool/seance-coaching.html',
+        {
+            chapitre_id : value
+        },
+        function(data){
+            
+            $("#id_notions").empty()            
+        $("#id_notions").append(data);
+        $notions.show();
+        },
+        'html',
+    );
+
+});
+
+       });
+</script>
 {% endblock %}

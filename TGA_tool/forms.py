@@ -18,7 +18,7 @@ class ParentForm(forms.ModelForm):
 
 
 class EleveForm(forms.ModelForm): #creation après la famille
-    date_naissance = forms.DateField(widget=forms.DateInput(attrs={'class':'datepicker'}))
+    date_naissance = forms.DateField(widget=forms.SelectDateWidget())
     cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.none(),widget=forms.CheckboxSelectMultiple)
     curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),widget=forms.CheckboxSelectMultiple,empty_label=None)
     class Meta:
@@ -70,10 +70,13 @@ class SeanceForm(forms.ModelForm):
         exclude = ['cours','statut']
 
 class SeanceForm2(forms.ModelForm):
-    cours=forms.ModelChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
-    notions=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),widget=forms.CheckboxSelectMultiple)
+    #cours=forms.ModelChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
+    notions=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
     #eleves=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
+    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all())
+    field_order=('curriculum','cours','date','creneau')
     class Meta:
+        
         model = Seance_Cours
         exclude = ['statut','eleves']
 
@@ -101,6 +104,8 @@ class RequeteForm(forms.Form):
     day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
     jour=forms.MultipleChoiceField(choices=day_choices,required=False,help_text="Jours", widget=forms.CheckboxSelectMultiple)
 class ElevePotentielForm(forms.ModelForm):
+    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),required=False)
+    field_order=('curriculum')
     class Meta:
         model =ElevePotentiel
         exclude=['matieres']
@@ -143,6 +148,9 @@ class ReportSeanceCoachingForm(forms.Form):
 
         
 class Seance_CoachingForm(forms.ModelForm):
+    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all())
+    field_order=('curriculum','eleve','matiere','coach','date','creneau','salle','chapitre','notions')
+    eleve=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
     class Meta:
         model = Seance_Coaching
         exclude =['statut']

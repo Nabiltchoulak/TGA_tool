@@ -13,9 +13,9 @@
     {{ eleve_form.as_p }}
     {% endif %}
     <br><br>
-    
+    <div id="req_form">
     {{requete_form.as_p}}
-    
+    </div>
    <span>
     <input type="submit" value="Submit" name="end" />
     </span>
@@ -41,26 +41,26 @@
 });
         var csrftoken = Cookies.get('csrftoken');
        $(function() {
-           //var curriculumChecked = $('#id_curriculum').find(":selected").text();
-           //var curriculum
-
-           $('#id_curriculum').on("change",function() {
-
-    var $option = $(this).find('option:selected');
-    var value = $option.val(); //returns the value of the selected option.
-    $.post(
-        '/TGA_tool/ajax_requete',
-        {
-            curriculum_id : value
-        },
-        function(data){
+        $('#req_form').hide();
+           
+        $('#id_curriculum').on("change",function() {
             
-            $("#id_matiere").empty() // dont remove text only           
-         $("#id_matiere").append(data);
-        },
-        'html',
-    );
-    
+        var $option = $(this).find('option:selected');
+        var value = $option.val(); //returns the value of the selected option.
+        
+        $.post(
+            '/TGA_tool/ajax_requete',
+            {
+                curriculum_id : value
+            },
+            function(data){
+            
+                $("#id_matiere").empty() // dont remove text only           
+                $("#id_matiere").append(data);
+            },
+            'html',
+            );
+        $('#req_form').show();
     
 
 });

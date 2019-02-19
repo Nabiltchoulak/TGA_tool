@@ -51,7 +51,7 @@
 
            $('#id_curriculum').on("change",function() {
 
-    var $option = $(this).find("input[name='curriculum']:checked");
+    var $option = $(this).find('option:selected');
 
     //Added with the EDIT
     var value = $option.val(); //returns the value of the selected option.
@@ -77,7 +77,7 @@
     );
     {% else %}
     $.post(
-       'nouveau-eleve.html',
+       '/TGA_tool/nouveau-eleve.html',
       {
          curriculum_id : value
     },
@@ -86,8 +86,9 @@
           $("#id_cours").empty() // dont emove text only           
          $("#id_cours").append(data);
      
-      },'html',   
+      },'html'   
     );
+    console.log(value)
     {% endif %}
     //console.log(value);
     //
