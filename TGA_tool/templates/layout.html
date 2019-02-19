@@ -18,7 +18,7 @@
     <script src="{% static 'calendar/lib/moment.min.js' %}"></script>
     <script src="{% static 'calendar/lib/jquery.min.js' %}"></script>
     <script src="{% static 'calendar/fullcalendar.min.js' %}"></script>   
-
+    <script src="{% static 'js-cookie-master/src/js.cookie.js' %} "></script>
     <style type="text/css">
 
        /* Style en test ici avant d'être mis dans la feuille de style  */
@@ -72,7 +72,7 @@
                 <li><a href="/TGA_tool/modifier-seance_cours.html">Attribuer du contenu à une séance cours</a></li>
                 <li><a href="/TGA_tool/nouvelle-matiere.html">Ajouter un programme pédagogique </a></li>
                 <li> <a href="/TGA_tool/seance-cours.html">Ajouter une séance cours </li>
-                <li> <a href="/TGA_tool/seance-coaching.html">Ajouter une séance de coaching </li>
+                <li> <a href="/TGA_tool/seance-coaching.html">Ajouter une séance de coaching </a> </li>
 
             </ul>
           </div>
@@ -84,6 +84,7 @@
                 <li><a href="/TGA_tool/calendar.html">Mon planning des séances </a></li>
                 <li><a href="/admin/container-insert.html">Déclaration de séance(non dispo)</a> </li>
                 <li><a href="/admin/container-insert.html">Relevé des absences(non dispo)</a> </li>
+              </ul>
           </div>
 
           <button class="accordion">Suivi paiements</button>

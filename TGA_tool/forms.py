@@ -19,13 +19,16 @@ class ParentForm(forms.ModelForm):
 
 class EleveForm(forms.ModelForm): #creation après la famille
     date_naissance = forms.DateField(widget=forms.DateInput(attrs={'class':'datepicker'}))
-    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
+    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.none(),widget=forms.CheckboxSelectMultiple)
+    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),widget=forms.CheckboxSelectMultiple,empty_label=None)
     class Meta:
         model = Eleve
         exclude=['user','date_inscription', 'famille','matieres']
 
 class EleveForm2(forms.ModelForm): #creation pour un famille existante
-    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
+    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.none(),widget=forms.CheckboxSelectMultiple)
+    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),empty_label=None)
+    
     class Meta:
         model = Eleve
         exclude=['user','date_inscription','matieres']
@@ -67,12 +70,12 @@ class SeanceForm(forms.ModelForm):
         exclude = ['cours','statut']
 
 class SeanceForm2(forms.ModelForm):
-    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
+    cours=forms.ModelChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
     notions=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),widget=forms.CheckboxSelectMultiple)
-    eleves=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
+    #eleves=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
     class Meta:
         model = Seance_Cours
-        exclude = ['statut']
+        exclude = ['statut','eleves']
 
 class Seance_CoursForm(forms.Form):
     seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir la séance a éditer') 
@@ -85,6 +88,7 @@ class FrequenceForm(forms.ModelForm):
     class Meta:
         model = Frequence
         fields = '__all__'
+        
 
 class SalleForm(forms.ModelForm):
     class Meta:
@@ -157,7 +161,7 @@ class ConnexionForm(forms.Form):
     password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput)
 
 class SelectEleveForm(forms.Form):
-    curriculum=forms.ModelChoiceField(queryset=Eleve.objects.all(),help_text="Choisir le curriculum")
+    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),help_text="Choisir le curriculum")
     eleve=forms.ModelChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
 
 

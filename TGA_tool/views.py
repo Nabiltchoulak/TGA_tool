@@ -8,12 +8,14 @@ from urllib.parse import urlencode
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
 import datetime
+from django.http import HttpResponse
 from datetime import timedelta  
 import json
 from django.http import JsonResponse
 from django.contrib import messages
 from TGA_tool.utils import *
 from django.db import models 
+from django.core.exceptions import ObjectDoesNotExist
 # Create your views here.
 def home(request):
     return render(request, 'TGA_tool/home.html')
@@ -50,63 +52,95 @@ def nouveauParent(request, id):
 
     return render(request, 'TGA_tool/nouveau-parent.html', locals())    
 
-def nouveauEleve(request, id=0):
+def ajaxNewEleve(request):
+    #Cette fonction n'est pas dans la fonction nouveauEleve par ce que je n'ai pas trrouvé comment envoyer un post a un url 
+    # qui contient un id sans affecter l'id (j'avais toujours id=0)
+    if request.POST:
+        form = EleveForm(request.POST or None)
+        id_2=int(request.POST['curriculum_id'])
+        curriculum= Curriculum.objects.get(id=id_2)
+        form.fields['cours'].queryset=Cours.objects.filter(curriculum=curriculum)
+        
+        return HttpResponse(form['cours'])
 
+
+def ajax_requete(request):
+    if request.POST:
+        form=RequeteForm(request.POST or None)
+        id=int(request.POST['curriculum_id'])
+        curriculum= Curriculum.objects.get(id=id)
+        form.fields['matiere'].queryset=Matiere.objects.filter(curriculum=curriculum)
+        return HttpResponse(form['matiere'])
+
+def nouveauEleve(request, id=0):
+    
     if id>0:
+        
         form = EleveForm(request.POST or None)
         famille = True 
+        
         if form.is_valid(): 
             eleve = form.save(commit=False)
             eleve.famille = Famille.objects.get(id=id)
-            if ElevePotentiel.objects.get(nom=form.cleaned_data["nom"]):
-                #Si cet élève était un élève potentiel déja on le lie avec l'instance de l'élève potentiel
-                #et on garde les autres requetes si il y'en a, on suprime la requete qui correspon a son cours si c'est elle 
-                elevepotentiel=ElevePotentiel.objects.get(nom=form.cleaned_data["nom"])
-                #Ici on gére le cas ou deux eleves ont le meme nom 
-                eleve=form.save(commit=False)
-                eleve.elevepotentiel_ptr=elevepotentiel
-                #Il se peut que les coordonés prises quand l'elève s'est présenté aient changés 
-                
-                eleve.elevepotentiel_ptr.email=form.cleaned_data["email"]
-                eleve.elevepotentiel_ptr.num=form.cleaned_data["num"]
-                eleve.save()
-                form.save_m2m()
-                for cours in form.cleaned_data["cours"] :
-                    
-                    if Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere):
-                        requete=Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere)
-                        requete.delete()
-
-            else :
+            try:
+                ElevePotentiel.objects.get(nom=form.cleaned_data["nom"])
+            except ObjectDoesNotExist:
                 eleve = form.save()
                 form.save_m2m()
+                #Si cet élève était un élève potentiel déja on le lie avec l'instance de l'élève potentiel
+                #et on garde les autres requetes si il y'en a, on suprime la requete qui correspon a son cours si c'est elle 
+            elevepotentiel=ElevePotentiel.objects.get(nom=form.cleaned_data["nom"])
+            #Ici on gére le cas ou deux eleves ont le meme nom 
+            eleve=form.save(commit=False)
+            eleve.elevepotentiel_ptr=elevepotentiel
+            #Il se peut que les coordonés prises quand l'elève s'est présenté aient changés 
+                
+            eleve.elevepotentiel_ptr.email=form.cleaned_data["email"]
+            eleve.elevepotentiel_ptr.num=form.cleaned_data["num"]
+            eleve.save()
+            form.save_m2m()
+            for cours in form.cleaned_data["cours"] :
+                    
+                if Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere):
+                    requete=Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere)
+                    requete.delete()
+
             
     else:
         form = EleveForm2(request.POST or None)
-        famille = False
+        famille = False#Cet élève posséde déja une famille 
+        
+        if request.POST:
+            
+            id_2=int(request.POST['curriculum_id'])
+            curr= Curriculum.objects.get(id=id_2)
+            form.fields['cours'].queryset=Cours.objects.filter(curriculum=curr)
+            
+            return HttpResponse(form['cours'])
+            
         if form.is_valid():
-            if ElevePotentiel.objects.get(nom=form.cleaned_data["nom"]):
+            try:
+                ElevePotentiel.objects.get(nom=form.cleaned_data["nom"])
                 #Si cet élève était un élève potentiel déja on le lie avec l'instance de l'élève potentiel
                 #et on garde les autres requetes si il y'en a, on suprime la requete qui correspon a son cours si c'est elle 
-                elevepotentiel=ElevePotentiel.objects.get(nom=form.cleaned_data["nom"])
-                #Ici on gére le cas ou deux eleves ont le meme nom 
-                eleve=form.save(commit=False)
-                eleve.elevepotentiel_ptr=elevepotentiel
-                #Il se peut que les coordonés prises quand l'elève s'est présenté aient changés 
-                eleve.elevepotentiel_ptr.email=form.cleaned_data["email"]
-                eleve.elevepotentiel_ptr.num=form.cleaned_data["num"]
-                eleve.save()
-                form.save_m2m()
-                for cours in form.cleaned_data["cours"] :
-                    
-                    if Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere):
-                        requete=Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere)
-                        requete.delete()
-                        
-
-            else :
+            except ObjectDoesNotExist:
                 eleve = form.save()
-            return redirect('home.html')
+                
+
+            elevepotentiel=ElevePotentiel.objects.get(nom=form.cleaned_data["nom"])
+            #Ici on gére le cas ou deux eleves ont le meme nom 
+            eleve=form.save(commit=False)
+            eleve.elevepotentiel_ptr=elevepotentiel
+            #Il se peut que les coordonés prises quand l'elève s'est présenté aient changés 
+            eleve.elevepotentiel_ptr.email=form.cleaned_data["email"]
+            eleve.elevepotentiel_ptr.num=form.cleaned_data["num"]
+            eleve.save()
+            form.save_m2m()
+            for cours in form.cleaned_data["cours"] :
+                    
+                if Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere):
+                    requete=Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere)
+                    requete.delete()
     
     if 'end' in request.POST :#test if the user choosed "submit" 
             return render(request,'TGA_tool/home.html')
@@ -158,12 +192,12 @@ def deconnexion(request):
 #@login_required
 def mesCours(request):
     listecours =[]
-    if request.GET['cours']=='all':
+    if request.user.is_staff == 1:
         cours = Cours.objects.all()
         for cour in cours:
             listecours.append({'id': cour.id, 'curriculum': cour.matiere.curriculum.niveau, 'matiere': cour.matiere.matiere, 'frequence': cour.frequence.frequence})
 
-    else:
+    elif request.user.is_staff == 0:
         id = request.user.id
         coach = Coach.objects.get(user = id)
         cours = Cours.objects.filter(coach = coach.id)  
@@ -176,9 +210,22 @@ def mesCours(request):
 def mesSeances(request):
  
     id = request.user.id
-    coach = Coach.objects.get(user = id)
-    cours = Cours.objects.filter(coach = coach.id)
     listeseances =[]
+    if request.user.is_staff == 0 :
+        coach = Coach.objects.get(user = id)
+        cours = Cours.objects.filter(coach = coach.id)
+        coachings=Seance_Coaching.objects.filter(coach= coach.id)
+        for seance in coachings:
+            listeseances.append({'title': "Coaching " + seance.matiere.curriculum.niveau + " - " + seance.matiere.matiere, 
+                'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "display-seance-coaching.html/" + str(seance.id)})
+    elif request.user.is_staff == 1 : 
+        cours=Cours.objects.all()
+        coachings=Seance_Coaching.objects.all()
+        for seance in coachings:
+            listeseances.append({'title': "Coaching " + seance.matiere.curriculum.niveau + " - " + seance.matiere.matiere, 
+                'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "display-seance-coaching.html/" + str(seance.id)})
+        
+    
     for cour in cours:
         seances = Seance_Cours.objects.filter(cours = cour.id)
         for seance in seances:
@@ -398,10 +445,10 @@ def nouvelleSeanceCours(request) :
     if 'end' in request.POST:
             return redirect('home.html')
     elif 'submit & add other' in request.POST :
-        form=Seance_CoachingForm()
+        form=SeanceForm2()
         #Vider les formulaires
-        return render(request, 'TGA_tool/seance-coaching.html',locals())
-    return render(request, 'TGA_tool/seance-coaching.html', locals())
+        return render(request, 'TGA_tool/seance-cours.html',locals())
+    return render(request, 'TGA_tool/seance-cours.html', locals())
 
 
 
@@ -484,6 +531,7 @@ def chapitreNotions(request, id):
 def nouveauCours(request):
     frequency_form=FrequenceForm(request.POST or None)
     cours_form=CoursForm(request.POST or None)
+    
     if cours_form.is_valid() and frequency_form.is_valid():
         frequence=frequency_form.save()
         matiere=cours_form.cleaned_data['matiere']
@@ -525,47 +573,6 @@ def init_data(request):
     
     return render(request, 'TGA_tool/initial-data.html',locals())
 
-"""
-def eleveArrive(request):
-    parents_titles=['Parent responsable','Parent contact']
-    ParentFormset = modelformset_factory(Parent,form=ParentForm,extra=2,max_num=2)
-    parent_form=ParentFormset(request.POST or None,initial=[{'estResponsable':'True',}])
-    parents={}
-    ind=0
-    eleve_form=EleveForm(request.POST or None)
-    for form in parent_form:
-        parents[parents_titles[ind]]=form
-        ind+=1    
-    
-    if parent_form.is_valid() and eleve_form.is_valid():
-        eleve=eleve_form.save(commit=False)
-        ind=0
-
-        for parent in parent_form.save():              
-            parents[parents_titles[ind]]=parent
-            if ind==0:
-                eleve.parent_resp=parent
-            elif ind==1:
-                eleve.parent_sec=parent
-            ind+=1
-        if ind==1:#si la boucle a éxécuté une seule itération uniquement(un parent)
-                eleve.parent_sec=None
-        eleve.save()
-        eleve_form.save_m2m()
-        if 'end' in request.POST:
-            return redirect('home.html')
-        elif 'submit & add other' in request.POST :
-            
-            parent_form=ParentFormset()
-            eleve_form=EleveForm()#Vider les formulaires
-            ids=[]
-            ids.append(eleve.parent_resp.id)
-            if eleve.parent_sec!=None:
-                ids.append(eleve.parent_sec.id)
-            else :
-                ids.append(-1)
-           
-    return render(request, 'TGA_tool/eleve-arrive.html',locals())"""
 
 
 def display(request,type):

@@ -14,7 +14,52 @@
     <br><br>
     <fieldset>
     <legend style="font-size:30px; color: blue;" >Partie fréquence:</legend>
-    {{frequency_form.as_p}}
+    <div id="freq_form">
+    <p id="frequence_id">
+    {{frequency_form.frequence.errors}}
+    {{frequency_form.frequence.label_tag}}
+    {{frequency_form.frequence}}
+    {{frequency_form.frequence.help_text}}
+    </p>
+    <p id="creneau_id">
+    {{frequency_form.creneau.errors}}
+    {{frequency_form.creneau.label_tag}}
+    {{frequency_form.creneau}}
+    {{frequency_form.creneau.help_text}}
+    </p>
+    <p id="jour_id">
+    {{frequency_form.jour.errors}}
+    {{frequency_form.jour.label_tag}}
+    {{frequency_form.jour}}
+    {{frequency_form.jour.help_text}}
+    </p>
+    <p id="day_of_month_id">
+    {{frequency_form.day_of_month.errors}}
+    {{frequency_form.day_of_month.label_tag}}
+    {{frequency_form.day_of_month}}
+    {{frequency_form.day_of_month.help_text}}
+    </p>
+    <br>
+    <span id="period_id">
+    {{frequency_form.period.errors}}
+    {{frequency_form.period.label_tag}}
+    {{frequency_form.period}}
+    <span id="help_period">{{frequency_form.period.help_text}}</span>
+    </span>
+    <br>
+    <p id="date_debut_id">
+    {{frequency_form.date_debut.errors}}
+    {{frequency_form.date_debut.label_tag}}
+    {{frequency_form.date_debut}}
+    {{frequency_form.date_debut.help_text}}
+    </p>
+    <p id="date_limite_id">
+    {{frequency_form.date_limite.errors}}
+    {{frequency_form.date_limite.label_tag}}
+    {{frequency_form.date_limite}}
+    {{frequency_form.date_limite.help_text}}
+    </p>
+    </div>
     </fieldset>
    <span>
     <input type="submit" value="Submit" name="end" />
@@ -24,4 +69,94 @@
     </span>
 </form>
    
+{% endblock %}
+
+{% block javascript %}
+<script>
+    
+  
+$(function() {
+
+/*$('#id_creneau').hide();
+$('#id_jour').hide();
+$('.helptext').hide();
+$('#id_day_of_month').hide();
+$('#id_period').hide();*/
+/*$('#id_frequence').each(function(){
+     $(this).hide();
+     console.log($(this)) // $(this) représente l'objet courant
+});*/
+    $creneau=$("#creneau_id");
+    $week_day=$("#jour_id");
+    $month_day=$("#day_of_month_id");
+    $period=$("#period_id");
+    $start_date=$("#date_debut_id");
+    $end_date=$("#date_limite_id");
+    $("#freq_form >").not("#frequence_id").hide();
+    $('#id_frequence').on("click",function(){
+        $("#freq_form > *").not("#frequence_id").hide();
+    
+        var $option = $(this).find('option:selected');
+        value=$option.val()
+        console.log(value)
+
+
+        switch(value){
+            case "Une seance":
+                $creneau.show();
+                $start_date.show();
+                break;
+
+            case "Chaque jour":
+                $creneau.show();
+                $start_date.show();
+                $end_date.show();
+                break;
+
+            case "Un jour chaque semaine":
+                $creneau.show();
+                $week_day.show();
+                $start_date.show();
+                $end_date.show();
+                break;
+
+            case "Un jour chaque mois":
+                $creneau.show();
+                $month_day.show();
+                $start_date.show();
+                $end_date.show();
+                break;
+
+            case "Jours":
+                $creneau.show();
+                $period.show();
+                $period.children("#help_period").text("Jours");
+                $start_date.show();
+                $end_date.show();
+                break;
+
+            case "Semaines":
+                $creneau.show();
+                $week_day.show();
+                $period.show();
+                $period.children("#help_period").text("Semaines");
+                $start_date.show();
+                $end_date.show();
+                break;
+            
+            case "Mois":
+                $creneau.show();
+                $month_day.show();
+                $period.show();
+                $period.children("#help_period").text("Mois");
+                $start_date.show();
+                $end_date.show();
+                break;
+        };
+
+    });
+   
+
+});
+</script>
 {% endblock %}

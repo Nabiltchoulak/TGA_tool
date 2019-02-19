@@ -173,7 +173,7 @@ class Seance(models.Model):#Seance est une classe abstraite qui englobe les attr
 class Seance_Cours(Seance):
 	
 	cours=models.ForeignKey('Cours',on_delete=models.CASCADE,verbose_name="Cours")
-	eleves = models.ManyToManyField	('Eleve',related_name="presence")
+	eleves = models.ManyToManyField	('Eleve',blank=True,related_name="presence")
 
 	class Meta:
 		verbose_name="seance cours"
@@ -272,9 +272,9 @@ class Frequence(models.Model):
 	day_choices=((7,'Dimanche'),(1,'Lundi'),(2,'Mardi'),(3,'Mercredi'),(4,'Jeudi'),(5,'Vendredi'),(6,'Samedi'),)#les numéros font référence a l'isoweekday
 	frequence=models.CharField(max_length=30,choices=freq_choices,default="Une seance",verbose_name="Fréquence")
 	creneau=models.ForeignKey('Creneau',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Creneau",help_text="Créneau dans la journée")
-	jour=models.PositiveIntegerField(blank=True,null=True,choices=day_choices,verbose_name="Jour de la semaine",help_text="Pour les fréquences: ''Chaque semaine'' et ''Chaque X semaines''")#jour de la semaine iso 
-	day_of_month=models.PositiveIntegerField(verbose_name="Jour du mois",blank=True,null=True,help_text="Pour les fréquences: ""Chaque mois"" et ''Chaque X mois' ")
-	period=models.PositiveIntegerField(verbose_name="Période",help_text="Chaque X jours/semaines/mois",blank=True,null=True)#x times each week/month/day
+	jour=models.PositiveIntegerField(blank=True,null=True,choices=day_choices,verbose_name="Jour de la semaine",help_text="Le jour de la semaine")#jour de la semaine iso 
+	day_of_month=models.PositiveIntegerField(verbose_name="Jour du mois",blank=True,null=True,help_text="Le jour du mois (ex: Chaque 25 du mois)")
+	period=models.PositiveIntegerField(verbose_name="Chaque",help_text="",blank=True,null=True)#x times each week/month/day
 	date_debut=models.DateField(verbose_name="Debut du cours",blank=True,null=True,help_text="Date du début du cours")#le premier jour de la semiane dans la calendrier iso est le lundi
 	date_limite=models.DateField(verbose_name="Fin du cours",blank=True,null=True,help_text="Date de la fin du cours")
 	class Meta:
@@ -323,7 +323,7 @@ def init_seances(sender, instance, **kwargs):
 	if (len(instance.seance_cours_set.all())) == 0:#case when a "cours" is in initiation not been modified 
 		if instance.frequence.period == None :#Différence entre perso et proposé présence de la periodicité  
 			if instance.frequence.frequence == "Une seance" :#switch case
-				Seance_Cours.objects.create(cours=instance,creneau=instance.frequence.creneau)
+				Seance_Cours.objects.create(cours=instance,creneau=instance.frequence.creneau,date=instance.frequence.date_debut)
 			elif instance.frequence.frequence =="Chaque jour" :
 				for day in date_manager.daysrange(instance.frequence.date_debut,instance.frequence.date_limite):
 					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau) 

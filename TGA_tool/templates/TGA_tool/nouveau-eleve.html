@@ -7,7 +7,7 @@
 <h2>Ajouter un nouveau élève</h2>
 
 {% if famille %}
-<form action="{% url 'nouveau eleve' id %}" method="post">
+<form action="{% url 'nouveau eleve' id %}" id="id_form" method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <span>
@@ -19,7 +19,7 @@
 </form>
 
 {% else %}
-<form action="{% url 'nouveau eleve' %}" method="post">
+<form action="{% url 'nouveau eleve' %}" id="id_form" method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Submit" name="end" />
@@ -28,4 +28,73 @@
 
 {% endif %}
 
+
 {% endblock %}	
+{% block javascript %}
+<script>
+        function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        
+        $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+        }   
+});
+        var csrftoken = Cookies.get('csrftoken');
+       $(function() {
+           //var curriculumChecked = $('#id_curriculum').find(":selected").text();
+           //var curriculum
+
+           $('#id_curriculum').on("change",function() {
+
+    var $option = $(this).find("input[name='curriculum']:checked");
+
+    //Added with the EDIT
+    var value = $option.val(); //returns the value of the selected option.
+    var text = $option.text(); //returns the text of the selected option.
+    console.log(value)
+    {% if famille %}
+    //var path='/TGA_tool/nouveau-eleve.html/'
+    //idd={{id}}
+    //path+= idd.toString() +'/'
+       $.post(
+       '/TGA_tool/ajax_new_student',
+      {
+         
+        curriculum_id : value
+    },
+      function(data){
+            
+          $("#id_cours").empty() // dont emove text only           
+         $("#id_cours").append(data);
+     },
+     'html',
+        
+    );
+    {% else %}
+    $.post(
+       'nouveau-eleve.html',
+      {
+         curriculum_id : value
+    },
+      function(data){
+            
+          $("#id_cours").empty() // dont emove text only           
+         $("#id_cours").append(data);
+     
+      },'html',   
+    );
+    {% endif %}
+    //console.log(value);
+    //
+    
+
+});
+
+       });
+</script>
+{% endblock %}

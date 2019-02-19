@@ -25,3 +25,46 @@
 </form>
    
 {% endblock %}
+{% block javascript %}
+<script>
+        function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        
+        $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+        }   
+});
+        var csrftoken = Cookies.get('csrftoken');
+       $(function() {
+           //var curriculumChecked = $('#id_curriculum').find(":selected").text();
+           //var curriculum
+
+           $('#id_curriculum').on("change",function() {
+
+    var $option = $(this).find('option:selected');
+    var value = $option.val(); //returns the value of the selected option.
+    $.post(
+        '/TGA_tool/ajax_requete',
+        {
+            curriculum_id : value
+        },
+        function(data){
+            
+            $("#id_matiere").empty() // dont remove text only           
+         $("#id_matiere").append(data);
+        },
+        'html',
+    );
+    
+    
+
+});
+
+       });
+</script>
+{% endblock %}

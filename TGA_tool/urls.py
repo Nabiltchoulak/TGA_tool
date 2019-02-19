@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,re_path
 from django.conf.urls import  url, include
 from django.views.generic import TemplateView,ListView
 from . import views
@@ -11,8 +11,10 @@ urlpatterns = [
     url(r'^connexion$', views.connexion, name='connexion'),
     url(r'^deconnexion$', views.deconnexion, name='deconnexion'),
     #url(r'^connexion$', auth_views.LoginView.as_view()),
-    path('nouveau-eleve.html', views.nouveauEleve, name="nouveau eleve"),
+    url(r'^nouveau-eleve\.html$', views.nouveauEleve, name="nouveau eleve"),
     path('nouveau-eleve.html/<int:id>', views.nouveauEleve, name="nouveau eleve"),
+    re_path(r'^ajax_new_student$',views.ajaxNewEleve, name="ajax NE"),
+    re_path(r'^ajax_requete$',views.ajax_requete, name="ajax requete"),
     path('nouveau-parent.html/<int:id>', views.nouveauParent, name="nouveau parent"),
     path('nouveau-coach.html', views.nouveauCoach, name="nouveau coach"),
     path('seance-coaching.html', views.nouvelleSeanceCoaching, name="seance coaching"),
