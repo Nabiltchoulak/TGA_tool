@@ -1,155 +1,176 @@
-{% extends "layout.html" %}
-{%load static %}
-{% block title %} Nouvelle séance coaching {% endblock %}
-{% block content %}
-
-{% if envoi %} La séance a été bien ajouté !{% endif %}
+{% extends "layout.html" %} {%load static %} {% block title %} Nouvelle séance coaching {% endblock %} {% block content %} {% if envoi %} La séance a été bien ajouté !{% endif %}
 <h2>Séance coaching</h2>
 <form action="{% url "seance coaching" %}" method="post">
     {% csrf_token %}
     <p id="curriculum_id">
-    {{form.curriculum.errors}}
-    {{form.curriculum.label_tag}}
-    {{form.curriculum}}
-    {{form.curriculum.help_text}}
+        {{form.curriculum.errors}} {{form.curriculum.label_tag}} {{form.curriculum}} {{form.curriculum.help_text}}
     </p>
+
     <p id="eleve_id">
-    {{form.eleve.errors}}
-    {{form.eleve.label_tag}}
-    {{form.eleve}}
-    {{form.eleve.help_text}}
+
+        {{form.eleve.errors}} {{form.eleve.label_tag}} {{form.eleve}} {{form.eleve.help_text}}
     </p>
+
+    <button type="button" value="button" name="button">Choisir les élèves</button>
+
+
     <p id="matiere_id">
-    {{form.matiere.errors}}
-    {{form.matiere.label_tag}}
-    {{form.matiere}}
-    {{form.matiere.help_text}}
+        {{form.matiere.errors}} {{form.matiere.label_tag}} {{form.matiere}} {{form.matiere.help_text}}
     </p>
     <p id="coach_id">
-    {{form.coach.errors}}
-    {{form.coach.label_tag}}
-    {{form.coach}}
-    {{form.coach.help_text}}
+        {{form.coach.errors}} {{form.coach.label_tag}} {{form.coach}} {{form.coach.help_text}}
     </p>
     <p id="date_id">
-    {{form.date.errors}}
-    {{form.date.label_tag}}
-    {{form.date}}
-    {{form.date.help_text}}
+        {{form.date.errors}} {{form.date.label_tag}} {{form.date}} {{form.date.help_text}}
     </p>
     <p id="creneau_id">
-    {{form.creneau.errors}}
-    {{form.creneau.label_tag}}
-    {{form.creneau}}
-    {{form.creneau.help_text}}
+        {{form.creneau.errors}} {{form.creneau.label_tag}} {{form.creneau}} {{form.creneau.help_text}}
     </p>
     <p id="salle_id">
-    {{form.salle.errors}}
-    {{form.salle.label_tag}}
-    {{form.salle}}
-    {{form.salle.help_text}}
+        {{form.salle.errors}} {{form.salle.label_tag}} {{form.salle}} {{form.salle.help_text}}
     </p>
     <p id="chapitre_id">
-    {{form.chapitre.errors}}
-    {{form.chapitre.label_tag}}
-    {{form.chapitre}}
-    {{form.chapitre.help_text}}
+        {{form.chapitre.errors}} {{form.chapitre.label_tag}} {{form.chapitre}} {{form.chapitre.help_text}}
     </p>
     <p id="notions_id">
-    {{form.notions.errors}}
-    {{form.notions.label_tag}}
-    {{form.notions}}
-    {{form.notions.help_text}}
+        {{form.notions.errors}} {{form.notions.label_tag}} {{form.notions}} {{form.notions.help_text}}
     </p>
-     <span>
+    <span>
     <input type="submit" value="Submit" name="end" />
     </span>
     <span>
         <input type="submit" value="Submit & add other" name="submit & add other"/>
-    </span> 
+    </span>
 </form>
-{% endblock %}
-{% block javascript %}
+{% endblock %} {% block javascript %}
 <script>
-        function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-        
-        $.ajaxSetup({
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
         }
-        }   
-});
-        var csrftoken = Cookies.get('csrftoken');
-       $(function() {
-            
-            $chapitre=$('#chapitre_id');
-            $notions=$('#id_notions , #notions_id');
-            $chapitre.hide();
-            $notions.hide();
-            $('#id_curriculum').on("change",function() {
+    });
+    var csrftoken = Cookies.get('csrftoken');
+    $(function() {
 
-    var $option = $(this).find('option:selected');
-    var value = $option.val(); //returns the value of the selected option.
-    
-    $.post(
-        '/TGA_tool/seance-coaching.html',
-        {
-            curriculum_id : value
-        },
-        function(data){
-            
-            $("#id_eleve").empty()            
-            $("#id_eleve").append(data);
-        },
-        'html',
-    );
-    
-    
+        $chapitre = $('#chapitre_id');
+        $notions = $('#id_notions , #notions_id');
+        $matiere = $('#matiere_id');
+        $first_step = $('#matiere_id,#coach_id,#date_id,#creneau_id,#salle_id');
+        $first_step.hide();
+        $chapitre.hide();
+        $notions.hide();
+        $('#id_curriculum').on("change", function() {
 
-});
-$('#id_matiere').on("change",function() {
-    var $option = $(this).find('option:selected');
-    var value = $option.val(); //returns the value of the selected option.
-    console.log(value)
-    $.post(
-        '/TGA_tool/seance-coaching.html',
-        {
-            matiere_id : value
-        },
-        function(data){
-            
-            $("#id_chapitre").empty()            
-        $("#id_chapitre").append(data);
-        $chapitre.show();
-        },
-        'html',
-    );
+            var $option = $(this).find('option:selected');
+            var value = $option.val(); //returns the value of the selected option.
 
-});
-$('#id_chapitre').on("change",function() {
-    var $option = $(this).find('option:selected');
-    var value = $option.val(); //returns the value of the selected option.
-    
-    $.post(
-        '/TGA_tool/seance-coaching.html',
-        {
-            chapitre_id : value
-        },
-        function(data){
-            
-            $("#id_notions").empty()            
-        $("#id_notions").append(data);
-        $notions.show();
-        },
-        'html',
-    );
+            $.post(
+                '/TGA_tool/seance-coaching.html', {
+                    curriculum_id: value
+                },
+                function(data) {
 
-});
+                    $("#id_eleve").empty()
+                    $("#id_eleve").append(data);
 
-       });
+
+                },
+                'html',
+            );
+
+
+
+        });
+
+        $("button").on("click", function() {
+            var eleves = [];
+            $.each($("input[name='eleve']:checked"), function() {
+                eleves.push($(this).val());
+            });
+            list = eleves.join(",");
+
+            $.post(
+                '/TGA_tool/seance-coaching.html', {
+                    eleves_id: list
+                },
+                function(data) {
+                    if (data != "None") {
+                        $("#id_matiere").empty();
+                        $("#id_matiere").append(data);
+                        $matiere.show();
+
+                    } else {
+                        $("#id_matiere").empty();
+                        $first_step.hide();
+                    };
+
+
+
+                },
+                'html',
+            );
+
+        });
+
+
+
+        $('#id_matiere').on("change", function() {
+            var $option = $(this).find('option:selected');
+            var value = $option.val(); //returns the value of the selected option.
+            console.log(value)
+            $.post(
+                '/TGA_tool/seance-coaching.html', {
+                    matiere_id: value
+                },
+                function(data) {
+                    console.log(data);
+                    splitedData = data.split('iii');
+                    console.log(splitedData);
+                    $("#id_chapitre").empty();
+                    $("#id_chapitre").replaceWith(splitedData[1]);
+                    $("#id_coach").empty(); // dont remove text only           
+                    $("#id_coach").replaceWith(splitedData[0]);
+
+                    $('#coach_id').show();
+
+                },
+                'html',
+            );
+
+        });
+
+        $('#coach_id').on("change", function() {
+            $first_step.show();
+            $chapitre.show();
+        });
+
+        $('#chapitre_id').on("change", function() {
+            var $option = $(this).find('option:selected');
+            var value = $option.val(); //returns the value of the selected option.
+
+            $.post(
+                '/TGA_tool/seance-coaching.html', {
+                    chapitre_id: value
+                },
+                function(data) {
+
+                    $("#id_notions").empty()
+                    $("#id_notions").append(data);
+                    $notions.show();
+                },
+                'html',
+            );
+
+        });
+
+    });
+
 </script>
 {% endblock %}

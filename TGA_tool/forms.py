@@ -20,7 +20,7 @@ class ParentForm(forms.ModelForm):
 class EleveForm(forms.ModelForm): #creation après la famille
     date_naissance = forms.DateField(widget=forms.SelectDateWidget())
     cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.none(),widget=forms.CheckboxSelectMultiple)
-    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),widget=forms.CheckboxSelectMultiple,empty_label=None)
+    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),empty_label=None)
     class Meta:
         model = Eleve
         exclude=['user','date_inscription', 'famille','matieres']
@@ -149,8 +149,9 @@ class ReportSeanceCoachingForm(forms.Form):
         
 class Seance_CoachingForm(forms.ModelForm):
     curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all())
+    notions=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
     field_order=('curriculum','eleve','matiere','coach','date','creneau','salle','chapitre','notions')
-    eleve=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
+    eleve=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
     class Meta:
         model = Seance_Coaching
         exclude =['statut']
@@ -170,7 +171,7 @@ class ConnexionForm(forms.Form):
 
 class SelectEleveForm(forms.Form):
     curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),help_text="Choisir le curriculum")
-    eleve=forms.ModelChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
+    eleve=forms.ModelChoiceField(queryset=Eleve.objects.all(),widget=forms.RadioSelect)
 
 
 

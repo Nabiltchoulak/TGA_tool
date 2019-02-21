@@ -54,3 +54,13 @@ def init_matieres():
     for groupe in curriculum:
         for matiere in matieres[str(groupe)]:
             Matiere.objects.create_matiere(matiere,groupe)
+
+
+def get_matches(list1,list2):
+    matched=[]
+    for element_1 in list1 :
+        for element_2 in list2 :
+            if element_1==element_2:
+                matched.append(element_1)
+    
+    return matched

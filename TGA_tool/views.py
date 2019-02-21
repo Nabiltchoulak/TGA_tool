@@ -67,10 +67,15 @@ def ajaxNewEleve(request):
 def ajax_requete(request):
     if request.POST:
         form=RequeteForm(request.POST or None)
+        eleve_form=SelectEleveForm(request.POST or None)
         id=int(request.POST['curriculum_id'])
         curriculum= Curriculum.objects.get(id=id)
         form.fields['matiere'].queryset=Matiere.objects.filter(curriculum=curriculum)
-        return HttpResponse(form['matiere'])
+        eleve_form.fields['eleve'].queryset=Eleve.objects.filter(curriculum=curriculum)
+        data=[form['matiere'],'iii',eleve_form['eleve']]
+        print(data)
+        return HttpResponse(data)
+
 
 def nouveauEleve(request, id=0):
     
@@ -235,10 +240,10 @@ def mesSeances(request):
                 'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "displayseance.html/" + str(seance.id)})
     
     #Cette partie va récupérer les seances de coaching 
-    coachings=Seance_Coaching.objects.filter(coach= coach.id)
+    """coachings=Seance_Coaching.objects.filter(coach= coach.id)
     for seance in coachings:
         listeseances.append({'title': "Coaching " + seance.matiere.curriculum.niveau + " - " + seance.matiere.matiere, 
-                'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "display-seance-coaching.html/" + str(seance.id)})
+                'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "display-seance-coaching.html/" + str(seance.id)})"""
 
     data = listeseances
 
@@ -427,23 +432,53 @@ def makePayement(request):
     return render(request, 'TGA_tool/make-payement.html', locals())
 
 def nouvelleSeanceCoaching(request) :
-    form= Seance_CoachingForm(request.POST or None)
+    form = Seance_CoachingForm(request.POST or None)
     if request.POST:
-        print(form.errors.as_data())
+        #print(form.errors.as_data())
         if 'curriculum_id' in list(request.POST.keys()):
             id=int(request.POST['curriculum_id'])
             curriculum= Curriculum.objects.get(id=id)
             form.fields['eleve'].queryset=Eleve.objects.filter(curriculum=curriculum)
-            form.fields['matiere'].queryset=Matiere.objects.filter(curriculum=curriculum)
-            #Change this one to "matieres" of the student selected
-            data=form['eleve'] #+ 'iii' + form['matiere'] 
+            data=form['eleve'] 
             return HttpResponse(data)
         
+        if 'eleves_id' in list(request.POST.keys()):
+            if request.POST['eleves_id']:
+                id_list=request.POST['eleves_id'].split(",")#On recoit une string contenant les ids séparés par ","
+                ids=[]
+                for id in id_list:#On va transformer cette liste de string en liste de int 
+                    ids.append(int(id))
+            
+                matched_matieres=[]
+                for id in ids:
+                    matieres_eleve=Matiere.objects.none()
+                    matieres_precedent=Matiere.objects.none()
+                    eleve=Eleve.objects.get(id=id)
+                    if id == ids[0]:#Tester si c'est la premiere itération
+                        precedent=Eleve.objects.get(id=id)
+                    for cours in eleve.cours.all():
+                        matieres_eleve |=Matiere.objects.filter(cours__id=cours.id)
+                
+                    for cours in precedent.cours.all():
+                        matieres_precedent |= Matiere.objects.filter(cours__id=cours.id)
+                        #matieres_precedent
+                    matched_matieres=matieres_eleve & matieres_precedent
+                    precedent=Eleve.objects.get(id=id)
+            
+                form.fields['matiere'].queryset=matched_matieres
+                return HttpResponse(form['matiere'])
+            else :
+                return HttpResponse("None")
+
         elif 'matiere_id' in list(request.POST.keys()):
             id=int(request.POST['matiere_id'])
             matiere= Matiere.objects.get(id=id)
             form.fields['chapitre'].queryset=Chapitre.objects.filter(matiere=matiere)
-            return HttpResponse(form['chapitre'])
+            form.fields['coach'].queryset=Coach.objects.filter(matieres=matiere)
+            data= [form['coach'],'iii',form['chapitre']]
+            return HttpResponse(data)
+
+            
         elif 'chapitre_id' in list(request.POST.keys()):
             id=int(request.POST['chapitre_id'])
             chapitre= Chapitre.objects.get(id=id)
@@ -701,7 +736,7 @@ def requete(request,type):#1 pour une requete externe / 2 pour une requete inter
             
     
     if 'end' in request.POST:
-            return redirect('home.html')
+            return redirect('/TGA_tool/home.html')
     elif 'submit & add other' in request.POST :
         requete_form=RequeteForm()
         eleve_form=SelectEleveForm()

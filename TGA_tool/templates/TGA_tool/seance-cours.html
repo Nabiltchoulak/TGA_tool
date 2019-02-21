@@ -1,145 +1,120 @@
-{% extends "layout.html" %}
-{%load static %}
-{% block title %} Nouvelle séance cours {% endblock %}
-{% block content %}
-
+{% extends "layout.html" %} 
+{%load static %} 
+{% block title %} Nouvelle séance cours {% endblock %} 
+{% block content %} 
 {% if envoi %} La séance a été bien ajouté !{% endif %}
 <h2>Séance cours</h2>
 <form action="{% url "seance cours" %}" method="post">
     {% csrf_token %}
     <p id="curriculum_id">
-    {{form.curriculum.errors}}
-    {{form.curriculum.label_tag}}
-    {{form.curriculum}}
-    {{form.curriculum.help_text}}
+        {{form.curriculum.errors}} {{form.curriculum.label_tag}} {{form.curriculum}} {{form.curriculum.help_text}}
     </p>
     <p id="cours_id">
-    {{form.cours.errors}}
-    {{form.cours.label_tag}}
-    {{form.cours}}
-    {{form.cours.help_text}}
+        {{form.cours.errors}} {{form.cours.label_tag}} {{form.cours}} {{form.cours.help_text}}
     </p>
     <p id="date_id">
-    {{form.date.errors}}
-    {{form.date.label_tag}}
-    {{form.date}}
-    {{form.date.help_text}}
+        {{form.date.errors}} {{form.date.label_tag}} {{form.date}} {{form.date.help_text}}
     </p>
     <p id="creneau_id">
-    {{form.creneau.errors}}
-    {{form.creneau.label_tag}}
-    {{form.creneau}}
-    {{form.creneau.help_text}}
+        {{form.creneau.errors}} {{form.creneau.label_tag}} {{form.creneau}} {{form.creneau.help_text}}
     </p>
     <p id="salle_id">
-    {{form.salle.errors}}
-    {{form.salle.label_tag}}
-    {{form.salle}}
-    {{form.salle.help_text}}
+        {{form.salle.errors}} {{form.salle.label_tag}} {{form.salle}} {{form.salle.help_text}}
     </p>
     <p id="chapitre_id">
-    {{form.chapitre.errors}}
-    {{form.chapitre.label_tag}}
-    {{form.chapitre}}
-    {{form.chapitre.help_text}}
+        {{form.chapitre.errors}} {{form.chapitre.label_tag}} {{form.chapitre}} {{form.chapitre.help_text}}
     </p>
     <p id="notions_id">
-    {{form.notions.errors}}
-    {{form.notions.label_tag}}
-    {{form.notions}}
-    {{form.notions.help_text}}
+        {{form.notions.errors}} {{form.notions.label_tag}} {{form.notions}} {{form.notions.help_text}}
     </p>
-     <span>
+    <span>
     <input type="submit" value="Submit" name="end" />
     </span>
     <span>
         <input type="submit" value="Submit & add other" name="submit & add other"/>
-    </span> 
+    </span>
 </form>
-{% endblock %}
-{% block javascript %}
+{% endblock %} {% block javascript %}
 <script>
-        function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-        
-        $.ajaxSetup({
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
         }
-        }   
-});
-        var csrftoken = Cookies.get('csrftoken');
-       $(function() {
-            $cours=$("#cours_id");
-            $chapitre=$('#chapitre_id');
-            $notions=$('#id_notions , #notions_id');
-            $cours.hide();
-            $chapitre.hide();
-            $notions.hide();
-            $('#id_curriculum').on("change",function() {
+    });
+    var csrftoken = Cookies.get('csrftoken');
+    $(function() {
+        $cours = $("#cours_id");
+        $chapitre = $('#chapitre_id');
+        $notions = $('#id_notions , #notions_id');
+        $cours.hide();
+        $chapitre.hide();
+        $notions.hide();
+        $('#id_curriculum').on("change", function() {
 
-    var $option = $(this).find('option:selected');
-    var value = $option.val(); //returns the value of the selected option.
-    
-    $.post(
-        '/TGA_tool/seance-cours.html',
-        {
-            curriculum_id : value
-        },
-        function(data){
-            
-            $("#id_cours").empty()            
-         $("#id_cours").append(data);
-         $cours.show();
-        },
-        'html',
-    );
-    
-    
+            var $option = $(this).find('option:selected');
+            var value = $option.val(); //returns the value of the selected option.
 
-});
-$('#id_cours').on("change",function() {
-    var $option = $(this).find('option:selected');
-    var value = $option.val(); //returns the value of the selected option.
-    
-    $.post(
-        '/TGA_tool/seance-cours.html',
-        {
-            cours_id : value
-        },
-        function(data){
-            
-            $("#id_chapitre").empty()            
-        $("#id_chapitre").append(data);
-        $chapitre.show();
-        },
-        'html',
-    );
+            $.post(
+                '/TGA_tool/seance-cours.html', {
+                    curriculum_id: value
+                },
+                function(data) {
 
-});
-$('#id_chapitre').on("change",function() {
-    var $option = $(this).find('option:selected');
-    var value = $option.val(); //returns the value of the selected option.
-    
-    $.post(
-        '/TGA_tool/seance-cours.html',
-        {
-            chapitre_id : value
-        },
-        function(data){
-            
-            $("#id_notions").empty()            
-        $("#id_notions").append(data);
-        $notions.show();
-        },
-        'html',
-    );
+                    $("#id_cours").empty()
+                    $("#id_cours").append(data);
+                    $cours.show();
+                },
+                'html',
+            );
 
-});
 
-       });
+
+        });
+        $('#id_cours').on("change", function() {
+            var $option = $(this).find('option:selected');
+            var value = $option.val(); //returns the value of the selected option.
+
+            $.post(
+                '/TGA_tool/seance-cours.html', {
+                    cours_id: value
+                },
+                function(data) {
+
+                    $("#id_chapitre").empty()
+                    $("#id_chapitre").append(data);
+                    $chapitre.show();
+                },
+                'html',
+            );
+
+        });
+        $('#id_chapitre').on("change", function() {
+            var $option = $(this).find('option:selected');
+            var value = $option.val(); //returns the value of the selected option.
+
+            $.post(
+                '/TGA_tool/seance-cours.html', {
+                    chapitre_id: value
+                },
+                function(data) {
+
+                    $("#id_notions").empty()
+                    $("#id_notions").append(data);
+                    $notions.show();
+                },
+                'html',
+            );
+
+        });
+
+    });
+
 </script>
 {% endblock %}

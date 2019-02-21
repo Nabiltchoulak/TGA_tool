@@ -1,70 +1,74 @@
-{% extends "layout.html" %}
-{%load static %}
-{% block title %} Nouvelle requete {% endblock %}
+{% extends "layout.html" %} 
+{%load static %} 
+{% block title %} Nouvelle requete {% endblock %} 
 {% block content %}
 
- 
+
 
 <form action="{% url 'nouvelle requete' type %}" method="post">
-    {% csrf_token %}
-   {% if  type == "1" %}
-    {{eleve_potentiel_form.as_p}}
-    {% elif type == "2" %}
-    {{ eleve_form.as_p }}
+    {% csrf_token %} 
+    {% if type == "1" %} 
+    {{eleve_potentiel_form.as_p}} 
+    {% elif type == "2" %} 
+    {{ eleve_form.as_p }} 
     {% endif %}
     <br><br>
     <div id="req_form">
-    {{requete_form.as_p}}
+        {{requete_form.as_p}}
     </div>
-   <span>
+    <span>
     <input type="submit" value="Submit" name="end" />
     </span>
     <span>
         <input type="submit" value="Submit & add other" name="submit & add other"/>
     </span>
 </form>
-   
-{% endblock %}
-{% block javascript %}
+
+{% endblock %} {% block javascript %}
 <script>
-        function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-        
-        $.ajaxSetup({
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
         }
-        }   
-});
-        var csrftoken = Cookies.get('csrftoken');
-       $(function() {
+    });
+    var csrftoken = Cookies.get('csrftoken');
+    $(function() {
         $('#req_form').hide();
-           
-        $('#id_curriculum').on("change",function() {
-            
-        var $option = $(this).find('option:selected');
-        var value = $option.val(); //returns the value of the selected option.
-        
-        $.post(
-            '/TGA_tool/ajax_requete',
-            {
-                curriculum_id : value
-            },
-            function(data){
-            
-                $("#id_matiere").empty() // dont remove text only           
-                $("#id_matiere").append(data);
-            },
-            'html',
+
+        $('#id_curriculum').on("change", function() {
+
+            var $option = $(this).find('option:selected');
+            var value = $option.val(); //returns the value of the selected option.
+
+            $.post(
+                '/TGA_tool/ajax_requete', {
+                    curriculum_id: value
+                },
+                function(data) {
+                    splitedData = data.split("iii");
+                    $("#id_matiere").empty() // dont remove text only           
+                    $("#id_matiere").append(splitedData[0]);
+
+                    {% if type == "2" %}
+                    $("#id_eleve").empty() // dont remove text only           
+                    $("#id_eleve").append(splitedData[1]); 
+                    {% endif %}
+                },
+                'html',
             );
-        $('#req_form').show();
-    
+            $('#req_form').show();
 
-});
 
-       });
+        });
+
+    });
+
 </script>
 {% endblock %}
