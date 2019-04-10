@@ -381,7 +381,8 @@ def modifierSeanceCoaching(request,id):
 
 
 def declarerSeanceCoaching(request,id):
-    seance = Seance_Coaching.objects.get(id = id)
+    id_2=int(id)
+    seance = Seance_Coaching.objects.get(id = id_2)
     seance_id =seance.id
     date_seance = str(seance.date)
     heure_seance = str(seance.creneau.debut)

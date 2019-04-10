@@ -66,14 +66,15 @@ class CoursForm(forms.Form):
     coach=forms.ModelChoiceField(queryset=Coach.objects.all(),required=False)
 
 class SeanceForm(forms.ModelForm):
+    eleves=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
     class Meta:
         model = Seance_Cours
-        exclude = ['cours','statut','chapitre','notion']
+        exclude = ['cours','statut','chapitre','notions']
 
 class SeanceForm2(forms.ModelForm):
     #cours=forms.ModelChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
     #notions=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
-    #eleves=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
+    
     curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all())
     field_order=('curriculum','cours','date','creneau')
     class Meta:
