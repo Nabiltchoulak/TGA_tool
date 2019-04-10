@@ -7,10 +7,10 @@
 
 <form action="{% url 'nouveau cours' %}" method="post">
     {% csrf_token %}
-    <fieldset>
+    <div >
     <legend style="font-size:30px; color: blue;">Partie cours:</legend>
     {{cours_form.as_p}}
-    </fieldset>
+    </div>
     <br><br>
     <fieldset>
     <legend style="font-size:30px; color: blue;" >Partie fréquence:</legend>
@@ -61,14 +61,48 @@
     </p>
     </div>
     </fieldset>
-   <span>
-    <input type="submit" value="Submit" name="end" />
-    </span>
-    <span>
-        <input type="submit" value="Submit & add other" name="submit & add other"/>
-    </span>
+   <div class="col-lg-6">
+        <input type="submit" value="Submit" name="end" />
+    </div>
+    <div class="col-lg-6">
+        <input type="submit" value="Submit & add other" name="submit & add other" />
+    </div>
 </form>
-   
+
+
+<style type="text/css">
+
+
+
+input[type=text],input[type=number] ,select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+h1,h2 {
+    text-align: center;
+}
+input[type=submit] {
+  width: 100%;
+  background-color: #012168;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display : block-inline
+  
+}
+
+</style>
+
+
 {% endblock %}
 
 {% block javascript %}

@@ -21,7 +21,7 @@ urlpatterns = [
     path('seance-cours.html', views.nouvelleSeanceCours, name="seance cours"),
     path('nouvelle-famille.html', views.nouvelleFamille, name="nouvelle famille"),
     #path('liste-famille',views.listeFamilles, name="liste famille"),
-    path('initiate-data', views.init_data, name="initiate data"),
+    path('initial-data.html', views.init_data, name="initial data"),
     path('modifier-seance_cours.html', views.seance_cours, name='modifier seance cours'),
 
     url(r'^home.html$',TemplateView.as_view(template_name="TGA_tool/home.html")),#Test des vues génériques

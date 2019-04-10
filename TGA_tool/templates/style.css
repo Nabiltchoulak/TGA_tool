@@ -1,0 +1,111 @@
+* {
+    box-sizing: border-box;
+}
+
+@font-face {
+    font-family: 'Montserrat', arial;
+    src: url(montserrat_[fr.allfont.net].ttf);
+}
+
+
+h1,
+h2,
+h3,
+p {
+    padding: 10px;
+    margin: 0;
+}
+
+/* Style the header */
+.header {
+    background-color: rgb(255, 72, 0);
+    padding: 5px;
+    height: 125px;
+    color: #CCC;
+    display: inline-table;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 4px 0 rgba(0,0,0,0.15);
+}
+
+.header nav #logo {
+    position: absolute;
+    /*margin: 50; padding: 0;
+  font: bolder 20px 'Trebuchet MS', Arial, Sans-serif;
+  letter-spacing: -3px;
+  color: #FFF !important;
+  text-transform: none;
+  text-decoration: none;
+  background: transparent;
+  */
+    /*change the values of top and left to adjust the position of the logo*/
+    top: -5px;
+    left: 5px;
+}
+
+
+/*
+  .header p{
+     position: absolute;
+     margin: 0; padding: 0;
+     display: block;
+     top: 70px; left: 30px;  
+     color: #FFF;
+     font: normal 14px 'Trebuchet MS', Arial, Sans-serif;
+  }
+*/
+
+
+/* Style the footer */
+.footer h4 {
+    background-color: #F8F8FA;
+    padding: 10px;
+    text-align: center;
+    height: 100px;
+    color: rgb(16, 12, 78);
+}
+
+.top_nav {
+    /*box-shadow: 0 2px 2px 0 rgba(0,0,0,0.15);*/
+    margin-top: 50px;
+}
+ .navi_item {
+    margin-right: 10px;
+    margin-left: 10px;
+    font: bolder 20px 'Trebuchet MS', Arial, Sans-serif;
+    
+    color : #012168;
+
+
+}
+.dropdown-content a {
+    float: none;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+  }
+
+.dropdown-content{
+    display: none;
+    position: absolute;
+    /*background-color: #f1f1f1;*/
+    min-width: 160px;
+    /*box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);*/
+    z-index: 2;
+  }
+.dropbtn div{
+    color : #012168;
+}
+
+  
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd;}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {background-color: #012168;}
+  

@@ -3,11 +3,44 @@
 {% block title %} Nouvelle famille {% endblock %}
 {% block content %}
 
-{% if envoi %} La famille a été bien ajoutée !{% endif %}
+{% if envoi %} <h2>La famille a été bien ajoutée !</h2>{% endif %}
+<div class="col-lg-12" >
 <h2>Ajouter une nouvelle famille </h2>
 <form action="{% url "nouvelle famille" %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
+    
     <input type="submit" value="Submit" />
 </form>
+</div>
+
+<style>
+input[type=text],input[type=number] ,select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+h1,h2 {
+    text-align: center;
+}
+input[type=submit] {
+  width: 100%;
+  background-color: #012168;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display : block-inline
+  
+}
+
+</style>
+
 {% endblock %}

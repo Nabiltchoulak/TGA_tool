@@ -27,13 +27,44 @@
     <p id="notions_id">
         {{form.notions.errors}} {{form.notions.label_tag}} {{form.notions}} {{form.notions.help_text}}
     </p>
-    <span>
-    <input type="submit" value="Submit" name="end" />
-    </span>
-    <span>
-        <input type="submit" value="Submit & add other" name="submit & add other"/>
-    </span>
+     <div class="col-lg-6">
+        <input type="submit" value="Submit" name="end" />
+    </div>
+    <div class="col-lg-6">
+        <input type="submit" value="Submit & add other" name="submit & add other" />
+    </div>
 </form>
+<style type="text/css">
+
+
+
+input[type=text],input[type=number] ,select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+h1,h2 {
+    text-align: center;
+}
+input[type=submit] {
+  width: 100%;
+  background-color: #012168;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display : block-inline
+  
+}
+
+</style>
 {% endblock %} {% block javascript %}
 <script>
     function csrfSafeMethod(method) {
@@ -77,6 +108,7 @@
 
 
         });
+        /*
         $('#id_cours').on("change", function() {
             var $option = $(this).find('option:selected');
             var value = $option.val(); //returns the value of the selected option.
@@ -112,7 +144,7 @@
                 'html',
             );
 
-        });
+        });*/
 
     });
 

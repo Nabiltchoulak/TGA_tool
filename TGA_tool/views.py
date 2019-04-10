@@ -60,8 +60,10 @@ def ajaxNewEleve(request):
         id_2=int(request.POST['curriculum_id'])
         curriculum= Curriculum.objects.get(id=id_2)
         form.fields['cours'].queryset=Cours.objects.filter(curriculum=curriculum)
+        data=[]
+        data=form["cours"]
         
-        return HttpResponse(form['cours'])
+        return HttpResponse(str(data))
 
 
 def ajax_requete(request):
@@ -73,7 +75,7 @@ def ajax_requete(request):
         form.fields['matiere'].queryset=Matiere.objects.filter(curriculum=curriculum)
         eleve_form.fields['eleve'].queryset=Eleve.objects.filter(curriculum=curriculum)
         data=[form['matiere'],'iii',eleve_form['eleve']]
-        print(data)
+        
         return HttpResponse(data)
 
 
@@ -83,8 +85,9 @@ def nouveauEleve(request, id=0):
         
         form = EleveForm(request.POST or None)
         famille = True 
-        
+        print(request.POST)
         if form.is_valid(): 
+            print("valid")
             eleve = form.save(commit=False)
             eleve.famille = Famille.objects.get(id=id)
             try:
@@ -96,19 +99,25 @@ def nouveauEleve(request, id=0):
                 #et on garde les autres requetes si il y'en a, on suprime la requete qui correspon a son cours si c'est elle 
             elevepotentiel=ElevePotentiel.objects.get(nom=form.cleaned_data["nom"])
             #Ici on gére le cas ou deux eleves ont le meme nom 
-            eleve=form.save(commit=False)
+            #eleve=form.save(commit=False)
             eleve.elevepotentiel_ptr=elevepotentiel
             #Il se peut que les coordonés prises quand l'elève s'est présenté aient changés 
                 
             eleve.elevepotentiel_ptr.email=form.cleaned_data["email"]
             eleve.elevepotentiel_ptr.num=form.cleaned_data["num"]
-            eleve.save()
+            print(eleve)
+            print(eleve.save())
             form.save_m2m()
             for cours in form.cleaned_data["cours"] :
                     
                 if Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere):
                     requete=Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere)
                     requete.delete()
+            if 'end' in request.POST :#test if the user choosed "submit" 
+                return render(request,'TGA_tool/home.html')
+            elif 'submit & add other' in request.POST :#or "submit && add" 
+                form=EleveForm()#Vider le formulaire 
+                return render(request,'TGA_tool/nouveau-eleve.html', locals())
 
             
     else:
@@ -116,14 +125,14 @@ def nouveauEleve(request, id=0):
         famille = False#Cet élève posséde déja une famille 
         
         
-        if request.POST:
+        if 'curriculum_id' in list(request.POST.keys()):
             
             id_2=int(request.POST['curriculum_id'])
             curr= Curriculum.objects.get(id=id_2)
             form.fields['cours'].queryset=Cours.objects.filter(curriculum=curr)
             
-            return HttpResponse(form['cours'])
-            
+            return HttpResponse(str(form['cours']))
+        #print(form.errors)
         if form.is_valid():
             try:
                 ElevePotentiel.objects.get(nom=form.cleaned_data["nom"])
@@ -148,11 +157,11 @@ def nouveauEleve(request, id=0):
                     requete=Requete.objects.filter(eleve=elevepotentiel).filter(matiere=cours.matiere)
                     requete.delete()
     
-    if 'end' in request.POST :#test if the user choosed "submit" 
-            return render(request,'TGA_tool/home.html')
-    elif 'submit & add other' in request.POST :#or "submit && add" 
-            form=EleveForm()#Vider le formulaire 
-            return render(request,'TGA_tool/nouveau-eleve.html', locals())
+        if 'end' in request.POST :#test if the user choosed "submit" 
+                return render(request,'TGA_tool/home.html')
+        elif 'submit & add other' in request.POST :#or "submit && add" 
+                form=EleveForm()#Vider le formulaire 
+                return render(request,'TGA_tool/nouveau-eleve.html', locals())
     return render(request,'TGA_tool/nouveau-eleve.html', locals())	
 
 def nouveauCoach(request):
@@ -227,8 +236,10 @@ def mesSeances(request):
     elif request.user.is_staff == 1 : 
         cours=Cours.objects.all()
         coachings=Seance_Coaching.objects.all()
-        for seance in coachings:
-            listeseances.append({'title': "Coaching " + seance.matiere.curriculum.niveau + " - " + seance.matiere.matiere, 
+        print(coachings)
+        if coachings :
+            for seance in coachings:
+                listeseances.append({'title': "Coaching " + seance.matiere.curriculum.niveau  + " - " + seance.matiere.matiere + " - " + str(seance.coach) + " - " + str(seance.statut), 
                 'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "display-seance-coaching.html/" + str(seance.id)})
         
     
@@ -236,7 +247,7 @@ def mesSeances(request):
         seances = Seance_Cours.objects.filter(cours = cour.id)
         for seance in seances:
              #listeseances.append({'id': seance.id, 'curriculum': seance.cours.matiere.curriculum.niveau, 'matiere': seance.cours.matiere.matiere, 'date' : str(seance.date), 'start' : str(seance.creneau.debut)})       
-            listeseances.append({'title': seance.cours.matiere.curriculum.niveau + " - " + seance.cours.matiere.matiere, 
+            listeseances.append({'title': seance.cours.matiere.curriculum.niveau + " - " + seance.cours.matiere.matiere + " - " + str(cour.coach)+ " - " + str(seance.statut), 
                 'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "displayseance.html/" + str(seance.id)})
     
     #Cette partie va récupérer les seances de coaching 
@@ -261,8 +272,8 @@ def displaySeance(request,id):
     salle_seance =  seance.salle
     niveau = seance.cours.curriculum
     matiere = seance.cours.matiere.matiere
-    chapitre = seance.chapitre
-    notions = seance.notions
+    #chapitre = seance.chapitre
+    #notions = seance.notions
     eleves = Eleve.objects.filter(cours=seance.cours.id)
     statut = seance.statut
     displayMode = 1 # 1 : par défaut, 2 : modifier, 3 : déclarer
@@ -294,8 +305,8 @@ def declarerSeance(request,id):
     heure_seance = str(seance.creneau.debut)
     salle_seance =  seance.salle
     matiere = seance.cours.matiere.matiere
-    chapitre = seance.chapitre
-    notions = seance.notions.all()
+    #chapitre = seance.chapitre
+    #notions = seance.notions.all()
     eleves = Eleve.objects.filter(cours=seance.cours.id)
     statut = seance.statut
 
@@ -341,8 +352,8 @@ def displaySeanceCoaching(request,id):
     salle_seance =  seance.salle
     niveau = seance.matiere.curriculum
     matiere = seance.matiere.matiere
-    chapitre = seance.chapitre
-    notions = seance.notions
+    #chapitre = seance.chapitre
+    #notions = seance.notions
     eleves = seance.eleve.all()
  
     statut = seance.statut
@@ -376,8 +387,8 @@ def declarerSeanceCoaching(request,id):
     heure_seance = str(seance.creneau.debut)
     salle_seance =  seance.salle
     matiere = seance.matiere.matiere
-    chapitre = seance.chapitre
-    notions = seance.notions
+    #chapitre = seance.chapitre
+    #notions = seance.notions
     eleves = seance.eleve.all()
     statut = seance.statut
 
@@ -473,16 +484,16 @@ def nouvelleSeanceCoaching(request) :
         elif 'matiere_id' in list(request.POST.keys()):
             id=int(request.POST['matiere_id'])
             matiere= Matiere.objects.get(id=id)
-            form.fields['chapitre'].queryset=Chapitre.objects.filter(matiere=matiere)
+            #form.fields['chapitre'].queryset=Chapitre.objects.filter(matiere=matiere)
             form.fields['coach'].queryset=Coach.objects.filter(matieres=matiere)
-            data= [form['coach'],'iii',form['chapitre']]
+            data= [form['coach'],'iii',"form['chapitre']"]
             return HttpResponse(data)
 
             
         elif 'chapitre_id' in list(request.POST.keys()):
             id=int(request.POST['chapitre_id'])
             chapitre= Chapitre.objects.get(id=id)
-            form.fields['notions'].queryset=Notions.objects.filter(chapitre=chapitre)
+            #form.fields['notions'].queryset=Notions.objects.filter(chapitre=chapitre)
             return HttpResponse(form['notions'])
     
     if form.is_valid():
@@ -558,6 +569,9 @@ def seance_cours(request):
     
     if form.is_valid() :
         seance=form.cleaned_data['seance']
+        seance.salle=form.cleaned_data['salle']
+        seance.save()
+        """
         while not(form.cleaned_data['chapitre']) or not(form.cleaned_data['salle']) or not(form.cleaned_data['notion']) :
             form.fields['chapitre'].queryset=Chapitre.objects.filter(matiere=seance.cours.matiere)
             #chapitre=form.cleaned_data['chapitre']
@@ -573,7 +587,8 @@ def seance_cours(request):
             seance.notions.set(form.cleaned_data['notion'])
         if seance.notions :
             seance.save()
-            return render(request,'TGA_tool/home.html', locals())
+        """
+        return render(request,'TGA_tool/home.html', locals())
             
     return render(request,'TGA_tool/modifier-seance_cours.html', locals())	
 

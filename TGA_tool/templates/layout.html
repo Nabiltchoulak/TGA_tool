@@ -1,35 +1,142 @@
 {% load static%}
 <!DOCTYPE html>
 <html>
-  <head>
-    <title> {% block title%} TGA Management Tool  {% endblock %} </title>
+
+<head>
+  <title> {% block title%} TGA Management Tool {% endblock %} </title>
+
+  <meta charset="utf-8" />
+
+
+  <script src="{% static 'jquery/jquery.js' %}"></script>
+
+
+
+  <!-- BOOTSTRAP -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+  <link rel='stylesheet' href="{% static 'bootstrap/css/bootstrap.css' %}" type="text/css" />
+
+  <!-- Style -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" />
+
+  <!-- Cette partie est responsable sur l'icone dans tout les formats  -->
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="{% static 'icones/apple-touch-icon-57x57.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{% static 'icones/apple-touch-icon-114x114.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static 'icones/apple-touch-icon-72x72.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{% static 'icones/apple-touch-icon-144x144.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="60x60" href="{% static 'icones/apple-touch-icon-60x60.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="{% static 'icones/apple-touch-icon-120x120.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="76x76" href="{% static 'icones/apple-touch-icon-76x76.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="152x152" href="{% static 'icones/apple-touch-icon-152x152.png' %}" />
+  <link rel="icon" type="image/png" href="{% static 'icones/favicon-196x196.png' %}" sizes="196x196" />
+  <link rel="icon" type="image/png" href="{% static 'icones/favicon-96x96.png' %}" sizes="96x96" />
+  <link rel="icon" type="image/png" href="{% static 'icones/favicon-32x32.png' %}" sizes="32x32" />
+  <link rel="icon" type="image/png" href="{% static 'icones/favicon-16x16.png' %}" sizes="16x16" />
+  <link rel="icon" type="image/png" href="{% static 'icones/favicon-128.png' %}" sizes="128x128" />
+  <meta name="application-name" content="&nbsp;" />
+  <meta name="msapplication-TileColor" content="#FFFFFF" />
+  <meta name="msapplication-TileImage" content="mstile-144x144.png" />
+  <meta name="msapplication-square70x70logo" content="mstile-70x70.png" />
+  <meta name="msapplication-square150x150logo" content="mstile-150x150.png" />
+  <meta name="msapplication-wide310x150logo" content="mstile-310x150.png" />
+  <meta name="msapplication-square310x310logo" content="mstile-310x310.png" />
+  <!-- /////////////////////////////////////////////////////////////////////////////////////// -->
+
+
+
+  <!-- Full Calendar dependencies -->
+  <link rel='stylesheet' href="{% static 'calendar/fullcalendar.css' %}" type="text/css" />
+
+  <link rel="stylesheet" type="text/css" href="{% static 'calendar/fullcalendar.print.min.css' %}" media="print" />
+  <script src="{% static 'calendar/lib/moment.min.js' %}"></script>
+  <script src="{% static 'calendar/lib/jquery.min.js' %}"></script>
+  <script src="{% static 'calendar/fullcalendar.min.js' %}"></script>
+
+
+  <!-- Used for AJAX requests (CSRF protection)-->
+  <script src="{% static 'js-cookie-master/src/js.cookie.js' %} "></script>
+
+</head>
+
+<body>
+  {% block nav %}
+  <div class="col-lg-12 header">
+    <div class="col-xs-2">
+      <a id="logo" class="brand" href="/admin/">
+        <img border="0" alt="The Global Academy" src="{% static 'icones/favicon-196x196.png' %}" width="100"
+          height="100">
+      </a>
+    </div>
+    <nav class="col-xs-9 top_nav">
+
+
+      <div class="nav_item col-xs-2 ">
+
+
+        <a href="/TGA_tool/home.html">
+          <button class="dropbtn">
+            Home
+          </button>
+        </a>
+
+
+      </div>
+
+      <div class="nav_item col-xs-3">
+
+
+        <a href="/TGA_tool/make-payement.html">
+          <button class="dropbtn">Paiement</button>
+        </a>
+
+      </div>
+
+
+      <div class="nav_item dropdown col-xs-3">
+        <button class="dropbtn">Inscriptions
+          <span class="caret"></span>
+        </button>
+        <div class="dropdown-content">
+          <a href="/TGA_tool/nouvelle-famille.html">Famille</a>
+          <a href="/TGA_tool/nouveau-eleve.html">Elève</a>
+          <a href="/TGA_tool/nouveau-coach.html">Coach</a>
+          <a href="{% url 'nouvelle requete' "2" %}">Requête interne</a>
+          <a href="{% url 'nouvelle requete' "1" %}">Requête externe</a>
+        </div>
+      </div>
+
+
+
+
+      <div class="nav_item dropdown col-xs-3">
+        <button class="dropbtn">Planification
+          <span class="caret"></span>
+        </button>
+        <div class="dropdown-content">
+          <a href="/TGA_tool/nouveau-cours.html">Cours</a>
+          <a href="/TGA_tool/seance-cours.html">Ajouter séance cours</a>
+          <a href="/TGA_tool/seance-coaching.html">Ajouter séance coaching</a>
+        </div>
+      </div>
+
+
+
+
+    </nav>
+
+       {% if user.is_authenticated %}
+            <div class="col-xs-1"> 
+            <a href = "/TGA_tool/deconnexion"> Déconnexion </a>
+            </div>
+            {% else %}
+            <div class="col-xs-1"> 
+                <a href="/TGA_tool/connexion">Connexion</a>
+            </div>
+            {% endif %}
+
     
-    <meta charset="utf-8" />
-    
-
-    <script src="{% static 'jquery/jquery.js' %}"></script> 
-    <!--
-    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-    -->
-    <link rel="stylesheet" href="{% static 'css/kosygin-style.css' %}" type="text/css" />
-    <link rel='stylesheet' href="{% static 'calendar/fullcalendar.css' %}" type ="text/css"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'calendar/fullcalendar.print.min.css' %}" media="print" /> 
-    <script src="{% static 'calendar/lib/moment.min.js' %}"></script>
-    <script src="{% static 'calendar/lib/jquery.min.js' %}"></script>
-    <script src="{% static 'calendar/fullcalendar.min.js' %}"></script>   
-    <script src="{% static 'js-cookie-master/src/js.cookie.js' %} "></script>
-    <style type="text/css">
-
-       /* Style en test ici avant d'être mis dans la feuille de style  */
-
-    </style>
-  </head>
-
-  <body>
-    {% block nav %}
-    <div class="header">
-        <h1><a href="/admin/">The Global Academy</a></h1>
+    <!--<h1 ><a href="/admin/">The Global Academy</a></h1>
         <p> We fly to excellence ! </p>
 
         
@@ -37,156 +144,90 @@
         <div class="topnav" id="myTopnav">
         
             <a href="/TGA_tool/home.html">Home</a>
-            <a href="#news">Notifications</a>
-            {% if user.is_authenticated %}
-            <a href = "/TGA_tool/deconnexion"> Déconnexion </a>
-            
-            {% else %}
-            <a href = "/TGA_tool/connexion"> Connexion </a>
-            {% endif %}
-
+            <a href="/TGA_tool/make-payement.html">Nouveau paiement</a>
+         
             <button type="submit">Submit</button>
             <input type="text" placeholder="Search..">
+            -->
 
-        </div>
-    </div>
 
-    <div class="container">
-  
-      <div class ="sidebar">
-          <button class="accordion">Inscription</button>
-          <div class="panel">
-          <ul>
-            <li><a href="/TGA_tool/nouvelle-famille.html"> Ajouter une famille </a></li>  
-            <li><a href="/TGA_tool/nouveau-eleve.html"> Ajouter un élève  </a></li> 
-            <li><a href="/TGA_tool/nouveau-coach.html"> Ajouter un coach </a></li>
-            <li><a href="{% url 'nouvelle requete' "2" %}"> ajouter une requête interne</a></li>
-            <li><a href="{% url 'nouvelle requete' "1" %}"> ajouter une requête externe</a></li>
-          </ul>
-          </div>
+  </div>
 
-          <button class="accordion">Planification</button>
-          <div class="panel">
-            <ul>
-                <li><a href="/TGA_tool/nouveau-cours.html">Ajouter un cours</a> </li>
-                <li><a href="/TGA_tool/modifier-seance_cours.html">Attribuer du contenu à une séance cours</a></li>
-                <li><a href="/TGA_tool/nouvelle-matiere.html">Ajouter un programme pédagogique </a></li>
-                <li> <a href="/TGA_tool/seance-cours.html">Ajouter une séance cours </li>
-                <li> <a href="/TGA_tool/seance-coaching.html">Ajouter une séance de coaching </a> </li>
 
-            </ul>
-          </div>
 
-          <button class="accordion">Suivi pédagogique</button>
-          <div class="panel">
-            <ul>
-                <li><a href="/TGA_tool/mes-cours.html?cours=mine"> Mes cours</a></li>
-                <li><a href="/TGA_tool/calendar.html">Mon planning des séances </a></li>
-                <li><a href="/admin/container-insert.html">Déclaration de séance(non dispo)</a> </li>
-                <li><a href="/admin/container-insert.html">Relevé des absences(non dispo)</a> </li>
-              </ul>
-          </div>
-
-          <button class="accordion">Suivi paiements</button>
-          <div class="panel">
-            <ul>
-                <li><a href="/TGA_tool/make-payement.html"> déclarer un paiement</a> </li>
-                
-
-            </ul>
-          </div>
-
-            <button class="accordion"> Tableau de bord </button>
-          <div class="panel">
-            <ul>
-                <li><a href="{% url 'display' "1" %}">Familles</a></li>
-                <li><a href="{% url 'display' "2" %}">Parents</a> </li>
-                <li><a href="{% url 'display' "3" %}">Eleves</a> </li>
-                <li><a href="{% url 'display' "4" %}">Paiements</a> </li>
-                <li><a href="{% url 'display' "8" %}">Requêtes</a> </li>
-                <li><a href="{% url 'display' "5" %}">Coachs</a> </li>
-                <li><a href="{% url 'display' "6" %}">Cours</a> </li>
-                <li><a href="{% url 'display' "7" %}">Salles</a> </li>
-
-            </ul>
-          </div>
-    
-
+  {% endblock %}
+  <!--<div class="content">
+    <section id="main">
+     
+      {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+          {% endfor %}
+      </ul>
+      {% endif %}-->
+      <div class="container-fluid">
+        {% block content %}{% endblock %}
       </div>
+    </section>
 
-     {% endblock %}
-      <div class="content">
-          <section id="main">
-                <!-- Affichage des messages à l'utilisateur  -->
-                {% if messages %}
-                <ul class="messages">
-                {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                {% endfor %}
-                </ul>
-                {% endif %}
+  </div>
 
-             {% block content %}{% endblock %}
+  </div>
 
-          </section>
+  <div class="col-xs-12 footer">
+    <h4>TGA Excellence Center Copyright 2018</h4>
+  </div>
+</body>
 
-      </div>
-   
-    </div>
-
-    <div class="footer">
-      <p>TGA Excellence Center Copyright 2018</p>
-    </div>
-  </body>
 </html>
 
 {% block javascript %}{% endblock %}
 
 <script type="text/javascript">
+  $(function () {
+   
+//////////////////////////////////////////////////////// Ancienne page
+    // placing objects inside variables
+    var content = $('.content');
+    var sidebar = $('.sidebar');
+    var moveContainer = $('#MoveContainer');
+    var from = $('.from');
+    var to = $('.to');
 
-$(function(){
-  
-// placing objects inside variables
-var content = $('.content');
-var sidebar = $('.sidebar');
-var moveContainer = $('#MoveContainer');
-var from = $('.from');
-var to = $('.to');
-
-// get content and sidebar height in variables
-var getContentHeight = content.outerHeight();
-var getSidebarHeight = sidebar.outerHeight();
-var getMoveContainerHeight = moveContainer.outerHeight();
+    // get content and sidebar height in variables
+    var getContentHeight = content.outerHeight();
+    var getSidebarHeight = sidebar.outerHeight();
+    var getMoveContainerHeight = moveContainer.outerHeight();
 
 
 
-// check if content height is bigger than sidebar
-if ( getContentHeight > getSidebarHeight ) {
-  sidebar.css('min-height', getContentHeight);
-}
+    // check if content height is bigger than sidebar
+    if (getContentHeight > getSidebarHeight) {
+      sidebar.css('min-height', getContentHeight);
+    }
 
-// check if sidebar height is bigger than content
-if ( getSidebarHeight > getContentHeight ) {
-  content.css('min-height', getSidebarHeight);
-}
+    // check if sidebar height is bigger than content
+    if (getSidebarHeight > getContentHeight) {
+      content.css('min-height', getSidebarHeight);
+    }
 
-// Accordeon
-var acc = document.getElementsByClassName("accordion");
-var i;
+    // Accordeon
+    var acc = document.getElementsByClassName("accordion");
+    var i;
 
-for (i = 0; i < acc.length; i++) {
-  acc[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var panel = this.nextElementSibling;
-    if (panel.style.maxHeight){
-      panel.style.maxHeight = null;
-    } else {
-      panel.style.maxHeight = panel.scrollHeight + "px";
-    } 
+    for (i = 0; i < acc.length; i++) {
+      acc[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        var panel = this.nextElementSibling;
+        if (panel.style.maxHeight) {
+          panel.style.maxHeight = null;
+        } else {
+          panel.style.maxHeight = panel.scrollHeight + "px";
+        }
+      });
+    }
+
+
   });
-}
-
-
-});
-
 </script>

@@ -18,15 +18,16 @@ class ParentForm(forms.ModelForm):
 
 
 class EleveForm(forms.ModelForm): #creation après la famille
-    date_naissance = forms.DateField(widget=forms.SelectDateWidget())
-    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.none(),widget=forms.CheckboxSelectMultiple)
+    date_naissance = forms.DateField()
+    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
+    #Never use the objects.none() if you want to put an empty fieldchoices, juste hide it
     curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),empty_label=None)
     class Meta:
         model = Eleve
         exclude=['user','date_inscription', 'famille','matieres']
 
 class EleveForm2(forms.ModelForm): #creation pour un famille existante
-    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.none(),widget=forms.CheckboxSelectMultiple)
+    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
     curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),empty_label=None)
     
     class Meta:
@@ -67,24 +68,24 @@ class CoursForm(forms.Form):
 class SeanceForm(forms.ModelForm):
     class Meta:
         model = Seance_Cours
-        exclude = ['cours','statut']
+        exclude = ['cours','statut','chapitre','notion']
 
 class SeanceForm2(forms.ModelForm):
     #cours=forms.ModelChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
-    notions=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
+    #notions=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
     #eleves=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
     curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all())
     field_order=('curriculum','cours','date','creneau')
     class Meta:
         
         model = Seance_Cours
-        exclude = ['statut','eleves']
+        exclude = ['statut','eleves','chapitre','notion']
 
 class Seance_CoursForm(forms.Form):
     seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir la séance a éditer') 
     salle = forms.ModelChoiceField(queryset=Salle.objects.all(),help_text='Choisir la salle',required=False)
-    chapitre = forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
-    notion=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False,widget=forms.CheckboxSelectMultiple)
+    #chapitre = forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
+    #notion=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False,widget=forms.CheckboxSelectMultiple)
 
 
 class FrequenceForm(forms.ModelForm):
@@ -100,6 +101,7 @@ class SalleForm(forms.ModelForm):
 
 class RequeteForm(forms.Form):
     matiere=forms.ModelMultipleChoiceField(queryset=Matiere.objects.all(),help_text="Matieres", widget=forms.CheckboxSelectMultiple)
+    #Never use the objects.none() if you want to put an empty fieldchoices, juste hide it
     creneau=forms.ModelMultipleChoiceField(queryset=Creneau.objects.all(),help_text="Créneau",required=False, widget=forms.CheckboxSelectMultiple)
     day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
     jour=forms.MultipleChoiceField(choices=day_choices,required=False,help_text="Jours", widget=forms.CheckboxSelectMultiple)
@@ -116,8 +118,8 @@ class ReportSeanceForm(forms.Form):
     """docstring for ReportSeanceForm"""
     eleves = forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),help_text='Cocher les élèves présents', widget=forms.CheckboxSelectMultiple)
     # A afficher avec du Jquerry en fonction du chapitre choisi (donner la possibilité d'ajouter une nouvelle notion au chapitre)
-    chapitre=forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
-    notions=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False, widget=forms.CheckboxSelectMultiple)
+    #chapitre=forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
+    #notions=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False, widget=forms.CheckboxSelectMultiple)
     rapport = forms.CharField(label='Rapport de séance', max_length = 300, widget=forms.Textarea,required=False)
     """def __init__(self, seance, arg):
         super(ReportSeanceForm, self).__init__()
@@ -133,8 +135,8 @@ class ReportSeanceCoachingForm(forms.Form):
     """docstring for ReportSeanceForm"""
     eleves = forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),help_text='Cocher les élèves présents', required=True, widget=forms.CheckboxSelectMultiple)
     # A afficher avec du Jquerry en fonction du chapitre choisi (donner la possibilité d'ajouter une nouvelle notion au chapitre)
-    chapitre=forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
-    notions=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False, widget=forms.CheckboxSelectMultiple)
+    #chapitre=forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
+    #notions=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False, widget=forms.CheckboxSelectMultiple)
     rapport = forms.CharField(label='Rapport de séance', max_length = 300,required=False, widget=forms.Textarea)
     """def __init__(self, seance, arg):
         super(ReportSeanceCoachingForm, self).__init__()
@@ -149,12 +151,12 @@ class ReportSeanceCoachingForm(forms.Form):
         
 class Seance_CoachingForm(forms.ModelForm):
     curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all())
-    notions=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
+    #notions=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
     field_order=('curriculum','eleve','matiere','coach','date','creneau','salle','chapitre','notions')
     eleve=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
     class Meta:
         model = Seance_Coaching
-        exclude =['statut']
+        exclude =['statut','chapitre','notions']
 
 
 #Suivi paiement 

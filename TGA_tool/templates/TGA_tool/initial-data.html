@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{%load static %}
+{% block title %} Initiate data {% endblock %}
+{% block content %}
+
+{% if done %} Donnees generes !{% endif %}
+{% if already %} Donnees existant !{% endif %}
+<form action="{% url "initial data" %}" method="post">
+{% csrf_token %}
+<div class="col-lg-4">
+<button type="submit" value="Submit" name="Creneaux"> Generer les creneaux </button>
+</div>
+
+<div class="col-lg-4">
+<button type="submit" value="Submit" name="Curricilum"> Generer les curriculums </button>
+</div>
+
+<div class="col-lg-4">
+<button type="submit" value="Submit" name="Matiere"> Generer les matieres </button>
+</div>
+</form>
+<style type="text/css">
+
+button {
+  width: 100%;
+  background-color: #012168;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display : block-inline
+  
+}
+</style>
+{% endblock %}

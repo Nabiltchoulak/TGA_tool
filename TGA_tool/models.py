@@ -33,7 +33,7 @@ class Parent(models.Model):
 	prenom = models.CharField(max_length=42,verbose_name="Prénom",unique=False, default="")
 	nom= models.CharField(max_length=42,verbose_name="Nom",unique=False)
 	telephone= models.CharField(max_length=40,verbose_name="Telephone",unique=True)
-	email= models.EmailField(verbose_name="E-mail",unique=True,blank=True)
+	email= models.EmailField(verbose_name="E-mail",blank=True)
 	famille = models.ForeignKey('Famille', on_delete = models.CASCADE, verbose_name="Famille", null=False,default= 1)
 	estResponsable= models.BooleanField(verbose_name="Parent principal", default=False)
 	credit=models.IntegerField(default=0)
@@ -55,7 +55,7 @@ class Parent(models.Model):
 class ElevePotentiel(models.Model):
 	nom= models.CharField(max_length=42,verbose_name="Nom complet",unique=False)
 	num= models.CharField(max_length=15,blank=True,verbose_name="Telephone")
-	email=models.EmailField(blank=True,verbose_name="E-mail")
+	email=models.EmailField(blank=True,null=True,verbose_name="E-mail")
 	matieres=models.ManyToManyField("Matiere",through="Requete", verbose_name="Cours potentiels demandes",blank=True)
 	def __str__(self):
 		return self.nom
