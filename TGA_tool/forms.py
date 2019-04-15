@@ -4,6 +4,12 @@ from TGA_tool.models import *
 
 # Inscription des utilisateurs (famille, parents, élèves, coachs)
 
+class ClientForm(forms.ModelForm):
+    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
+    class Meta:
+        model = Client
+        exclude=['famille','solde','debit','credit','estResponsable','date_commencement','sessions','user']
+
 class FamilleForm(forms.ModelForm):
     class Meta:
         model = Famille
@@ -11,6 +17,7 @@ class FamilleForm(forms.ModelForm):
 
 
 class ParentForm(forms.ModelForm):
+    adresse=forms.CharField( max_length=100, required=False)
     class Meta:
         model = Parent
         exclude = ['user', 'famille','solde','debit','credit']
@@ -21,34 +28,34 @@ class EleveForm(forms.ModelForm): #creation après la famille
     date_naissance = forms.DateField()
     cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
     #Never use the objects.none() if you want to put an empty fieldchoices, juste hide it
-    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),empty_label=None)
+    langue=forms.ModelChoiceField(queryset=Langue.objects.all(),empty_label=None)
     class Meta:
         model = Eleve
-        exclude=['user','date_inscription', 'famille','matieres']
+        exclude=['user','date_inscription', 'famille','sessions']
 
 class EleveForm2(forms.ModelForm): #creation pour un famille existante
     cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
-    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),empty_label=None)
+    langue=forms.ModelChoiceField(queryset=Langue.objects.all(),empty_label=None)
     
     class Meta:
         model = Eleve
-        exclude=['user','date_inscription','matieres']
+        exclude=['user','date_inscription','sessions']
 
 class CoachForm(forms.ModelForm):
-    matieres=forms.ModelMultipleChoiceField(queryset=Matiere.objects.all(),widget=forms.CheckboxSelectMultiple)
+    sessions=forms.ModelMultipleChoiceField(queryset=Session.objects.all(),widget=forms.CheckboxSelectMultiple)
     class Meta:
         model = Coach
         exclude = ['disponibilite', 'user','salaire','grade']
 
 # Création du contenu pédagogique
 
-class CurriculumForm(forms.ModelForm):
+class LangueForm(forms.ModelForm):
     class Meta:
-        model = Curriculum
+        model = Langue
         fields = '__all__'
 
-class MatiereForm(forms.Form):
-    matiere=forms.ModelChoiceField(queryset=Matiere.objects.all(),help_text="Choisir la matiere")
+class SessionForm(forms.Form):
+    session=forms.ModelChoiceField(queryset=Session.objects.all(),help_text="Choisir la session")
 
 class ChapitreForm(forms.Form):
       chapitre = forms.CharField(max_length=100,required=True)
@@ -62,7 +69,7 @@ class NotionForm(forms.Form):
 
 # Planification cours / séances
 class CoursForm(forms.Form):
-    matiere=forms.ModelChoiceField(queryset=Matiere.objects.all())
+    session=forms.ModelChoiceField(queryset=Session.objects.all())
     coach=forms.ModelChoiceField(queryset=Coach.objects.all(),required=False)
 
 class SeanceForm(forms.ModelForm):
@@ -75,19 +82,12 @@ class SeanceForm2(forms.ModelForm):
     #cours=forms.ModelChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
     #notions=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
     
-    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all())
-    field_order=('curriculum','cours','date','creneau')
+    langue=forms.ModelChoiceField(queryset=Langue.objects.all())
+    field_order=('langue','cours','date','creneau')
     class Meta:
         
         model = Seance_Cours
         exclude = ['statut','eleves','chapitre','notion']
-
-class Seance_CoursForm(forms.Form):
-    seance = forms.ModelChoiceField(queryset=Seance_Cours.objects.all(),help_text='Choisir la séance a éditer') 
-    salle = forms.ModelChoiceField(queryset=Salle.objects.all(),help_text='Choisir la salle',required=False)
-    #chapitre = forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
-    #notion=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False,widget=forms.CheckboxSelectMultiple)
-
 
 class FrequenceForm(forms.ModelForm):
     class Meta:
@@ -101,17 +101,17 @@ class SalleForm(forms.ModelForm):
         fields = '__all__'
 
 class RequeteForm(forms.Form):
-    matiere=forms.ModelMultipleChoiceField(queryset=Matiere.objects.all(),help_text="Matieres", widget=forms.CheckboxSelectMultiple)
+    session=forms.ModelMultipleChoiceField(queryset=Session.objects.all(),help_text="Sessions", widget=forms.CheckboxSelectMultiple)
     #Never use the objects.none() if you want to put an empty fieldchoices, juste hide it
     creneau=forms.ModelMultipleChoiceField(queryset=Creneau.objects.all(),help_text="Créneau",required=False, widget=forms.CheckboxSelectMultiple)
     day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
     jour=forms.MultipleChoiceField(choices=day_choices,required=False,help_text="Jours", widget=forms.CheckboxSelectMultiple)
 class ElevePotentielForm(forms.ModelForm):
-    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),required=False)
-    field_order=('curriculum')
+    langue=forms.ModelChoiceField(queryset=Langue.objects.all(),required=False)
+    field_order=('langue')
     class Meta:
         model =ElevePotentiel
-        exclude=['matieres']
+        exclude=['sessions']
 
 #Suivi séances
 
@@ -126,7 +126,7 @@ class ReportSeanceForm(forms.Form):
         super(ReportSeanceForm, self).__init__()
         self.arg = arg
         self.fields['eleves'].queryset = Eleve.objects.filter(cours= seance.cours.id) # Montrer que les élèves inscrits à la séance"""
-        #self.fields['chapitre'].queryset = Chapitre.objects.filter(matiere = seance.cours.matiere.id) # Montrer que les chapitres de la matière de la séance
+        #self.fields['chapitre'].queryset = Chapitre.objects.filter(session = seance.cours.session.id) # Montrer que les chapitres de la matière de la séance
         #self.fields['notions'].queryset = Notions.objects.filter(chapitre=seance.chapitre.id)  
     """class Meta:
         model = Seance_Cours
@@ -143,7 +143,7 @@ class ReportSeanceCoachingForm(forms.Form):
         super(ReportSeanceCoachingForm, self).__init__()
         self.arg = arg
         self.fields['eleves'].queryset = seance.eleve.all() # Montrer que les élèves inscrits à la séance
-        self.fields['chapitre'].queryset = Chapitre.objects.filter(matiere = seance.matiere.id) # Montrer que les chapitres de la matière de la séance
+        self.fields['chapitre'].queryset = Chapitre.objects.filter(session = seance.session.id) # Montrer que les chapitres de la matière de la séance
         #self.fields['notions'].queryset = Notions.objects.filter(chapitre=seance.chapitre.id)  
     class Meta:
         model = Seance_Coaching
@@ -151,9 +151,9 @@ class ReportSeanceCoachingForm(forms.Form):
 
         
 class Seance_CoachingForm(forms.ModelForm):
-    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all())
+    langue=forms.ModelChoiceField(queryset=Langue.objects.all())
     #notions=forms.ModelMultipleChoiceField(queryset=Notions.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
-    field_order=('curriculum','eleve','matiere','coach','date','creneau','salle','chapitre','notions')
+    field_order=('langue','eleve','session','coach','date','creneau','salle','chapitre','notions')
     eleve=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
     class Meta:
         model = Seance_Coaching
@@ -173,8 +173,8 @@ class ConnexionForm(forms.Form):
     password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput)
 
 class SelectEleveForm(forms.Form):
-    curriculum=forms.ModelChoiceField(queryset=Curriculum.objects.all(),help_text="Choisir le curriculum")
-    eleve=forms.ModelChoiceField(queryset=Eleve.objects.all(),widget=forms.RadioSelect)
+    langue=forms.ModelChoiceField(queryset=Langue.objects.all(),help_text="Choisir le langue")
+    eleve=forms.ModelChoiceField(queryset=Eleve.objects.all())
 
 
 

@@ -14,10 +14,10 @@ class Resource(models.Model):
 	class Meta:
 		abstract=True
 
-########################### UTILISATEURS #######################################################
+############################################## UTILISATEURS #######################################################
 class Famille(models.Model):
 	nom= models.CharField(max_length=42,verbose_name="Nom de famille", unique= False)
-	adresse = models.CharField(max_length=100,verbose_name="Adresse de famille", unique = True)
+	adresse = models.CharField(max_length=100,verbose_name="Adresse de famille", unique = False)
 
 	class Meta:
 		verbose_name="Famille"
@@ -32,9 +32,10 @@ class Parent(models.Model):
 	genre=models.CharField(max_length=10,choices=genre_choices,default="M.",verbose_name="Civilité")
 	prenom = models.CharField(max_length=42,verbose_name="Prénom",unique=False, default="")
 	nom= models.CharField(max_length=42,verbose_name="Nom",unique=False)
-	telephone= models.CharField(max_length=40,verbose_name="Telephone",unique=True)
+	telephone= models.CharField(max_length=40,verbose_name="Telephone",blank=True)
 	email= models.EmailField(verbose_name="E-mail",blank=True)
-	famille = models.ForeignKey('Famille', on_delete = models.CASCADE, verbose_name="Famille", null=False,default= 1)
+	profession= models.CharField(max_length=100,verbose_name="Profession",blank=True)
+	famille = models.ForeignKey('Famille', on_delete = models.CASCADE, verbose_name="Famille", null=True,blank=True)
 	estResponsable= models.BooleanField(verbose_name="Parent principal", default=False)
 	credit=models.IntegerField(default=0)
 	debit=models.IntegerField(default=0)
@@ -53,12 +54,13 @@ class Parent(models.Model):
 		return '{0} {1}'.format(self.prenom, self.nom)
 
 class ElevePotentiel(models.Model):
-	nom= models.CharField(max_length=42,verbose_name="Nom complet",unique=False)
+	nom= models.CharField(max_length=42,verbose_name="Nom",unique=False)
+	prenom=models.CharField(max_length=42,verbose_name="Prenom",unique=False)
 	num= models.CharField(max_length=15,blank=True,verbose_name="Telephone")
 	email=models.EmailField(blank=True,null=True,verbose_name="E-mail")
-	matieres=models.ManyToManyField("Matiere",through="Requete", verbose_name="Cours potentiels demandes",blank=True)
+	sessions=models.ManyToManyField("Session",through="Requete", verbose_name="Cours potentiels demandes",blank=True)
 	def __str__(self):
-		return self.nom
+		return '{0} {1}'.format(self.prenom, self.nom)
 
 class Eleve(ElevePotentiel):	
 
@@ -71,8 +73,8 @@ class Eleve(ElevePotentiel):
 
 	# Informations scolarités
 	etablissement=models.CharField(max_length=20,null=True,blank=True)
-	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,verbose_name="Curriculum",blank=True,null=True)
-	cours=models.ManyToManyField('Cours',related_name='cours',blank=True,verbose_name="Cours")
+	#langue=models.ForeignKey('Langue',on_delete=models.CASCADE,verbose_name="Langue",blank=True,null=True)
+	cours=models.ManyToManyField('Cours',related_name='Eleve_cours',blank=True,verbose_name="Cours")
 
 	# Information du compte utilisateur
 	user = models.OneToOneField(User,on_delete=models.SET_NULL,null=True,blank=True)
@@ -81,17 +83,32 @@ class Eleve(ElevePotentiel):
 		verbose_name="eleve"
 		ordering=['nom']
 	def __str__(self):
-		return self.nom
+		return '{0} {1}'.format(self.prenom, self.nom)
+class Client(Parent):
+	date_naissance=models.DateField(null=True,blank=True,verbose_name="Date de naissance")
+	sessions=models.ManyToManyField("Session",through="Requete", verbose_name="Cours potentiels demandes",blank=True)
+	cours=models.ManyToManyField('Cours',related_name='Client_cours',blank=True,verbose_name="Cours")
+	date_commencement = models.DateField(verbose_name="Date de commencement",null=True,blank=True)
+	class Meta:
+		verbose_name="client"
+		ordering=['nom']
+	def __str__(self):
+		return '{0} {1}'.format(self.prenom, self.nom)
+
 
 
 class Requete(models.Model):
-	eleve=models.ForeignKey("ElevePotentiel", on_delete=models.CASCADE)
-	matiere = models.ForeignKey("Matiere", on_delete=models.SET_NULL,null=True,blank=True)
+	eleve=models.ForeignKey("ElevePotentiel", on_delete=models.CASCADE,null=True,blank=True)
+	client=models.ForeignKey("Client", on_delete=models.CASCADE,null=True,blank=True)
+	session = models.ForeignKey("Session", on_delete=models.SET_NULL,null=True,blank=True)
 	day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
 	jour=models.CharField(null=True,blank=True,choices=day_choices, max_length=70)
 	creneau=models.ManyToManyField("Creneau",verbose_name='Créneau',blank=True)
 	def __str__(self):
-		return "{0} demande {1}".format(self.eleve, self.matiere)
+		if self.eleve :
+			return "{0} demande {1}".format(self.eleve, self.session)
+		else :
+			return "{0} demande {1}".format(self.client, self.session)
 
 
 class Coach(Resource):
@@ -101,7 +118,7 @@ class Coach(Resource):
 	nom=models.CharField(max_length=42,verbose_name="Nom")
 	telephone=models.CharField(max_length=15,verbose_name="Telephone",unique=True,null=True,blank=True)
 	email= models.EmailField(verbose_name="E-mail",null=True,blank=True,unique=True)
-	matieres=models.ManyToManyField('Matiere',related_name="enseigne",verbose_name="matieres",help_text='Les matières que peut enseigner ce coach')
+	sessions=models.ManyToManyField('Session',related_name="enseigne",verbose_name="sessions",help_text='Les matières que peut enseigner ce coach')
 	user = models.OneToOneField(User, on_delete = models.CASCADE, default=1)
 	salaire = models.DecimalField(max_digits=8, decimal_places=2,default=0)
 	grade_choices=(("Junior","Junior"),("Senior","Senior"),("Excellence","Excellence"),)
@@ -117,7 +134,7 @@ class Coach(Resource):
 class Payement(models.Model):
 	date=models.DateField(blank=True,null=True,verbose_name="Date")
 	montant = models.DecimalField(max_digits=8, decimal_places=2)
-	parent = models.ForeignKey('Parent', on_delete=models.CASCADE, blank=False, null = False, verbose_name = 'Parent payeur')
+	parent = models.ForeignKey('Parent', on_delete=models.CASCADE, blank=False, null = False, verbose_name = 'Client')
 
 	class Meta:
 		verbose_name = "Paiement"
@@ -127,132 +144,72 @@ class Payement(models.Model):
 		return 'Paiement de {0} par parent {1}' . format(self.montant, self.parent)
 
 
-############################################################### Curriculums ########################################################################""
+############################################################### Langues ########################################################################""
 
 
-class CurriculumCreator(models.Manager):
+class LangueCreator(models.Manager):
 	def create_group(self, niveau):
-		group=self.create(niveau=niveau,programme='FR')
+		group=self.create(langue=niveau)
 		return group
 
-class Curriculum(models.Model):
-	niveau=models.CharField(max_length=13)
-	programme=models.CharField(max_length=2,blank=True,null=True)
-	objects = CurriculumCreator()#ajouter une methode manager au object
+class Langue(models.Model):
+	langue=models.CharField(max_length=13)
+	#programme=models.CharField(max_length=2,blank=True,null=True)
+	objects = LangueCreator()#ajouter une methode manager au object
 	def __str__(self):
-		return self.niveau
+		return self.langue
+######################################################################## Sessions ##########################################################
 
 
-class Cours(models.Model):#Cours est un curriculum(niveau ou groupe) avec une matiére et un coach
-	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='curriculum',verbose_name="Curriculum")
-	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,null=True,verbose_name="Matiere")
+class SessionCreator(models.Manager):
+	def create_session(self, session,langue):
+		session=self.create(session=session,langue=langue)
+		return session
+
+class Session(models.Model):
+	#session_choices=(("Mathematiques","Mathematiques"),("Physique","Physique"),("SVT","SVT"),("Français","Français"),("Anglais","Anglais"),("Technologie","Technologie"),("SES","SES"),("Philosophie","Philosophie"),)
+	
+	session=models.CharField(max_length=30,verbose_name="Session")
+	langue=models.ForeignKey('Langue',on_delete=models.CASCADE,related_name='session',verbose_name="Langue")
+	objects = SessionCreator()#ajouter une methode manager au object
+	class Meta:
+		verbose_name="session"
+		ordering=['-langue','session']
+	def __str__(self):
+		
+		langue="{0}".format(self.langue)
+		
+		if str(self.langue)=="English" :
+			parts=self.session.split(" ")
+			name=parts[0] + " " + langue + " "
+			for part in parts[1:]:
+				name+=part + " "
+			
+			return name
+		else:
+			
+			return "{0} {1}".format(self.langue,self.session)
+
+
+########################################################### Cours #############################################################################
+
+class Cours(models.Model):#Cours est un langue(niveau ou groupe) avec une matiére et un coach
+	langue=models.ForeignKey('Langue',on_delete=models.CASCADE,related_name='langue_du_cours',verbose_name="Langue")
+	session=models.ForeignKey('Session',on_delete=models.CASCADE,null=True,verbose_name="Session")
 	coach=models.ForeignKey('Coach',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Coach")
 	frequence=models.OneToOneField('Frequence',on_delete=models.SET_NULL,null=True,blank=True)
+	"""nature_choices=(("VIP","VIP"),("Groupe","Groupe"),)
+	nature=models.CharField(max_length=8,choices=nature_choices,default="Groupe",verbose_name="Type")"""
 
 	class Meta:
 		verbose_name="cours"
-		ordering=['-curriculum','matiere']
+		ordering=['-langue','session']
 
 	def __str__(self):
-		return "{0}".format(self.matiere)#matiere contient déjà le curriculum
-
-#Intersection entre éléves (cours) ressources 
-class Seance(models.Model):#Seance est une classe abstraite qui englobe les attributs en commun entre Seance_cours et seance_coaching 
-	date=models.DateField(blank=True,null=True,verbose_name="Date")
-	creneau=models.ForeignKey('Creneau',on_delete=models.CASCADE,blank=True,null=True,verbose_name="Creneau")
-	salle=models.ForeignKey('Salle',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Salle")
-	chapitre=models.ForeignKey('Chapitre',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Chapitre")
-	notions=models.ManyToManyField('Notions',related_name="%(app_label)s_%(class)s_related",blank=True,verbose_name="Notions")#pour ne pas avoir de confusion au moment de l'appel
-	statut_choices=(("Planifié","Planifiée"),("Done","Effectué"),("Annulé","Annulée"),)
-	statut=models.CharField(max_length=8,choices=statut_choices,default="Planifié",verbose_name="Statut")
-	class Meta:
-		abstract=True
+		return "{0}".format(self.session)#session contient déjà le langue
 
 
-		
-class Seance_Cours(Seance):
-	
-	cours=models.ForeignKey('Cours',on_delete=models.CASCADE,verbose_name="Cours")
-	eleves = models.ManyToManyField	('Eleve',blank=True,related_name="presence")
-
-	class Meta:
-		verbose_name="seance cours"
-		ordering=['date','creneau']
-	#date
-	def __str__(self):
-		str_cre=str(self.date)#timefield n'est pas un string ne peut étre retourné 
-		return "Cours {0} {1} ".format(self.cours,str_cre)
-
-class Seance_Coaching(Seance):
-	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,null=True,blank=True)
-	eleve=models.ManyToManyField('Eleve',related_name="eleve_coaching",blank=True)
-	coach=models.ForeignKey('Coach', verbose_name="Coach", on_delete=models.SET_NULL,null=True,blank=True)
-	class Meta:
-		verbose_name="seance coaching"
-		ordering=['date','creneau']
-	#date
-	def __str__(self):
-		str_cre=str(self.date)#timefield n'est pas un string ne peut étre retourné 
-		return "Coaching {0} {1} ".format(self.matiere,str_cre)
-
-######################################################################## Matieres ##########################################################
-
-
-class MatiereCreator(models.Manager):
-	def create_matiere(self, matiere,curriculum):
-		matiere=self.create(matiere=matiere,curriculum=curriculum)
-		return matiere
-
-class Matiere(models.Model):
-	#matiere_choices=(("Mathematiques","Mathematiques"),("Physique","Physique"),("SVT","SVT"),("Français","Français"),("Anglais","Anglais"),("Technologie","Technologie"),("SES","SES"),("Philosophie","Philosophie"),)
-	
-	matiere=models.CharField(max_length=30,verbose_name="Matiere")
-	curriculum=models.ForeignKey('Curriculum',on_delete=models.CASCADE,related_name='matiere',verbose_name="Curriculum")
-	objects = MatiereCreator()#ajouter une methode manager au object
-	class Meta:
-		verbose_name="matiere"
-		ordering=['-curriculum','matiere']
-	def __str__(self):
-		return "{0} {1}".format(self.curriculum,self.matiere)
-
-
-
-class Chapitre(models.Model):
-	chapitre=models.CharField(max_length=50)
-	matiere=models.ForeignKey('Matiere',on_delete=models.CASCADE,verbose_name="Matiere")
-	details=models.TextField(blank=True,null=True,help_text='Précisions sur le chapitre')
-	def __str__(self):
-		return self.chapitre 
-	class Meta:
-		verbose_name="chapitre"
-		ordering=['matiere','chapitre']
-
-class Notions(models.Model):
-	notion=models.CharField(max_length=50,verbose_name="Notion")
-	details=models.TextField(blank=True,null=True,verbose_name="Details")
-	chapitre=models.ForeignKey('Chapitre',on_delete=models.CASCADE)
-	class Meta:
-		verbose_name="notions"
-		ordering=['chapitre','details']
-	def __str__(self):
-		return self.notion
-
-
-
-
-class Salle(Resource):
-	nom=models.CharField(max_length=42,verbose_name="Nom",unique=True)
-	capcite=models.PositiveIntegerField(verbose_name="Capacité",null=True,blank=True)
-	ecran=models.BooleanField(verbose_name="Posséde un écean")
-	batiment=models.BooleanField(verbose_name="TGA")
-	class Meta:
-		verbose_name="salle"
-		ordering=['capcite']
-	def __str__(self):
-		return self.nom
-
-
-
+######################################################## Fréquence cours #############################################################################
 class Frequence(models.Model):
 	freq_choices=(
 		('Frequence',(
@@ -312,6 +269,84 @@ class Creneau(models.Model):
 		return "{0} - {1}".format(st_tim,ed_tim)
 	class Meta :
 		verbose_name="créneau"
+############################################################ Séances #######################################################################""
+#Intersection entre éléves (cours) ressources 
+class Seance(models.Model):#Seance est une classe abstraite qui englobe les attributs en commun entre Seance_cours et seance_coaching 
+	date=models.DateField(blank=True,null=True,verbose_name="Date")
+	creneau=models.ForeignKey('Creneau',on_delete=models.CASCADE,blank=True,null=True,verbose_name="Creneau")
+	salle=models.ForeignKey('Salle',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Salle")
+	chapitre=models.ForeignKey('Chapitre',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Chapitre")
+	notions=models.ManyToManyField('Notions',related_name="%(app_label)s_%(class)s_related",blank=True,verbose_name="Notions")#pour ne pas avoir de confusion au moment de l'appel
+	statut_choices=(("Planifié","Planifiée"),("Done","Effectué"),("Annulé","Annulée"),)
+	statut=models.CharField(max_length=8,choices=statut_choices,default="Planifié",verbose_name="Statut")
+	class Meta:
+		abstract=True
+
+
+		
+class Seance_Cours(Seance):
+	
+	cours=models.ForeignKey('Cours',on_delete=models.CASCADE,verbose_name="Cours")
+	eleves = models.ManyToManyField	('Eleve',blank=True,related_name="presence")
+
+	class Meta:
+		verbose_name="seance cours"
+		ordering=['date','creneau']
+	#date
+	def __str__(self):
+		str_cre=str(self.date)#timefield n'est pas un string ne peut étre retourné 
+		return "Cours {0} {1} ".format(self.cours,str_cre)
+
+
+class Seance_Coaching(Seance):
+	session=models.ForeignKey('Session',on_delete=models.CASCADE,null=True,blank=True)
+	eleve=models.ManyToManyField('Eleve',related_name="eleve_coaching",blank=True)
+	coach=models.ForeignKey('Coach', verbose_name="Coach", on_delete=models.SET_NULL,null=True,blank=True)
+	class Meta:
+		verbose_name="seance coaching"
+		ordering=['date','creneau']
+	#date
+	def __str__(self):
+		str_cre=str(self.date)#timefield n'est pas un string ne peut étre retourné 
+		return "Coaching {0} {1} ".format(self.session,str_cre)
+
+
+############################################################### Contenu pédagogique ###############################################################
+class Chapitre(models.Model):
+	chapitre=models.CharField(max_length=50)
+	session=models.ForeignKey('Session',on_delete=models.CASCADE,verbose_name="Session")
+	details=models.TextField(blank=True,null=True,help_text='Précisions sur le chapitre')
+	def __str__(self):
+		return self.chapitre 
+	class Meta:
+		verbose_name="chapitre"
+		ordering=['session','chapitre']
+
+class Notions(models.Model):
+	notion=models.CharField(max_length=50,verbose_name="Notion")
+	details=models.TextField(blank=True,null=True,verbose_name="Details")
+	chapitre=models.ForeignKey('Chapitre',on_delete=models.CASCADE)
+	class Meta:
+		verbose_name="notions"
+		ordering=['chapitre','details']
+	def __str__(self):
+		return self.notion
+
+
+
+##################################################################### Ressources #####################################################################
+class Salle(Resource):
+	nom=models.CharField(max_length=42,verbose_name="Nom",unique=True)
+	capcite=models.PositiveIntegerField(verbose_name="Capacité",null=True,blank=True)
+	ecran=models.BooleanField(verbose_name="Posséde un écean")
+	batiment=models.BooleanField(verbose_name="TGA")
+	class Meta:
+		verbose_name="salle"
+		ordering=['capcite']
+	def __str__(self):
+		return self.nom
+
+
 
 
 ###################################################################   Signaux  #######################################################################

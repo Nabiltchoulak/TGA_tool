@@ -6,8 +6,8 @@
 <h2>Séance cours</h2>
 <form action="{% url "seance cours" %}" method="post">
     {% csrf_token %}
-    <p id="curriculum_id">
-        {{form.curriculum.errors}} {{form.curriculum.label_tag}} {{form.curriculum}} {{form.curriculum.help_text}}
+    <p id="langue_id">
+        {{form.langue.errors}} {{form.langue.label_tag}} {{form.langue}} {{form.langue.help_text}}
     </p>
     <p id="cours_id">
         {{form.cours.errors}} {{form.cours.label_tag}} {{form.cours}} {{form.cours.help_text}}
@@ -87,14 +87,14 @@ input[type=submit] {
         $cours.hide();
         $chapitre.hide();
         $notions.hide();
-        $('#id_curriculum').on("change", function() {
+        $('#id_langue').on("change", function() {
 
             var $option = $(this).find('option:selected');
             var value = $option.val(); //returns the value of the selected option.
 
             $.post(
                 '/TGA_tool/seance-cours.html', {
-                    curriculum_id: value
+                    langue_id: value
                 },
                 function(data) {
 

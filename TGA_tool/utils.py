@@ -1,11 +1,11 @@
 from django.db.models import Q
 from TGA_tool.models import *
 
-def init_curriculums():
-    NIV=['CP','CE','CE2','CM1','CM2','Sixième','Cinquième','Quatrième','DNB','Seconde','Première S','Première ES','Terminal S','Terminal ES']
+def init_langues():
+    NIV=['English','Français','Español']
     print(len(NIV))
     for niv in NIV:
-        Curriculum.objects.create_group(niv)
+        Langue.objects.create_group(niv)
     
 
 def init_creneaux():
@@ -32,28 +32,60 @@ def init_creneaux():
 #Cette partie est dédiée pour générer les instances connues déjà de matière 
 #dés que le serveur commence a tourner on a un problème de "Models aren't loaded yet"
 #On va régler cela avec les middleware 
-def init_matieres():
-    curriculum= Curriculum.objects.all()
-    matieres={}
-	#Dans cette partie on va créer un dictionnaire qui va contenir les curriculums comme keys et les matiéres comme values 
-    for niveau in curriculum:
-        matieres[niveau.niveau]=["Mathématiques","Physique","SVT","Français","Anglais"]
-        if niveau.niveau=='Sixieme'or niveau.niveau=='Cinquieme'or niveau.niveau=='Quatrieme'or niveau.niveau=='DNB':
-            matieres[niveau.niveau].append("Technologie")
-        elif niveau.niveau=='CP'or niveau.niveau=='CE'or niveau.niveau=='CE2'or niveau.niveau=='CM1'or niveau.niveau=='CM2':
-            matieres[niveau.niveau].remove("Physique")
-            matieres[niveau.niveau].remove("SVT")
-        elif niveau.niveau=='Terminal S' or niveau.niveau=='Terminal ES':
-            matieres[niveau.niveau].append("Philosophie")
-        elif niveau.niveau=='Première ES' or niveau.niveau=='Terminal ES' or "Seconde":
-            matieres[niveau.niveau].append("SES")
-        
+def init_sessions():
+    Langues= Langue.objects.all()
     
+    sessions={}
+	#Dans cette partie on va créer un dictionnaire qui va contenir les Langues comme keys et les matiéres comme values 
+    
+    for langue in Langues:
+        niveaux=[" A1"," A2"," B1"," B2"," C1"]
+        sessions[langue.langue]=[]
+        if langue.langue=='English':
+            categories=["Adults","Teens","Kids"]
+            types=["General","Business"]
 
-    
-    for groupe in curriculum:
-        for matiere in matieres[str(groupe)]:
-            Matiere.objects.create_matiere(matiere,groupe)
+            for categorie in categories:
+               
+                for niveau in niveaux:
+                    
+                    if categorie=="Adults":
+                        
+                        for typ in types:
+                            sessions[langue.langue].append(typ + niveau)
+                            print(sessions[langue.langue])
+                            
+
+                    else:
+                        sessions[langue.langue].append("General for " + categorie + niveau)
+                        
+                    
+
+
+        elif langue.langue=="Français":
+            types=["général","des Affaires"]
+           
+            for niveau in niveaux:
+                
+                for typ in types:
+                    sessions[langue.langue].append( typ + niveau )
+                 
+
+
+
+        elif langue.langue=="Español":
+            categories=["Adultos","Adolescentes","Niños"]
+            i=0
+            for niveau in niveaux:
+                i=0
+                for categorie in categories:
+                    sessions[langue.langue].append(" para " + categorie + niveau)
+                    
+
+        
+    for groupe in Langues:
+        for session in sessions[str(groupe)]:
+            Session.objects.create_session(session,groupe)
 
 
 def get_matches(list1,list2):

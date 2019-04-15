@@ -193,24 +193,23 @@ ul li label .checkmark:after {
     $(function () {
         $('#req_form').hide();
 
-        $('#id_curriculum').on("change", function () {
+        $('#id_langue').on("change", function () {
 
             var $option = $(this).find('option:selected');
             var value = $option.val(); //returns the value of the selected option.
-
+            console.log(value);
             $.post(
                 '/TGA_tool/ajax_requete', {
-                    curriculum_id: value
+                    langue_id: value
                 },
                 function (data) {
-                    splitedData = data.split("iii");
-                    $("#id_matiere").empty() // dont remove text only           
-                    $("#id_matiere").append(splitedData[0]);
+                    
+                    $("#id_session").empty() // dont remove text only           
+                    $("#id_session").append(data);
                     $('ul li label').append('<span> </span>');//add span without class (does not accept with class)
                     $('ul li label span').addClass("checkmark");
                     {% if type == "2" %}
-                    $("#id_eleve").empty() // dont remove text only           
-                    $("#id_eleve").append(splitedData[1]); 
+                    
                     
                     $('#id_eleve ul li label').append('<span> </span>');
                     $('#id_eleve ul li label span').addClass("checkmark-radio");//add the class

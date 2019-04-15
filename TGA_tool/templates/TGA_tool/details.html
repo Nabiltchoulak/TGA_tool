@@ -6,7 +6,7 @@
 
 {% if type == "5" %}
 <h2 style="text-align: center;"> {{coach}} </h2>
-<h3>Matières que peut enseigner: </h3> {% for matiere in coach.matieres.all %} {{matiere}}, {% endfor %}
+<h3>Sessions que peut enseigner: </h3> {% for session in coach.sessions.all %} {{session}}, {% endfor %}
 <h3>Cours enseignés: </h3> {% for cour in cours %} {{cour}}, {% endfor %}
 
 <br/>

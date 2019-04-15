@@ -1,31 +1,13 @@
 {% extends "layout.html" %}
 {%load static %}
-{% block title %} Nouveau élève {% endblock %}
+{% block title %} Nouveau client {% endblock %}
 {% block content %}
 
+{% if envoi %} Le client a été bien ajouté !{% endif %}
+<div class="col-lg-12" >
+<h2>Ajouter un nouveau client</h2>
 
-<h2>Ajouter un nouveau élève</h2>
-
-{% if famille %}
-<form action="{% url 'nouveau eleve' id %}" id="id_form" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <div class="col-lg-12">
-    <div class="col-lg-6">
-      <input type="submit" value="Inscrire" name="end" />
-    </div>
-    <div class="col-lg-6">
-    <input type="submit" value="Inscrire et ajouter des cours" name="submit & add cours"/>
-     
-    </div>
-    </div>
-    <div class="col-lg-6 col-lg-offset-3">
-         <input type="submit" value="Inscrire et ajouter un autre élève" name="submit & add other"/>
-    </div>
-</form>
-
-{% else %}
-<form action="{% url 'nouveau eleve' %}" id="id_form" method="post">
+<form action="{% url "nouveau client" %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
      <div class="col-lg-12">
@@ -41,12 +23,8 @@
          <input type="submit" value="Inscrire et ajouter un autre élève" name="submit & add other"/>
     </div>
 </form>
-	
-
-{% endif %}
-
-<style type="text/css">
-
+</div>
+<style>
 input[type=text],input[type=email] ,select {
   width: 100%;
   padding: 12px 20px;
@@ -70,11 +48,7 @@ input[type=submit] {
   border-radius: 4px;
   cursor: pointer;
   display : block-inline
-  
-}
-  
-  
-  
+
   
   #id_cours  #id_cours li label {
   display: block;

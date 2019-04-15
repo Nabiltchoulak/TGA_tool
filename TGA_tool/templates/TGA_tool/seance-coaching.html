@@ -2,8 +2,8 @@
 <h2>Séance coaching</h2>
 <form action="{% url "seance coaching" %}" method="post">
     {% csrf_token %}
-    <div id="curriculum_id">
-        {{form.curriculum.errors}} {{form.curriculum.label_tag}} {{form.curriculum}} {{form.curriculum.help_text}}
+    <div id="langue_id">
+        {{form.langue.errors}} {{form.langue.label_tag}} {{form.langue}} {{form.langue.help_text}}
     </div>
 
     <div id="eleve_id">
@@ -14,8 +14,8 @@
     <button type="button" value="button" name="button" style class="col-xs-2 col-xs-offset-5" >Choisir les élèves</button>
     </div>
     <div class="col-xs-12 separation">&nbsp; </div>
-    <div id="matiere_id" class="col-xs-12">
-        {{form.matiere.errors}} {{form.matiere.label_tag}} {{form.matiere}} {{form.matiere.help_text}}
+    <div id="session_id" class="col-xs-12">
+        {{form.session.errors}} {{form.session.label_tag}} {{form.session}} {{form.session.help_text}}
     </div>
     <div id="coach_id">
         {{form.coach.errors}} {{form.coach.label_tag}} {{form.coach}} {{form.coach.help_text}}
@@ -185,19 +185,19 @@ button{
 
         $chapitre = $('#chapitre_id');
         $notions = $('#id_notions , #notions_id');
-        $matiere = $('#matiere_id');
-        $first_step = $('#matiere_id,#coach_id,#date_id,#creneau_id,#salle_id');
+        $session = $('#session_id');
+        $first_step = $('#session_id,#coach_id,#date_id,#creneau_id,#salle_id');
         $first_step.hide();
         $chapitre.hide();
         $notions.hide();
-        $('#id_curriculum').on("change", function() {
+        $('#id_langue').on("change", function() {
 
             var $option = $(this).find('option:selected');
             var value = $option.val(); //returns the value of the selected option.
 
             $.post(
                 '/TGA_tool/seance-coaching.html', {
-                    curriculum_id: value
+                    langue_id: value
                 },
                 function(data) {
 
@@ -228,12 +228,12 @@ button{
                 },
                 function(data) {
                     if (data != "None") {
-                        $("#id_matiere").empty();
-                        $("#id_matiere").append(data);
-                        $matiere.show();
+                        $("#id_session").empty();
+                        $("#id_session").append(data);
+                        $session.show();
 
                     } else {
-                        $("#id_matiere").empty();
+                        $("#id_session").empty();
                         $first_step.hide();
                     };
 
@@ -247,13 +247,13 @@ button{
 
 
 
-        $('#id_matiere').on("change", function() {
+        $('#id_session').on("change", function() {
             var $option = $(this).find('option:selected');
             var value = $option.val(); //returns the value of the selected option.
             console.log(value)
             $.post(
                 '/TGA_tool/seance-coaching.html', {
-                    matiere_id: value
+                    session_id: value
                 },
                 function(data) {
                     console.log(data);

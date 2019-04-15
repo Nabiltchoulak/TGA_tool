@@ -4,11 +4,11 @@
 {% block content %}
 
 <table>
- <tr><th>Curriculum </th><th>Matière</th><th> Fréquence </th></tr>
+ <tr><th>Langue </th><th>session</th><th> Fréquence </th></tr>
 
 {% for cour in listecours %}
 <tr>
-<td>{{ cour.curriculum }}</td> <td>{{ cour.matiere }}</td> <td>{{ cour.frequence }}</td>
+<td>{{ cour.langue }}</td> <td>{{ cour.session }}</td> <td>{{ cour.frequence }}</td>
 </tr>
 {% endfor %}
 
