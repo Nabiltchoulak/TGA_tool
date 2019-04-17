@@ -9,6 +9,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
 import datetime
 from django.http import HttpResponse
+from django.http.request import QueryDict
+from django.http.response import HttpResponseRedirect
 from datetime import timedelta  
 import json
 from django.http import JsonResponse
@@ -20,10 +22,11 @@ import io
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from django.core.files import File
-
-########################################################## Test ###################################################"
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, HttpResponseNotFound
+
+
+########################################################## Test ###################################################"
 
 def some_view(request):
     
@@ -193,6 +196,7 @@ def ajaxNewEleve(request):
 
 def ajax_requete(request):
     if 'langue_id' in list(request.POST.keys()):
+        
         form=RequeteForm(request.POST or None)
         eleve_form=SelectEleveForm(request.POST or None)
         id=int(request.POST['langue_id'])
@@ -819,24 +823,27 @@ def details(request,type,id):
 
 ##################################################################### Requete #####################################################
 
-def requete(request,type):#1 pour une requete externe / 2 pour une requete interne 
-    requete_form=RequeteForm(request.POST or None)
+def new_requete(request,type,id=0,requete_ids=0):#1 pour une requete externe / 2 pour une requete interne 
+    
+    ### les formulaires 
+    
     eleve_form=SelectEleveForm(request.POST or None)
     eleve_potentiel_form=ElevePotentielForm(request.POST or None)
-    if type == "1":        
+    
+    
+    
+    
+    print(id)
+    if type == "1": #Requete externe        
         ind=True#Pour éviter la création de plusieurs instances de eleve potentiel
-        if eleve_potentiel_form.is_valid() and requete_form.is_valid():
+        if eleve_potentiel_form.is_valid():
             if ind: 
                 eleve_potentiel=eleve_potentiel_form.save()
                 ind=False
-            for session in requete_form.cleaned_data['session']:
-                if requete_form.cleaned_data['creneau']:#On doit vérifier l'existence d'un créneau pour utiliser la fonction .set
-                
-                    requete=Requete.objects.create(session=session,jour=requete_form.cleaned_data['jour'],eleve=eleve_potentiel)
-                    requete.creneau.set(requete_form.cleaned_data['creneau'])
-
-                else :
-                    Requete.objects.create(session=session,jour=requete_form.cleaned_data['jour'],eleve=eleve_potentiel)
+            if 'end' in request.POST:
+                id=eleve_potentiel.id
+                return redirect(choose_sessions,id)
+    
     
     elif type == "2":
         
@@ -860,6 +867,63 @@ def requete(request,type):#1 pour une requete externe / 2 pour une requete inter
         return render(request, 'TGA_tool/nouvelle-requete.html',locals())
     
     
+    return render(request, 'TGA_tool/nouvelle-requete.html', locals())
+
+
+def choose_sessions(request,id=0) :
+    
+    if id > 0 :
+        type="step2"
+        requete_form=RequeteForm(request.POST or None)
+        requetes=[] 
+        print("hna")
+        print(requete_form.errors)        
+        if requete_form.is_valid() :
+            eleve_pot=ElevePotentiel.objects.get(id=id)
+            print("verifya")
+            for session in requete_form.cleaned_data['session']:
+                requete=Requete.objects.create(session=session,eleve=eleve_pot)
+                requetes.append(str(requete.id))#Remplir la liste de requetes a transmettre 
+                requete.save()
+
+            if 'end' in request.POST:
+                response = HttpResponseRedirect(reverse('choose creneaux'))#La vue suivantes qui contient les créneaux 
+                response['Location'] += '/' + '&'.join(['requetes={}'.format(x) for x in requetes])#Ajouter les ids des requetes crées 
+                
+                return response
+            elif 'submit & add other' in request.POST :
+                requete_form=RequeteForm()
+                return redirect(choose_sessions,id)
+
+    return render(request, 'TGA_tool/nouvelle-requete.html', locals())
+
+def choose_creneaux(request,requetes=[]):
+
+    
+    parts=request.path.split('/')#Prendre la partie dernière de la requete 
+    
+    requetes=QueryDict(parts[3]).getlist('requetes')#Créer le querydict des ids envoyées a partir de la requete
+
+
+    
+        
+    type = "step3"
+    date_creneau_form=DateCreneauRequeteForm(request.POST or None)
+    date_creneau_form.errors
+    if date_creneau_form.is_valid():
+        for id in requetes :
+            requete=Requete.objects.get(id=int(id))
+            date_creneau=date_creneau_form.save(commit=False)
+            date_creneau.requete=requete 
+            date_creneau.save()
+            date_creneau_form.save_m2m()
+        
+        if 'end' in request.POST:
+            return redirect('/TGA_tool/home.html')
+
+        elif 'submit & add other' in request.POST :
+            date_creneau_form=DateCreneauRequeteForm()
+            
     return render(request, 'TGA_tool/nouvelle-requete.html', locals())
 
 ##################################################################### Paiments ############################################################################

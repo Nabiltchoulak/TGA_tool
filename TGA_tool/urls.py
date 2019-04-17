@@ -29,7 +29,10 @@ urlpatterns = [
     #path('nouvelle-matiere.html', views.matiere, name="nouvelle matiere"),
     path('nouveau-chapitre.html/<int:id>',views.chapitreNotions,name='chapitre notion'),
     path('nouveau-cours.html', views.nouveauCours, name="nouveau cours"),
-    path('nouvelle-requete.html/<str:type>', views.requete, name="nouvelle requete"),
+    path('nouvelle-requete.html/<str:type>', views.new_requete, name="nouvelle requete"),
+    url(r'^nouvelle-requete-3', views.choose_creneaux, name="choose creneaux"),
+    
+    path('nouvelle-requete-2/<int:id>', views.choose_sessions, name="choose sessions"),
     #path('eleve-arrive.html', views.eleveArrive, name="eleve arrive"),
     path('display.html/<str:type>',views.display,name='display'),
     path('details.html/<str:type>/<int:id>',views.details,name='details'),

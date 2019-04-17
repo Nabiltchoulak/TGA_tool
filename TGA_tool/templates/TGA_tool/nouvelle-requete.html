@@ -5,24 +5,63 @@
 
 
 
-<form action="{% url 'nouvelle requete' type %}" method="post">
-    {% csrf_token %}
+
+    
     {% if type == "1" %}
+  <div id="eleve_form">
+    <form action="{% url 'nouvelle requete' type %}" onsubmit="return showRequest()"  method="post">
+    {% csrf_token %}
     {{eleve_potentiel_form.as_p}}
-    {% elif type == "2" %}
-    {{ eleve_form.as_p }}
-    {% endif %}
-    <br><br>
-    <div id="req_form">
-        {{requete_form.as_p}}
-    </div>
     <div class="col-lg-6">
         <input type="submit" value="Submit" name="end" />
     </div>
-    <div class="col-lg-6">
-        <input type="submit" value="Submit & add other" name="submit & add other" />
+    </form>
+    {% elif type == "2" %}
+
+
+    <form action="{% url 'nouvelle requete' type %}" method="post">
+    {% csrf_token %}
+      {{ eleve_form.as_p }}
+      <div class="col-lg-6">
+          <input type="submit" value="Submit" name="end" />
+      </div>
+      <div class="col-lg-6">
+          <input type="submit" value="Submit & add other" name="submit & add other" />
+      </div>
+    </form>
+
+    {% elif type == "step2" %}
+     <div id="req_form">
+    <form action="{% url 'choose sessions' id %}" method="post">
+    {% csrf_token %}
+        {{requete_form.as_p}}
+        <div class="col-lg-6">
+          <input type="submit" value="Submit" name="end" />
+      </div>
+      <div class="col-lg-6">
+          <input type="submit" value="Submit & add other" name="submit & add other" />
+      </div>
+    </form>
+  
     </div>
-</form>
+    {% elif type == "step3" %}
+    <div id="creneau_form">
+    <form action= "{{ request.path }}" method="post">
+    {% csrf_token %}
+    
+    {{date_creneau_form.as_p}}
+    <div class="col-lg-6">
+          <input type="submit" value="Submit" name="end" />
+      </div>
+      <div class="col-lg-6">
+          <input type="submit" value="Submit & add other" name="submit & add other" />
+      </div>
+    </form>
+  
+    </div>
+    {% endif %}
+
+  
 
 
 <style type="text/css">
@@ -190,8 +229,18 @@ ul li label .checkmark:after {
         }
     });
     var csrftoken = Cookies.get('csrftoken');
+    
     $(function () {
         $('#req_form').hide();
+        $("#id_session").hide();
+        $('#creneau_form').hide();
+        {% if type == "step2" %}
+          $('#req_form').show();
+        {% elif type == "step3" %}
+        $('#creneau_form').show();
+        $('ul li label').append('<span> </span>');//add span without class (does not accept with class)
+        $('ul li label span').addClass("checkmark");
+        {% endif %}
 
         $('#id_langue').on("change", function () {
 
@@ -203,11 +252,13 @@ ul li label .checkmark:after {
                     langue_id: value
                 },
                 function (data) {
-                    
-                    $("#id_session").empty() // dont remove text only           
+                    $("#id_session").show();
+                    console.log(data);
+                    $("#id_session").empty(); // dont remove text only           
                     $("#id_session").append(data);
                     $('ul li label').append('<span> </span>');//add span without class (does not accept with class)
                     $('ul li label span').addClass("checkmark");
+                    
                     {% if type == "2" %}
                     
                     
@@ -218,7 +269,7 @@ ul li label .checkmark:after {
                 },
                 'html',
             );
-            $('#req_form').show();
+            
 
 
         });

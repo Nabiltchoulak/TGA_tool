@@ -101,14 +101,25 @@ class SalleForm(forms.ModelForm):
         fields = '__all__'
 
 class RequeteForm(forms.Form):
-    session=forms.ModelMultipleChoiceField(queryset=Session.objects.all(),help_text="Sessions", widget=forms.CheckboxSelectMultiple)
-    #Never use the objects.none() if you want to put an empty fieldchoices, juste hide it
-    creneau=forms.ModelMultipleChoiceField(queryset=Creneau.objects.all(),help_text="Créneau",required=False, widget=forms.CheckboxSelectMultiple)
-    day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
-    jour=forms.MultipleChoiceField(choices=day_choices,required=False,help_text="Jours", widget=forms.CheckboxSelectMultiple)
-class ElevePotentielForm(forms.ModelForm):
+    
     langue=forms.ModelChoiceField(queryset=Langue.objects.all(),required=False)
-    field_order=('langue')
+    
+    session=forms.ModelMultipleChoiceField(queryset=Session.objects.all(), widget=forms.CheckboxSelectMultiple)
+    #Never use the objects.none() if you want to put an empty fieldchoices, juste hide it
+    #creneau=forms.ModelMultipleChoiceField(queryset=Creneau.objects.all(),help_text="Créneau",required=False, widget=forms.CheckboxSelectMultiple)
+    #day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
+    #jour=forms.MultipleChoiceField(choices=day_choices,required=False,help_text="Jours", widget=forms.CheckboxSelectMultiple)
+
+class DateCreneauRequeteForm(forms.ModelForm):
+    creneau=forms.ModelMultipleChoiceField(queryset=Creneau.objects.all(),help_text="Créneaux",required=True, widget=forms.CheckboxSelectMultiple)
+    class Meta :
+        model=DateCreneau
+        exclude=['requete']
+
+
+
+class ElevePotentielForm(forms.ModelForm):
+    
     class Meta:
         model =ElevePotentiel
         exclude=['sessions']

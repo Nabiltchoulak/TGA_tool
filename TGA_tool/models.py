@@ -97,13 +97,24 @@ class Client(Parent):
 
 
 
+class DateCreneau(models.Model):
+	requete=models.ForeignKey("Requete",verbose_name="Requete",on_delete=models.CASCADE)
+	
+	
+	day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
+	jour=models.CharField(null=True,blank=True,choices=day_choices, max_length=70)
+	creneau=models.ManyToManyField("Creneau", blank=True)
+	def __str__(self):
+		return "{0} {1}".format(self.jour,self.creneau)
+		
+
 class Requete(models.Model):
 	eleve=models.ForeignKey("ElevePotentiel", on_delete=models.CASCADE,null=True,blank=True)
 	client=models.ForeignKey("Client", on_delete=models.CASCADE,null=True,blank=True)
 	session = models.ForeignKey("Session", on_delete=models.SET_NULL,null=True,blank=True)
-	day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
-	jour=models.CharField(null=True,blank=True,choices=day_choices, max_length=70)
-	creneau=models.ManyToManyField("Creneau",verbose_name='Créneau',blank=True)
+	#day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
+	#jour=models.CharField(null=True,blank=True,choices=day_choices, max_length=70)
+	#creneaux=models.ManyToManyField("Creneau",through="DateCreneau",verbose_name='Créneau',blank=True)
 	def __str__(self):
 		if self.eleve :
 			return "{0} demande {1}".format(self.eleve, self.session)
