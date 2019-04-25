@@ -14,6 +14,25 @@
 <h3>Nombre de séances enseignés: </h3> {{sancesDone}}
 <h3>Nombre de séances restant: </h3> {{seancesRestant}}
 <h3>Salaire: </h3> {{coach.salaire}} DA
+{% elif type == "1" %}
+<table class="table">
+<thead>
+<tr>
+
+<th> Jour </th>
+<th> Créneaux </th>
+</tr>
+</thead>
+<tbody>
+{% for date in dates %}
+<tr>
+<td>{{date.jour}}</td>
+<td>{% for creneau in date.creneau.all %} {{ creneau }} <br>{% endfor %} </td>
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
 {% endif %}
 
 

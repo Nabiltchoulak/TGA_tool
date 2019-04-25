@@ -5,7 +5,7 @@ from TGA_tool.models import *
 # Inscription des utilisateurs (famille, parents, élèves, coachs)
 
 class ClientForm(forms.ModelForm):
-    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
+    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple,required=False)
     class Meta:
         model = Client
         exclude=['famille','solde','debit','credit','estResponsable','date_commencement','sessions','user']
@@ -69,8 +69,18 @@ class NotionForm(forms.Form):
 
 # Planification cours / séances
 class CoursForm(forms.Form):
-    session=forms.ModelChoiceField(queryset=Session.objects.all())
+    langue=forms.ModelChoiceField(queryset=Langue.objects.all())
+    session=forms.ModelChoiceField(queryset=Session.objects.all(),widget=forms.RadioSelect)
     coach=forms.ModelChoiceField(queryset=Coach.objects.all(),required=False)
+
+class VIPCoursForm(CoursForm):
+    client=forms.ModelChoiceField(queryset=Client.objects.all(),required=False,widget=forms.RadioSelect)
+    eleve=forms.ModelChoiceField(queryset=Eleve.objects.all(),required=False,widget=forms.RadioSelect)
+
+class ChooseCoursForm(forms.Form):
+    langue=forms.ModelChoiceField(queryset=Langue.objects.all())
+    cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
+    
 
 class SeanceForm(forms.ModelForm):
     eleves=forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),widget=forms.CheckboxSelectMultiple)
@@ -126,9 +136,11 @@ class ElevePotentielForm(forms.ModelForm):
 
 #Suivi séances
 
+
 class ReportSeanceForm(forms.Form):
     """docstring for ReportSeanceForm"""
-    eleves = forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),help_text='Cocher les élèves présents', widget=forms.CheckboxSelectMultiple)
+    eleves = forms.ModelMultipleChoiceField(queryset=Eleve.objects.all(),help_text='Cocher les élèves présents', widget=forms.CheckboxSelectMultiple,required=False)
+    clients = forms.ModelMultipleChoiceField(queryset=Client.objects.all(),help_text='Cocher les clients présents', widget=forms.CheckboxSelectMultiple,required=False)
     # A afficher avec du Jquerry en fonction du chapitre choisi (donner la possibilité d'ajouter une nouvelle notion au chapitre)
     #chapitre=forms.ModelChoiceField(queryset=Chapitre.objects.all(),help_text='Choisir le chapitre',required=False)
     #notions=forms.ModelChoiceField(queryset=Notions.objects.all(),help_text='Choisir les notions',required=False, widget=forms.CheckboxSelectMultiple)
@@ -175,7 +187,7 @@ class Seance_CoachingForm(forms.ModelForm):
 class PayementForm(forms.ModelForm):
     class Meta:
         model = Payement
-        fields = '__all__'
+        exclude=['date','parent']
 
 
 #Connexion
@@ -183,12 +195,16 @@ class ConnexionForm(forms.Form):
     username = forms.CharField(label="Nom d'utilisateur", max_length=30)
     password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput)
 
+
+
 class SelectEleveForm(forms.Form):
     langue=forms.ModelChoiceField(queryset=Langue.objects.all(),help_text="Choisir le langue")
     eleve=forms.ModelChoiceField(queryset=Eleve.objects.all())
 
 
-
+class ProspectForm(RequeteForm):
+    date_fin=forms.DateField()
+    
 
 
 

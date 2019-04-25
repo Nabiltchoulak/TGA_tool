@@ -64,7 +64,7 @@ input[type=submit] {
   
 }
 
-#id_eleves li label {
+#id_eleves li label,#id_clients li label {
   display: block;
   position: relative;
   padding-left: 35px;
@@ -78,7 +78,7 @@ input[type=submit] {
 }
 
 
-#id_eleves li label input {
+#id_eleves li label input,#id_clients li label input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
@@ -100,10 +100,19 @@ input[type=submit] {
   background-color: #ccc;
 }
 
+#id_clients li label:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
 /* When the checkbox is checked, add a blue background */
 #id_eleves li label input:checked ~ .checkmark {
   background-color: #2196F3;
 }
+
+#id_clients li label input:checked ~ .checkmark {
+  background-color: #2196F3;
+}
+
 
 /* Create the checkmark/indicator (hidden when not checked) */
 .checkmark:after {
@@ -117,8 +126,12 @@ input[type=submit] {
   display: block;
 }
 
+#id_clients li label input:checked ~ .checkmark:after {
+  display: block;
+}
+
 /* Style the checkmark/indicator */
-#id_eleves li label .checkmark:after {
+#id_eleves li label .checkmark:after,#id_clients li label .checkmark:after {
   left: 9px;
   top: 5px;
   width: 5px;
@@ -135,8 +148,8 @@ input[type=submit] {
 <script>
 $(function() {
   
-$('#id_eleves li label').append('<span> </span>');//add span without class (does not accept with class)
-$('#id_eleves li label span').addClass("checkmark");//add the class
+$('ul li label').append('<span> </span>');//add span without class (does not accept with class)
+$('ul li label span').addClass("checkmark");//add the class
   });
   
 </script>

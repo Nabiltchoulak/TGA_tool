@@ -2,8 +2,7 @@ from django.db import models
 from django.utils import timezone
 from datetime import timedelta,datetime,date,time
 from . import date_manager
-#from matrix_field import MatrixField
-#from django.utils.managers import InheritanceManager
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_save
 from django.dispatch import receiver 
 from django.contrib.auth.models import User
@@ -28,7 +27,7 @@ class Famille(models.Model):
 
 class Parent(models.Model):
 	# Information générales
-	genre_choices=(("M.","Monsieur"),("Mme.","Madame"),("Mlle","Mademoiselle"),)
+	genre_choices=(("Mr.","Monsieur"),("Mme.","Madame"),("Mlle","Mademoiselle"),)
 	genre=models.CharField(max_length=10,choices=genre_choices,default="M.",verbose_name="Civilité")
 	prenom = models.CharField(max_length=42,verbose_name="Prénom",unique=False, default="")
 	nom= models.CharField(max_length=42,verbose_name="Nom",unique=False)
@@ -37,6 +36,7 @@ class Parent(models.Model):
 	profession= models.CharField(max_length=100,verbose_name="Profession",blank=True)
 	famille = models.ForeignKey('Famille', on_delete = models.CASCADE, verbose_name="Famille", null=True,blank=True)
 	estResponsable= models.BooleanField(verbose_name="Parent principal", default=False)
+	sessions=models.ManyToManyField("Session",through="Requete", verbose_name="Cours potentiels demandes",blank=True)
 	credit=models.IntegerField(default=0)
 	debit=models.IntegerField(default=0)
 	solde = models.IntegerField(default=0)
@@ -79,6 +79,29 @@ class Eleve(ElevePotentiel):
 	# Information du compte utilisateur
 	user = models.OneToOneField(User,on_delete=models.SET_NULL,null=True,blank=True)
 	date_inscription = models.DateField(auto_now=True, verbose_name="Date d'inscription")
+	def get_courses(self):
+		return Cours.objects.filter(Eleve_cours=self)
+	def get_seances(self):
+		return Seance_Cours.objects.filter(eleves=self)
+
+	def get_remaining_seances(self):
+		#Collect the ids in each iteration and in the end get the group bay a filter id__in
+		seance_effectue_ids=[]
+		seance_restant_ids=[]
+		cours=Cours.objects.filter(Eleve_cours=self)
+		for cour in cours :
+			for seance in Seance_Cours.objects.filter(eleves=self).filter(statut="Effectué"):
+				seance_effectue_ids.append(seance.id)
+			for seance in Seance_Cours.objects.filter(cours=cour).filter(statut="Planifié"):
+				seance_restant_ids.append(seance.id)
+		seances_effectue=Seance_Cours.objects.filter(id__in=seance_effectue_ids)
+		seance_restant=Seance_Cours.objects.filter(id__in=seance_restant_ids)
+		
+		return seance_restant
+		
+
+
+
 	class Meta:
 		verbose_name="eleve"
 		ordering=['nom']
@@ -86,9 +109,13 @@ class Eleve(ElevePotentiel):
 		return '{0} {1}'.format(self.prenom, self.nom)
 class Client(Parent):
 	date_naissance=models.DateField(null=True,blank=True,verbose_name="Date de naissance")
-	sessions=models.ManyToManyField("Session",through="Requete", verbose_name="Cours potentiels demandes",blank=True)
+	
 	cours=models.ManyToManyField('Cours',related_name='Client_cours',blank=True,verbose_name="Cours")
 	date_commencement = models.DateField(verbose_name="Date de commencement",null=True,blank=True)
+	
+	def get_courses(self):
+		return Cours.objects.filter(Client_cours=self)
+	
 	class Meta:
 		verbose_name="client"
 		ordering=['nom']
@@ -105,21 +132,35 @@ class DateCreneau(models.Model):
 	jour=models.CharField(null=True,blank=True,choices=day_choices, max_length=70)
 	creneau=models.ManyToManyField("Creneau", blank=True)
 	def __str__(self):
-		return "{0} {1}".format(self.jour,self.creneau)
+		return "{0} {1}".format(self.jour,self.creneau.all())
 		
 
 class Requete(models.Model):
 	eleve=models.ForeignKey("ElevePotentiel", on_delete=models.CASCADE,null=True,blank=True)
-	client=models.ForeignKey("Client", on_delete=models.CASCADE,null=True,blank=True)
+	parent=models.ForeignKey("Parent", on_delete=models.CASCADE,null=True,blank=True)
 	session = models.ForeignKey("Session", on_delete=models.SET_NULL,null=True,blank=True)
 	#day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
 	#jour=models.CharField(null=True,blank=True,choices=day_choices, max_length=70)
 	#creneaux=models.ManyToManyField("Creneau",through="DateCreneau",verbose_name='Créneau',blank=True)
+	
+	class Meta:
+		verbose_name="Requetes VIP"
 	def __str__(self):
 		if self.eleve :
 			return "{0} demande {1}".format(self.eleve, self.session)
 		else :
-			return "{0} demande {1}".format(self.client, self.session)
+			return "{0} demande {1}".format(self.parent, self.session)
+class Prospect_courses(Requete):
+	date_fin=models.DateField(verbose_name="Date fin de la requete ", auto_now=False, auto_now_add=False)
+	
+	class Meta:
+		verbose_name="Requetes"
+		ordering=['date_fin']
+	def __str__(self):
+		if self.eleve :
+			return "{0} demande {1} avant le {2}".format(self.eleve, self.session,self.date_fin)
+		else :
+			return "{0} demande {1} avant le {2} ".format(self.parent, self.session,self.date_fin)
 
 
 class Coach(Resource):
@@ -143,7 +184,7 @@ class Coach(Resource):
 		return "{0} {1}".format(self.prenom,self.nom)
 
 class Payement(models.Model):
-	date=models.DateField(blank=True,null=True,verbose_name="Date")
+	date=models.DateTimeField(blank=True,null=True,verbose_name="Date et heure")
 	montant = models.DecimalField(max_digits=8, decimal_places=2)
 	parent = models.ForeignKey('Parent', on_delete=models.CASCADE, blank=False, null = False, verbose_name = 'Client')
 
@@ -193,7 +234,7 @@ class Session(models.Model):
 		if str(self.langue)=="English" :
 			parts=self.session.split(" ")
 			name=parts[0] + " " + langue + " "
-			for part in parts[1:]:
+			for part in parts[1:]:#Ca existe !!!
 				name+=part + " "
 			
 			return name
@@ -209,15 +250,18 @@ class Cours(models.Model):#Cours est un langue(niveau ou groupe) avec une matié
 	session=models.ForeignKey('Session',on_delete=models.CASCADE,null=True,verbose_name="Session")
 	coach=models.ForeignKey('Coach',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Coach")
 	frequence=models.OneToOneField('Frequence',on_delete=models.SET_NULL,null=True,blank=True)
-	"""nature_choices=(("VIP","VIP"),("Groupe","Groupe"),)
-	nature=models.CharField(max_length=8,choices=nature_choices,default="Groupe",verbose_name="Type")"""
+	match_indic=models.CharField(max_length=10,default='',blank=True)
+	vip=models.BooleanField(default=False,blank=True)
+
+	def get_seances(self):
+		return Seance_Cours.objects.filter(cours=self)
 
 	class Meta:
 		verbose_name="cours"
 		ordering=['-langue','session']
 
 	def __str__(self):
-		return "{0}".format(self.session)#session contient déjà le langue
+		return "{0} {1}".format(self.session,self.match_indic )#session contient déjà le langue
 
 
 ######################################################## Fréquence cours #############################################################################
@@ -227,6 +271,8 @@ class Frequence(models.Model):
 			("Une seance","Une séance"),
 			("Chaque jour","Chaque jour"),
 			("Un jour chaque semaine","Chaque semaine"),
+			("Deux fois par semaine","Deux fois par semaine"),
+			("Trois fois par semaine","Trois fois par semaine"),
 			("Un jour chaque mois","Chaque mois"),
 				)
 			),
@@ -240,13 +286,25 @@ class Frequence(models.Model):
 	day_choices=((7,'Dimanche'),(1,'Lundi'),(2,'Mardi'),(3,'Mercredi'),(4,'Jeudi'),(5,'Vendredi'),(6,'Samedi'),)#les numéros font référence a l'isoweekday
 	frequence=models.CharField(max_length=30,choices=freq_choices,default="Une seance",verbose_name="Fréquence")
 	creneau=models.ForeignKey('Creneau',on_delete=models.SET_NULL,blank=True,null=True,verbose_name="Creneau",help_text="Créneau dans la journée")
-	jour=models.PositiveIntegerField(blank=True,null=True,choices=day_choices,verbose_name="Jour de la semaine",help_text="Le jour de la semaine")#jour de la semaine iso 
+	jour=models.PositiveIntegerField(blank=True,null=True,choices=day_choices,verbose_name="Jour de la semaine")#jour de la semaine iso 
+	jour_two=models.PositiveIntegerField(blank=True,null=True,choices=day_choices,verbose_name="Deuxième jour de la semaine")#jour de la semaine iso 
+	jour_three=models.PositiveIntegerField(blank=True,null=True,choices=day_choices,verbose_name="Troisième jour de la semaine")#jour de la semaine iso
 	day_of_month=models.PositiveIntegerField(verbose_name="Jour du mois",blank=True,null=True,help_text="Le jour du mois (ex: Chaque 25 du mois)")
 	period=models.PositiveIntegerField(verbose_name="Chaque",help_text="",blank=True,null=True)#x times each week/month/day
 	date_debut=models.DateField(verbose_name="Debut du cours",blank=True,null=True,help_text="Date du début du cours")#le premier jour de la semiane dans la calendrier iso est le lundi
 	date_limite=models.DateField(verbose_name="Fin du cours",blank=True,null=True,help_text="Date de la fin du cours")
 	class Meta:
 		verbose_name="fréquence"
+	
+	def has_cours(self):
+		try :
+			Cours.objects.get(frequence=self)
+		except ObjectDoesNotExist :
+			return False
+		else:
+			return True
+
+		
 	def __str__(self):
 		if self.period == None :
 			return self.frequence
@@ -288,7 +346,7 @@ class Seance(models.Model):#Seance est une classe abstraite qui englobe les attr
 	salle=models.ForeignKey('Salle',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Salle")
 	chapitre=models.ForeignKey('Chapitre',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Chapitre")
 	notions=models.ManyToManyField('Notions',related_name="%(app_label)s_%(class)s_related",blank=True,verbose_name="Notions")#pour ne pas avoir de confusion au moment de l'appel
-	statut_choices=(("Planifié","Planifiée"),("Done","Effectué"),("Annulé","Annulée"),)
+	statut_choices=(("Planifié","Planifiée"),("Effectué","Effectué"),("Annulé","Annulée"),)
 	statut=models.CharField(max_length=8,choices=statut_choices,default="Planifié",verbose_name="Statut")
 	class Meta:
 		abstract=True
@@ -299,7 +357,7 @@ class Seance_Cours(Seance):
 	
 	cours=models.ForeignKey('Cours',on_delete=models.CASCADE,verbose_name="Cours")
 	eleves = models.ManyToManyField	('Eleve',blank=True,related_name="presence")
-
+	clients = models.ManyToManyField("Client",blank=True, verbose_name="presence")
 	class Meta:
 		verbose_name="seance cours"
 		ordering=['date','creneau']
@@ -361,8 +419,18 @@ class Salle(Resource):
 
 
 ###################################################################   Signaux  #######################################################################
-
-
+@receiver(post_save, sender=Frequence)
+def spread_modification(sender, instance, **kwargs):
+	
+	if instance.has_cours():
+		cours=instance.cours
+		seances=cours.seance_cours_set.all()
+		for seance in seances :
+			seance.creneau=instance.creneau
+			seance.save()
+	
+	
+	
 
 @receiver(post_save, sender=Cours)
 def init_seances(sender, instance, **kwargs):
@@ -376,6 +444,16 @@ def init_seances(sender, instance, **kwargs):
 			elif instance.frequence.frequence =="Un jour chaque semaine":
 				for day in date_manager.weeksperiod(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.jour):
 					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
+			
+			
+			elif instance.frequence.frequence =="Deux fois par semaine":
+				for day in date_manager.two_times_weeks_period(instance.frequence.date_debut,    instance.frequence.date_limite,   instance.frequence.jour , instance.frequence.jour_two):
+					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
+
+			elif instance.frequence.frequence =="Trois fois par semaine":
+				for day in date_manager.three_times_weeks_period(instance.frequence.date_debut,    instance.frequence.date_limite,   instance.frequence.jour , instance.frequence.jour_two, instance.frequence.jour_three):
+					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)
+
 			elif instance.frequence.frequence =="Un jour chaque mois":
 				for day in date_manager.monthsperiod(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.day_of_month):
 					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)

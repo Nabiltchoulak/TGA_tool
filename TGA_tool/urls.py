@@ -12,9 +12,14 @@ urlpatterns = [
     url(r'^deconnexion$', views.deconnexion, name='deconnexion'),
     #url(r'^connexion$', auth_views.LoginView.as_view()),
     url(r'^nouveau-eleve\.html$', views.nouveauEleve, name="nouveau eleve"),
+    path('nouveau_eleve-extra/<int:id>',views.choose_extra_courses, name = "extra courses"),
     path('nouveau-eleve.html/<int:id>', views.nouveauEleve, name="nouveau eleve"),
+    path('eleve_already_in', views.ChooseEleve, name="choose eleve"),
     re_path(r'^ajax_new_student$',views.ajaxNewEleve, name="ajax NE"),
+    re_path(r'^ajax_new_cours$',views.ajaxNewCours, name="ajax new cours"),
     re_path(r'^ajax_requete$',views.ajax_requete, name="ajax requete"),
+
+    re_path(r'^presence_checker$',views.presence_checker, name="presence checker"),
     path('nouveau-parent.html', views.nouveauParent, name="nouveau parent"),
     path('nouveau-client', views.newClient, name="nouveau client"),
     path('nouveau-coach.html', views.nouveauCoach, name="nouveau coach"),
@@ -28,11 +33,12 @@ urlpatterns = [
     url(r'^home.html$',TemplateView.as_view(template_name="TGA_tool/home.html")),#Test des vues génériques
     #path('nouvelle-matiere.html', views.matiere, name="nouvelle matiere"),
     path('nouveau-chapitre.html/<int:id>',views.chapitreNotions,name='chapitre notion'),
-    path('nouveau-cours.html', views.nouveauCours, name="nouveau cours"),
+    path('nouveau-cours.html/<str:choice>', views.nouveauCours, name="nouveau cours"),
     path('nouvelle-requete.html/<str:type>', views.new_requete, name="nouvelle requete"),
+    path('nouveau-prospect', views.new_prospect_cours, name="nouveau prospect"),
     url(r'^nouvelle-requete-3', views.choose_creneaux, name="choose creneaux"),
     
-    path('nouvelle-requete-2/<int:id>', views.choose_sessions, name="choose sessions"),
+    path('nouvelle-requete-2/<int:id>/<str:demandeur>', views.choose_sessions, name="choose sessions"),
     #path('eleve-arrive.html', views.eleveArrive, name="eleve arrive"),
     path('display.html/<str:type>',views.display,name='display'),
     path('details.html/<str:type>/<int:id>',views.details,name='details'),
@@ -48,7 +54,7 @@ urlpatterns = [
     path('report-seance.html/<int:id>',views.declarerSeance,name='report seance'),
     path('report-seance-coaching.html/<int:id>',views.declarerSeanceCoaching,name='report seance coaching'),
     # les urls du paiement
-    path('make-payement.html',views.makePayement,name='make payement'),
+    path('make-payement/<int:id>',views.makePayement,name='make payement'),
 
     
 

@@ -6,6 +6,18 @@
 
 <h2> Description séance </h2>
 <div class="information">
+
+
+<div class="col-xs-12">
+    <div class="title col-xs-6">Session :</div>
+    <div class="col-xs-6"> {{ session}} </div> 
+    </div>
+    <br/> <br/>
+    <div class="col-xs-12">
+    <div class="title col-xs-6">Enseignant :</div>
+    <div class="col-xs-6"> {{ seance.cours.coach.genre }}{{ seance.cours.coach}} </div> 
+    </div>
+    <br/> <br/>
     <div class="col-xs-12">
     
         <div  class="col-xs-6">
@@ -28,20 +40,31 @@
     
     </div><br /> <br/>
     <div class="col-xs-12">
-    <div class="title col-xs-6">Statut : </div> 
+    <div class="title col-xs-6">Statut de la séance : </div> 
     <div class="col-xs-6"> {{ statut}} </div>
     
         </div>  <br /> <br/>
-    <div class="col-xs-12">
-    <div class="title col-xs-6">Session :</div>
-    <div class="col-xs-6"> {{ session}} </div> <br />
-    </div>
+    
     <!--<div class="title">Chapitre : </div>{{chapitre}}
     <div class="title">Notions</div> {{notions}}-->
 </div>
 
 <br />
 <br />
+{% if seance.statut == "Effectué" %}
+<h2> Eleves présents </h2>
+<ul>
+    {% for eleve in eleves_presents %}
+    <li>{{ eleve }}</li>
+    {% endfor %}
+</ul>
+<h2> Clients présents </h2>
+<ul>
+    {% for client in clients_presents %}
+    <li>{{ client }}</li>
+    {% endfor %}
+</ul>
+{% else %}
 
 <h2> Eleves inscrits </h2>
 <ul>
@@ -49,19 +72,28 @@
     <li>{{ eleve }}</li>
     {% endfor %}
 </ul>
-{% if seance.statut != "Done" and request.user.is_staff == 1 %}
-<div class="col-lg-4">
+<h2> Clients inscrits </h2>
+<ul>
+    {% for client in clients %}
+    <li>{{ client }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% if seance.statut != "Effectué" and request.user.is_staff == 1 %}
+<div class="col-lg-6">
     <a href="{% url 'annuler seance' seance_id %}">
         <button>Annuler la séance
         </button>
     </a>
 </div>
-<div class="col-lg-4">
-    <a href="{% url 'edit seance' seance_id %}">
+<!--
+<div class="col-lg-6">
+    <a href="#">
         <button> Modifier la séance
         </button></a>
 </div>
-<div class="col-lg-4">
+-->
+<div class="col-lg-6">
     <a href="{% url 'report seance' seance_id %}">
         <button>
             Déclarer la séance

@@ -4,24 +4,23 @@
 {% block content %}
 
 {% if paid %}
-<h1>Votre paiement a bien été effectué</h1>
+<h1>Le paiement et l'inscription ont été effectués avec succès</h1>
+<h1>Veuillez souhaiter la bienvenue au client </h1>
 
 {% else %}
 <div class="col-lg-6 col-lg-offset-3 content" >
  <h2> Renseigner votre paiement </h2>
 
- <form  action="{% url 'make payement'%}" method="post">
+ <form  action="{% url 'make payement' id %}" method="post">
     
     {% csrf_token %}
     <div class="col-lg-8 col-lg-offset-2">
     {{ form.as_p }}
     </div>
-    <div class="col-lg-6">
+    <div class="col-lg-6 col-lg-offset-3 ">
     <input type="submit" value="Payer" name="did_paid"/>
     </div>
-    <div class="col-lg-6">
-    <input type="submit" value="Effectuer un autre paiement" name="will_pay"/>
-    </div>
+    
 </form>
 </div>
 {% endif %}
@@ -60,15 +59,12 @@ input[type=submit] {
  {% endblock %} 
  {% block javascript %}
 <script>
-
- $(function() { 
-     
-     
-
-    
-
-
-      });
-
+$(function () {
+{% if paid %}
+$(".dropbtn").show();
+{% else %}
+$(".dropbtn").hide();
+{% endif %}
+});
 </script>
-{% endblock %} 
+{% endblock %}

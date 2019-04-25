@@ -1,24 +1,151 @@
 
-{% extends "layout.html" %}
-{%load static %}
-{% block title %} Connexion {% endblock %}
+{% load static %}
+<!DOCTYPE html>
+<html>
 
-{% block content %}
-<h1>Se connecter</h1>
+<head>
+  <title>  TGA Language connexion </title>
 
+  <meta charset="utf-8" />
+
+
+  <script src="{% static 'jquery/jquery.js' %}"></script>
+
+
+
+  <!-- BOOTSTRAP -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+  <link rel='stylesheet' href="{% static 'bootstrap/css/bootstrap.css' %}" type="text/css" />
+
+  <!-- Style -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" />
+
+  <!-- Cette partie est responsable sur l'icone dans tout les formats  -->
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="{% static 'icones/apple-touch-icon-57x57.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{% static 'icones/apple-touch-icon-114x114.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static 'icones/apple-touch-icon-72x72.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{% static 'icones/apple-touch-icon-144x144.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="60x60" href="{% static 'icones/apple-touch-icon-60x60.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="{% static 'icones/apple-touch-icon-120x120.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="76x76" href="{% static 'icones/apple-touch-icon-76x76.png' %}" />
+  <link rel="apple-touch-icon-precomposed" sizes="152x152" href="{% static 'icones/apple-touch-icon-152x152.png' %}" />
+  <link rel="icon" type="image/png" href="{% static 'icones/favicon-196x196.png' %}" sizes="196x196" />
+  <link rel="icon" type="image/png" href="{% static 'icones/favicon-96x96.png' %}" sizes="96x96" />
+  <link rel="icon" type="image/png" href="{% static 'icones/favicon-32x32.png' %}" sizes="32x32" />
+  <link rel="icon" type="image/png" href="{% static 'icones/favicon-16x16.png' %}" sizes="16x16" />
+  <link rel="icon" type="image/png" href="{% static 'icones/favicon-128.png' %}" sizes="128x128" />
+  <meta name="application-name" content="&nbsp;" />
+  <meta name="msapplication-TileColor" content="#FFFFFF" />
+  <meta name="msapplication-TileImage" content="mstile-144x144.png" />
+  <meta name="msapplication-square70x70logo" content="mstile-70x70.png" />
+  <meta name="msapplication-square150x150logo" content="mstile-150x150.png" />
+  <meta name="msapplication-wide310x150logo" content="mstile-310x150.png" />
+  <meta name="msapplication-square310x310logo" content="mstile-310x310.png" />
+  <!-- /////////////////////////////////////////////////////////////////////////////////////// -->
+
+
+
+  <!-- Full Calendar dependencies -->
+  <link rel='stylesheet' href="{% static 'calendar/fullcalendar.css' %}" type="text/css" />
+
+  <link rel="stylesheet" type="text/css" href="{% static 'calendar/fullcalendar.print.min.css' %}" media="print" />
+  <script src="{% static 'calendar/lib/moment.min.js' %}"></script>
+  <script src="{% static 'calendar/lib/jquery.min.js' %}"></script>
+  <script src="{% static 'calendar/fullcalendar.min.js' %}"></script>
+
+
+ 
+  <!-- Used for AJAX requests (CSRF protection)-->
+  <script src="{% static 'js-cookie-master/src/js.cookie.js' %} "></script>
+
+</head>
+
+<body>
+  
+  <div class="col-xs-12 header">
+    <div class="col-xs-3">
+    
+      <a id="logo" class="brand" href="#">
+        <img border="0" alt="The Global Academy" src="{% static 'icones/favicon-196x196.png' %}" width="100"
+          height="100">
+      </a>
+    </div>
+    <div class="top_nav col-sm-7 col-xs-12">
+    </div>
+       {% if user.is_authenticated %}
+            <div class="col-xs-2 right_aleign "> 
+            
+            </div>
+
+
+
+          <div class="col-xs-2 right_aleign_2 "> 
+            <a href = "/TGA_tool/deconnexion"> Déconnexion </a>
+            <div Style="color:black;"> {{ user.parent.genre }}{{ user.parent.nom }} {{ user.parent.prenom}} </div>
+            </div>
+
+
+            {% else %}
+            <div class="col-xs-1"> 
+                <a href="/TGA_tool/connexion">Connexion</a>
+            </div>
+            {% endif %}
+
+    
+
+
+  </div>
+<div class="container-fluid">
 {% if error %}
-<p><strong>Coach inconnu ou mauvais de mot de passe.</strong></p>
+<p><strong>Client inconnu ou mauvais de mot de passe.</strong></p>
 {% endif %}
 
+
+{% if first_time %}
+<h2> Félicitation vous avez réussi a enregistrer votre mot de passe, vous pouvez a présent découvrir l'intégralité de notre application </h2>
+
+<div class="col-lg-4">
+<a href="/TGA_tool/home.html">
+<button > Consulter le calendrier des séances </button>
+</a>
+</div>
+
+<div class="col-lg-4">
+<a href="/TGA_tool/nouvelle-requete.html/1">
+<button > Soumettre une requete de cours </button>
+</a>
+</div>
+
+<div class="col-lg-4">
+<a href="/TGA_tool/nouvelle-requete.html/1">
+<button > Other stuffs </button>
+</a>
+</div>
+{% endif %}
+
+
 {% if user.is_authenticated %}
-<h1>Vous êtes connecté, </h1>{{ user.username }} !
+{% if change %}
+
+<h2> Bienvenue parmi nous ! </h2>
+<h2> Nous vous invitons a changer votre mot de passe </h2>
+<form method="post" action ="{% url "connexion" %}">
+{% csrf_token %}
+{{ password_form.as_p}}
+ <input type="submit" value="Confirmer" />
+</form>
+ {% endif %}
 {% else %}
+<h1>Se connecter</h1>
+
 <form method="post" action="{% url "connexion" %}">
     {% csrf_token %}
     {{ form.as_p }}
     
     <input type="submit" value="Se connecter" />
 </form>
+
 {% endif %}
 
 <style type="text/css">
@@ -51,4 +178,20 @@ input[type=submit] {
   
 }
 
-{% endblock %}
+button {
+  width: 100%;
+  background-color: #012168;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display : block-inline
+  
+}
+</style>
+ </div>
+</body>
+
+</html>

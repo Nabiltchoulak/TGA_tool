@@ -1,73 +1,394 @@
 {% extends "layout.html" %}
-{%load static %}
-{% block title %} Tableau de bord {% endblock %}
+{% load static %}
+{% block title %} Suivi {% endblock %}
 {% block content %}
 
-<table>
-{% if  type == "1" %}
-<tr><th>Famille</th> <th>Adresse</th></tr>
-{% for famille in familles  %}
-<tr>
-<td>{{ famille.nom }}</td> <td>{{ famille.adresse }}</td> 
-</tr>
-{% endfor %}
-{% elif type == "2" %}
-<tr><th>Parent</th> <th>Telephone</th> <th>Email</th><th>Adresse</th></tr>
-{% for parent in parents  %}
-<tr>
-<td>{{ parent }}</td> <td>{{ parent.telephone }}</td><td>{{ parent.email }}</td><td>{{ parent.famille.adresse }}</td>
-</tr>
-{% endfor %}
-{% elif type == "3" %}
-<tr><th>Eleve</th> <th>Niveau</th></tr>
-{% for eleve in eleves  %}
-<tr>
-<td>{{ eleve }}</td> <td>{{ eleve.curriculum }}</td> 
-</tr>
-{% endfor %}
-{% elif type == "4" %}
-<tr><th>Date</th> <th>Client</th><th>Montant</th></tr>
-{% for paiement in paiements  %}
-<tr>
-<td>{{ paiement.date }}</td> <td>{{ paiement.parent }}</td> <td>{{ paiement.montant }}</td> 
-</tr>
-{% endfor %}
-{% elif type == "5" %}
-<tr><th>Coach</th> <th>Telephone</th><th>Email</th><th>Matiere</th></tr>
-{% for coach in coachs  %}
-<tr>
-<td><a href="{% url 'details' "5" coach.id %}">{{ coach }}</a></td> <td>{{ coach.telephone }}</td> <td>{{ coach.email }}</td><td>{% for matiere in coach.matieres.all %} {{matiere}}, {% endfor %} </td> 
-</tr>
-{% endfor %}
-{% elif type == "6"%}
-<tr><th>Curriculum </th><th>Matière</th><th> Fréquence </th></tr>
-{% for cour in cours %}
-<tr>
-<td>{{ cour.curriculum }}</td> <td>{{ cour.matiere }}</td> <td>{{ cour.frequence }}</td>
-</tr>
-{% endfor %}
-{% elif type == "7" %}
-<tr><th>Salle </th>
 
-{% for salle in salles %}
-<tr>
-<td><a href="TGA_tool/details.html"> {{ salle }}</a></td> 
-</tr>
-{% endfor %}
-{% elif type == "8" %}
-<tr><th> Requetes </th></tr>
+    {% if  type == "1" %}
+    {% if group == "Clients" or checker == "AA" %}
 
-{% for requete in requetes %}
-<tr>
 
-<td>{{ requete }}</td>
-</tr>
-{% endfor %}
-{% endif %}
-</table>
+    
+    <h3> Niveaux de complétions de vos cours </h3>
+    
+    <!--{% for seance in seances  %}
+    <div>{{ seance }}<div>
+            {% endfor %}
+            {% endif %}
+-->
+
+
+             <div class="col-xs-12">
+                            {% for cour in client.get_courses  %}.
+                            <div class="col-xs-12 table-responsive">
+                            <div class="col-xs-3">{{cour}}</div>
+                            <div class="col-xs-9">
+                            <table id="{{client.id}}" class="table">
+                                <tr>
+                                    
+                                    {% for seance in cour.get_seances %}
+                                    <th> </th>
+                                    {% endfor %}
+
+                                </tr>
+                            </table>
+                             </div>
+                            </div>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                        {% endfor %}
+                            
+</div>
+
+            {% if group == "Parents" or checker == "AA" %}
+            <h3> Niveaux de complétions des cours de vos enfants </h3>
+            {% for kid in kids  %}
+            <!-- Button to Open the Modal -->
+           
+            <button type="button" class="btn btn-primary" id="{{kid.prenom}}" data-toggle="modal"
+                data-target="#cours_{{kid.prenom}}">
+                Cours de {{kid.prenom}}
+            </button>
+            
 
 
 
 
 
+
+            <!-- The Modal -->
+            <div class="modal fade" id="cours_{{kid.prenom}}">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Modal Heading</h4>
+                            <button type="button" class="close" data-dismiss="modal">×</button>
+                        </div>
+
+                        <!-- Modal body -->
+                       
+                        <div class="modal-body">
+                            <div calss="col-xs-12" style="min-height:100px;" >
+                            
+                            {% for cour in kid.get_courses  %}
+                            <div class="col-xs-12 table-responsive">
+                            <div class="col-xs-3">{{cour}}</div>
+                            <div class="col-xs-9">
+                            <table id="{{cour.id}}_{{kid.prenom}}" class="table">
+                                <tr>
+                                    
+                                    {% for seance in cour.get_seances %}
+                                    <th> </th>
+                                    {% endfor %}
+
+                                </tr>
+                            </table>
+                            </div>
+                            </div>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            {% endfor %}
+                            </div>
+
+                            </div>
+                            
+                    </div>
+                </div>
+            </div>
+
+
+
+            {% endfor %}
+            {% endif %}
+            {% elif type == "2" %}
+            <table>
+            <tr>
+                <th>Parent</th>
+                <th>Telephone</th>
+                <th>Email</th>
+                <th>Adresse</th>
+            </tr>
+
+            {% for parent in parents  %}
+            <tr>
+                <td>{{ parent }}</td>
+                <td>{{ parent.telephone }}</td>
+                <td>{{ parent.email }}</td>
+                <td>{{ parent.famille.adresse }}</td>
+            </tr>
+            {% endfor %}
+            </table>
+            {% elif type == "3" %}
+
+
+            {% for eleve in eleves  %}
+            <div class="col-lg-12">
+            <div class="col-lg-3">
+             <h4>   <a href="{% url 'extra courses' eleve.id %}">{{ eleve }}</a></h4>
+            </div>
+           </div>
+            {% endfor %}
+
+
+           
+            <!--Paiement client consultation-->
+            {% elif type == "4" %}
+            <h2> Paiements : </h2>
+            <div>
+                <div class="col-xs-4">
+                    <h3>Date</h3>
+                </div>
+                <div class="col-xs-4">
+                    <h3>Client</h3>
+                </div>
+                <div class="col-xs-4">
+                    <h3>Montant</h3>
+                </div>
+            </div>
+            {% for paiement in paiements  %}
+            <div>
+                <div class="col-xs-4">
+                    <h3>{{ paiement.date }}</h3>
+                </div>
+                <div class="col-xs-4">
+                    <h3>{{ paiement.parent }}</h3>
+                </div>
+                <div class="col-xs-4">
+                    <h3>{{ paiement.montant }} DA</h3>
+                </div>
+            </div>
+
+
+
+            {% endfor %}
+
+
+
+
+            {% elif type == "5" %}
+            <table>
+            <tr>
+                <th>Coach</th>
+                <th>Telephone</th>
+                <th>Email</th>
+                <th>Matiere</th>
+            </tr>
+            {% for coach in coachs  %}
+            <tr>
+                <td><a href="{% url 'details' "5" coach.id %}">{{ coach }}</a></td>
+                <td>{{ coach.telephone }}</td>
+                <td>{{ coach.email }}</td>
+                <td>{% for matiere in coach.matieres.all %} {{matiere}}, {% endfor %} </td>
+            </tr>
+            {% endfor %}
+            </table>
+            {% elif type == "6"%}
+            <table>
+            <tr>
+                <th>Curriculum </th>
+                <th>Matière</th>
+                <th> Fréquence </th>
+            </tr>
+            {% for cour in cours %}
+            <tr>
+                <td>{{ cour.curriculum }}</td>
+                <td>{{ cour.matiere }}</td>
+                <td>{{ cour.frequence }}</td>
+            </tr>
+            {% endfor %}
+            </table>
+            {% elif type == "7" %}
+            <table>
+            <tr>
+                <th>Salle </th>
+
+                {% for salle in salles %}
+            <tr>
+                <td><a href="TGA_tool/details.html"> {{ salle }}</a></td>
+            </tr>
+            {% endfor %}
+            </table>
+            {% elif type == "8" %}
+            <table class="table table-striped table-hover">
+            <tr>
+                <th style="text-align:center;"> <h2>Requetes VIP</h2></th>
+            </tr>
+
+            {% for requete in requetes %}
+            <tr>
+
+                <td> <h4>  {{ requete }}  </h4></td>
+            </tr>
+            {% endfor %}
+            </table>
+            {% elif type == "10" %}
+            <table class="table table-striped table-hover">
+            <tr>
+                <th style="text-align:center;"> <h2>Requetes</h2> </th>
+            </tr>
+
+            {% for requete in requetes %}
+            <tr>
+
+                <td><a href="{% url 'details' "1" requete.id %}" > <h4>{{ requete }} </h4></td>
+            </tr>
+            {% endfor %}
+            </table>
+
+            {% elif type == "9" %}
+
+
+            {% for client in clients  %}
+            <div class="col-lg-12">
+            <div class="col-lg-3">
+             <h4>   <a href="{% url 'extra courses' client.id %}">{{ client }}</a></h4>
+            </div>
+           </div>
+            {% endfor %}
+            {% endif %}
+
+
+
+
+<style>
+/*tr {
+    display: flex;
+  flex-wrap: wrap;
+}*/
+
+table{
+    width=100%;
+}
+    th,td {
+        border-left: 1px solid white;
+        border-right : 1px solid white;
+        radius : 5px;
+    }
+    th, td {
+  padding: 15px;
+}
+</style>
+
+{% endblock %}
+
+
+{% block javascript %}
+<script>
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    var csrftoken = Cookies.get('csrftoken');
+    $(function () {
+        
+        var eleve;
+        {% for kid in kids %}
+        var cours =[];
+
+        {% for cour in kid.get_courses %}
+
+        cours.push("{{cour.id}}");
+        
+        eleve = "{{kid.id}}"; //returns the value of the selected option.
+        {% endfor %}
+        console.log(cours)
+       
+        $('#{{kid.prenom}}').on("click", function () {
+            $.post(
+                '/TGA_tool/presence_checker', {
+                    cours_id: [{% for cour in kid.get_courses %}"{{cour.id}}",{% endfor %}],
+                    eleve_id: "{{kid.id}}"
+
+                },
+                function (data) {
+                    
+                    var backend_tabs=[];
+                    var tab_lignes;
+                    {% for cour in kid.get_courses %}
+                    
+                    tab_lignes = $("#{{cour.id}}_{{kid.prenom}} tr th");
+                    
+                    var fLen = data["{{cour}}"].length;
+
+                    for (i = 0; i < fLen; i++) {
+
+                        if (data["{{cour}}"][i]=='1')
+                        {
+                            tab_lignes[i].style.backgroundColor = "#00cc00";
+                        }
+                        else if (data["{{cour}}"][i]=='0')
+                        {
+                            tab_lignes[i].style.backgroundColor = "#bdcbf5";
+                        }
+                        if (data["{{cour}}"][i]=='2')
+                        {
+                            tab_lignes[i].style.backgroundColor = "red";
+                        }
+
+                    }
+                    {% endfor %}
+               
+
+                },
+                'json',
+            );
+        });
+
+ {% endfor %}
+$.post(
+                '/TGA_tool/presence_checker', {
+                    cours_id: [{% for cour in client.get_courses %}"{{cour.id}}",{% endfor %}],
+                    client_id: "{{client.id}}"
+
+                },
+                function (data) {
+                    
+                    var backend_tabs=[];
+                    var tab_lignes;
+                    {% for cour in client.get_courses %}
+                    
+                    tab_lignes = $("#{{client.id}} tr th");
+                    
+                    var fLen = data["{{cour}}"].length;
+
+                    for (i = 0; i < fLen; i++) {
+
+                        if (data["{{cour}}"][i]=='1')
+                        {
+                            tab_lignes[i].style.backgroundColor = "#00cc00";
+                        }
+                        else if (data["{{cour}}"][i]=='0')
+                        {
+                            tab_lignes[i].style.backgroundColor = "#bdcbf5";
+                        }
+                        if (data["{{cour}}"][i]=='2')
+                        {
+                            tab_lignes[i].style.backgroundColor = "red";
+                        }
+
+                    }
+                    {% endfor %}
+               
+
+                },
+                'json',
+            );
+
+        
+    });
+</script>
 {% endblock %}

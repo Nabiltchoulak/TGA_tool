@@ -1,4 +1,4 @@
-{% load static%}
+{% load static %}
 <!DOCTYPE html>
 <html>
 
@@ -54,6 +54,7 @@
   <script src="{% static 'calendar/fullcalendar.min.js' %}"></script>
 
 
+ 
   <!-- Used for AJAX requests (CSRF protection)-->
   <script src="{% static 'js-cookie-master/src/js.cookie.js' %} "></script>
 
@@ -61,16 +62,16 @@
 
 <body>
   {% block nav %}
-  <div class="col-lg-12 header">
-    <div class="col-xs-2">
-      <a id="logo" class="brand" href="/admin/">
+  <div class="col-xs-12 header">
+    <div class="col-xs-3">
+    
+      <a id="logo" class="brand" {% if user.is_staff == 1 %} href="/admin/" {% else %} href="/TGA_tool/home.html" {% endif%}>
         <img border="0" alt="The Global Academy" src="{% static 'icones/favicon-196x196.png' %}" width="100"
           height="100">
       </a>
     </div>
-    <nav class="col-xs-9 top_nav">
-
-
+    <div class="top_nav col-sm-7 col-xs-12">
+    {% if user.is_staff == 1 %}
       <div class="nav_item col-xs-2 ">
 
 
@@ -83,17 +84,19 @@
 
       </div>
 
-      <div class="nav_item col-xs-3">
-
-
-        <a href="/TGA_tool/make-payement.html">
-          <button class="dropbtn">Paiement</button>
-        </a>
-
+      <div class="nav_item dropdown col-xs-2">
+        <button class="dropbtn">Prospects
+          <span class="caret"></span>
+        </button>
+        <div class="dropdown-content">
+          <a href="{% url 'display' "8" %}">Requêtes </a>
+          <a href="{% url 'display' "10" %}">Requêtes VIP </a>
+          
+        </div>
       </div>
 
 
-      <div class="nav_item dropdown col-xs-3">
+      <div class="nav_item dropdown col-xs-2">
         <button class="dropbtn">Inscriptions
           <span class="caret"></span>
         </button>
@@ -103,34 +106,101 @@
           <a href="/TGA_tool/nouveau-client">Client</a>
           <a href="/TGA_tool/nouveau-coach.html">Coach</a>
           
-          <a href="{% url 'nouvelle requete' "2" %}">Requête interne</a>
-          <a href="{% url 'nouvelle requete' "1" %}">Requête externe</a>
+          
+          <a href="{% url 'nouveau prospect' %}" > prospect </a>
+          <a href="{% url 'nouvelle requete' "1" %}">Requête externe VIP</a>
         </div>
       </div>
 
-
-
+      <div class="nav_item dropdown col-xs-2">
+        <button class="dropbtn">TGA Family
+          <span class="caret"></span>
+        </button>
+        <div class="dropdown-content">
+          <a href="{% url 'display' "3" %}">Eleves </a>
+          <a href="{% url 'display' "9" %}">Clients</a>
+          
+          
+        </div>
+      </div>
+      
 
       <div class="nav_item dropdown col-xs-3">
         <button class="dropbtn">Planification
           <span class="caret"></span>
         </button>
         <div class="dropdown-content">
-          <a href="/TGA_tool/nouveau-cours.html">Cours</a>
+          <a href="{% url 'nouveau cours' "normal" %}">Cours</a>
+          <a href="{% url 'nouveau cours' "VIP" %}">Cours VIP</a>
           <a href="/TGA_tool/seance-cours.html">Ajouter séance cours</a>
-          <a href="/TGA_tool/seance-coaching.html">Ajouter séance coaching</a>
+          
         </div>
       </div>
 
 
 
 
-    </nav>
+   
+    {% else %}
+    <div class="nav_item col-xs-4 ">
 
+        <a href="/TGA_tool/home.html">
+          <button class="dropbtn">
+            Calendrier des séances
+          </button>
+        </a>
+
+
+      </div>
+
+      <div class="nav_item col-xs-4 ">
+
+
+        <a {% if user.is_authenticated %} href={% url 'choose sessions' request.user.parent.id "client" %}  {% else %} href={% url 'choose sessions' 0 "client" %} {% endif %}>
+          <button class="dropbtn">Requête VIP</button> 
+        </a>
+
+      </div>
+
+
+     
+
+
+
+
+      <div class="nav_item dropdown col-xs-4 ">
+        <button class="dropbtn">Suivi
+          <span class="caret"></span>
+        </button>
+        <div class="dropdown-content">
+          <a href="{% url 'display' "4" %}">
+          Suivi financier
+        </a>
+
+          <a href="{% url 'display' "1" %}">
+          Suivi des séances 
+        </a>
+         
+        </div>
+      </div>
+
+
+     {% endif %}
+     
+      </div>
        {% if user.is_authenticated %}
-            <div class="col-xs-1"> 
-            <a href = "/TGA_tool/deconnexion"> Déconnexion </a>
+            <div class="col-xs-2 right_aleign "> 
+            
             </div>
+
+
+
+          <div class="col-xs-2 right_aleign_2 "> 
+            <a href = "/TGA_tool/deconnexion"> Déconnexion </a>
+            <div Style="color:black;"> {{ user.parent.genre }}{{ user.parent.nom }} {{ user.parent.prenom}} </div>
+            </div>
+
+
             {% else %}
             <div class="col-xs-1"> 
                 <a href="/TGA_tool/connexion">Connexion</a>
@@ -138,19 +208,6 @@
             {% endif %}
 
     
-    <!--<h1 ><a href="/admin/">The Global Academy</a></h1>
-        <p> We fly to excellence ! </p>
-
-        
-
-        <div class="topnav" id="myTopnav">
-        
-            <a href="/TGA_tool/home.html">Home</a>
-            <a href="/TGA_tool/make-payement.html">Nouveau paiement</a>
-         
-            <button type="submit">Submit</button>
-            <input type="text" placeholder="Search..">
-            -->
 
 
   </div>

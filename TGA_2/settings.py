@@ -20,10 +20,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'xj+6a+k0k4rvwogs0bx#&4sa#7h4a8c$p&+l_6v&2fbhrkla!1'
+SECRET_KEY = 'hov1mr+$z7hod3t+ef(96sk3yf3qzf_c_3q&n6156+(t_kak2%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -71,7 +71,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'TGA_2.wsgi.application'
-ALLOWED_HOSTS =  ['adbdf3b4.ngrok.io','b752f02a.ngrok.io','105.101.10.32', 'localhost','127.0.0.1']
+ALLOWED_HOSTS =  ['.tga-academy.com','www.tga-academy.com', 'localhost','127.0.0.1']
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases

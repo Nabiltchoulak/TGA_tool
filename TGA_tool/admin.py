@@ -46,7 +46,7 @@ class CoursSeanceAdmin(admin.ModelAdmin):
 	list_filter=('cours','date','salle','chapitre','notions','statut')
 	fieldsets = (
 	('Cours',{
-		'fields':('cours',)
+		'fields':('cours','statut')
 	}),
 	('Ressources',{
 		'fields':('date','creneau','salle')

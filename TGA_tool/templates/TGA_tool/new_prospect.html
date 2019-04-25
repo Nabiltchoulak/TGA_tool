@@ -1,67 +1,24 @@
-{% extends "layout.html" %}
-{%load static %}
-{% block title %} Nouvelle requete {% endblock %}
+{% extends "layout.html" %} 
+{%load static %} 
+{% block title %} Prospect {% endblock %} 
 {% block content %}
 
-
-
-
+<form action="{% url "nouveau prospect" %}" method="post">
+    {% csrf_token %} 
     
-    {% if type == "1" %}
-  <div id="eleve_form">
-    <form action="{% url 'nouvelle requete' type %}" onsubmit="return showRequest()"  method="post">
-    {% csrf_token %}
-    {{eleve_potentiel_form.as_p}}
-    <div class="col-lg-6">
-        <input type="submit" value="Submit" name="end" />
-    </div>
-    </form>
-    {% elif type == "2" %}
-
-
-    <form action="{% url 'nouvelle requete' type %}" method="post">
-    {% csrf_token %}
-      {{ eleve_form.as_p }}
-      <div class="col-lg-6">
-          <input type="submit" value="Submit" name="end" />
-      </div>
-      <div class="col-lg-6">
-          <input type="submit" value="Submit & add other" name="submit & add other" />
-      </div>
-    </form>
-
-    {% elif type == "step2" %}
-     <div id="req_form">
-    <form action="{% url 'choose sessions' id demandeur %}" method="post">
-    {% csrf_token %}
-        {{requete_form.as_p}}
-        <div class="col-lg-6">
-          <input type="submit" value="Submit" name="end" />
-      </div>
-      <div class="col-lg-6">
-          <input type="submit" value="Submit & add other" name="submit & add other" />
-      </div>
-    </form>
-  
-    </div>
-    {% elif type == "step3" %}
-    <div id="creneau_form">
-    <form action= "{{ request.path }}" method="post">
-    {% csrf_token %}
+    <div>{{eleve_form.as_p}} <div>
     
-    {{date_creneau_form.as_p}}
+    <br><br>
+    <div id="req_form">
+        {{form.as_p}}
+    </div>
     <div class="col-lg-6">
           <input type="submit" value="Submit" name="end" />
       </div>
       <div class="col-lg-6">
           <input type="submit" value="Submit & add other" name="submit & add other" />
       </div>
-    </form>
-  
-    </div>
-    {% endif %}
-
-  
+</form>
 
 
 <style type="text/css">
@@ -231,16 +188,10 @@ ul li label .checkmark:after {
     var csrftoken = Cookies.get('csrftoken');
     
     $(function () {
-        $('#req_form').hide();
+       
         $("#id_session").hide();
-        $('#creneau_form').hide();
-        {% if type == "step2" %}
-          $('#req_form').show();
-        {% elif type == "step3" %}
-        $('#creneau_form').show();
-        $('ul li label').append('<span> </span>');//add span without class (does not accept with class)
-        $('ul li label span').addClass("checkmark");
-        {% endif %}
+        
+    
 
         $('#id_langue').on("change", function () {
 
@@ -253,19 +204,13 @@ ul li label .checkmark:after {
                 },
                 function (data) {
                     $("#id_session").show();
-                    console.log(data);
+                    $('#req_form').show();
                     $("#id_session").empty(); // dont remove text only           
                     $("#id_session").append(data);
                     $('ul li label').append('<span> </span>');//add span without class (does not accept with class)
                     $('ul li label span').addClass("checkmark");
                     
-                    {% if type == "2" %}
                     
-                    
-                    $('#id_eleve ul li label').append('<span> </span>');
-                    $('#id_eleve ul li label span').addClass("checkmark-radio");//add the class
-                    
-                    {% endif %}
                 },
                 'html',
             );
