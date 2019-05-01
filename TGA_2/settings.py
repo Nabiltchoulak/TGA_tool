@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'hov1mr+$z7hod3t+ef(96sk3yf3qzf_c_3q&n6156+(t_kak2%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -82,8 +82,19 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+"""
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'tga_tool_db',
+        'USER': 'admin_db',
+        'PASSWORD': 'Think100%.TGA',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
 
-
+"""
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
@@ -108,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'fr-FR'
 
-TIME_ZONE = 'CET'
+TIME_ZONE = 'Africa/Algiers'
 
 USE_I18N = True
 
@@ -121,3 +132,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+"""
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
+
+ADMINS = (
+    ('Admin TGA', 'tchoulaknabil@gmail.com'),)
+"""

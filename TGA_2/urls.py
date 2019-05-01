@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-
+from TGA_tool import views
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('',views.connexion),
     path('TGA_tool/', include('TGA_tool.urls')),
 ]

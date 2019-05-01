@@ -427,6 +427,8 @@ def nouveauCoach(request):
 ######################################################### Connexion/deconnexion #################################################################""
 
 def connexion(request):
+    if request.user.is_authenticated :
+        return redirect('/TGA_tool/home.html')
     error = False
     first_time=False
     change=False
@@ -1263,7 +1265,7 @@ def new_prospect_cours(request):
         except ObjectDoesNotExist :
             parent=False
         if eleve ==False and parent==False :
-            eleve_potentiel=eleve_potentiel_form.save()
+            eleve_potentiel=eleve_form.save()
             for session in form.cleaned_data['session']:
                 Prospect_courses.objects.create(session=session,date_fin=form.cleaned_data['date_fin'],eleve=eleve_potentiel) 
         elif parent :
