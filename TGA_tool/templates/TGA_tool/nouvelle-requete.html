@@ -12,8 +12,8 @@
     <form action="{% url 'nouvelle requete' type %}" onsubmit="return showRequest()"  method="post">
     {% csrf_token %}
     {{eleve_potentiel_form.as_p}}
-    <div class="col-lg-6">
-        <input type="submit" value="Submit" name="end" />
+    <div class="col-lg-6 col-lg-offset-3">
+        <input type="submit" value="Envoyer" name="end" />
     </div>
     </form>
     {% elif type == "2" %}
@@ -32,29 +32,33 @@
 
     {% elif type == "step2" %}
      <div id="req_form">
+     <h2> Choix de la session </h2>
+     <h4> Dans cette partie vous allez choisir quel session vous voulez à TGA Language Academy </h4>
     <form action="{% url 'choose sessions' id demandeur %}" method="post">
     {% csrf_token %}
         {{requete_form.as_p}}
         <div class="col-lg-6">
-          <input type="submit" value="Submit" name="end" />
+          <input type="submit" value="Soumettre" name="end" />
       </div>
       <div class="col-lg-6">
-          <input type="submit" value="Submit & add other" name="submit & add other" />
+          <input type="submit" value="Soumettre et ajouter une autre session" name="submit & add other" />
       </div>
     </form>
   
     </div>
     {% elif type == "step3" %}
     <div id="creneau_form">
+    <h2> Disponibilités : </h2>
+     <h4> Dans cette partie vous allez choisir Les jours ou vous etes disponibles ou/et les créneaux pour chaque jour </h4>
     <form action= "{{ request.path }}" method="post">
     {% csrf_token %}
     
     {{date_creneau_form.as_p}}
     <div class="col-lg-6">
-          <input type="submit" value="Submit" name="end" />
+          <input type="submit" value="Soumettre" name="end" />
       </div>
       <div class="col-lg-6">
-          <input type="submit" value="Submit & add other" name="submit & add other" />
+          <input type="submit" value="Ajouter un autre jour" name="submit & add other" />
       </div>
     </form>
   

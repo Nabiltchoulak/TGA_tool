@@ -21,7 +21,7 @@ from django.http.response import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import TemplateView
-from reportlab.pdfgen import canvas
+
 from TGA_tool.utils import *
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import *
@@ -140,7 +140,7 @@ def newClient(request):
         if form.cleaned_data["nom"] and form.cleaned_data["prenom"] and form.cleaned_data["telephone"]:
         #cette partie va chercher si il existe un parent qui a le meme nom-prenom-telephone que le nouveau client
             try :
-                parent=Parent.objects.get(nom=form.cleaned_data["nom"],prenom=form.cleaned_data["prenom"],telephone=form.cleaned_data["telephone"])
+                Parent.objects.get(nom=form.cleaned_data["nom"],prenom=form.cleaned_data["prenom"],telephone=form.cleaned_data["telephone"])
             
             
             except ObjectDoesNotExist:#Si on ne trouve aucun parent ce bouléan va définir la méthode dont laquelle va se créer le parent
@@ -153,11 +153,20 @@ def newClient(request):
 
         
         if is_parent :#ramener le parent et le rataccher au client et ajouter les cours choisis 
+            parent=Parent.objects.get(nom=form.cleaned_data["nom"],prenom=form.cleaned_data["prenom"],telephone=form.cleaned_data["telephone"])
+            
+            parent.save()
             client=Client.objects.create(parent_ptr=parent,date_naissance=form.cleaned_data["date_naissance"])
             client.cours.set(form.cleaned_data["cours"])
             
+            print(client)
+
             client.save()
-            parent.save()
+
+
+            
+            
+            
 
         else :#Crer le user du nouveau client et créer le client 
             client=form.save()
@@ -182,13 +191,16 @@ def newClient(request):
         except ObjectDoesNotExist:
             
             client.save()
-            
+            parent.save()
+            clients_group = Group.objects.get(name='Clients')
+            print(parent.user) 
+            clients_group.user_set.add(parent.user)
             
             if 'end' in request.POST :#test if the user choosed "submit" 
-                client.save()
+                
                 
                 if form.cleaned_data["cours"]:
-                    print(form.cleaned_data["cours"])
+                    
                     return redirect(makePayement,client.id)
                 else :
                     return render(request,'TGA_tool/home.html')
@@ -1057,7 +1069,7 @@ def display(request,type):
             seances=Seance_Cours.objects.filter(clients=request.user.parent)
             client=request.user.parent.client
         seances_kids={}
-        if group== "parents" or checker == "AA":
+        if group== "Parents" or checker == "AA":
             kids=request.user.parent.famille.eleve_set.all()
             
             

@@ -50,7 +50,7 @@ input[type=submit] {
   display : block-inline
 
   
-  #id_cours  #id_cours li label {
+  #id_cours li label {
   display: block;
   position: relative;
   padding-left: 35px;
@@ -62,7 +62,7 @@ input[type=submit] {
   -ms-user-select: none;
   user-select: none;
 }
-#id_cours #id_cours li label {
+#id_cours li label {
   display: block;
   position: relative;
   padding-left: 35px;
@@ -77,7 +77,7 @@ input[type=submit] {
 
 
 
-#id_cours #id_cours li label input {
+#id_cours li label input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
@@ -95,12 +95,12 @@ input[type=submit] {
 }
 
  On mouse-over, add a grey background color */
-#id_cours #id_cours li label:hover input ~ .checkmark {
+#id_cours li label:hover input ~ .checkmark {
   background-color: #ccc;
 }
 
 /* When the checkbox is checked, add a blue background */
-#id_cours #id_cours li label input:checked ~ .checkmark {
+#id_cours li label input:checked ~ .checkmark {
   background-color: #2196F3;
 }
 
@@ -112,12 +112,12 @@ input[type=submit] {
 }
 
 /* Show the checkmark when checked */
-#id_cours #id_cours li label input:checked ~ .checkmark:after {
+#id_cours li label input:checked ~ .checkmark:after {
   display: block;
 }
 
 /* Style the checkmark/indicator */
-#id_cours #id_cours li label .checkmark:after {
+#id_cours li label .checkmark:after {
   left: 9px;
   top: 5px;
   width: 5px;
@@ -173,8 +173,8 @@ $(function () {
                 console.log(data);
                 $("#id_cours").empty(); // dont emove text only           
                 $("#id_cours").append(data);
-                $('#id_cours  #id_cours li label').append('<span> </span>'); //add span without class (does not accept with class)
-                $('#id_cours  #id_cours li label span').addClass("checkmark"); //add the class
+                $('#id_cours li label').append('<span> </span>'); //add span without class (does not accept with class)
+                $('#id_cours li label span').addClass("checkmark"); //add the class
                 $("#id_cours").show();
 
             },

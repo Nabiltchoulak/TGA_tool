@@ -6,6 +6,7 @@ from TGA_tool.models import *
 
 class ClientForm(forms.ModelForm):
     cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple,required=False)
+    langue=langue=forms.ModelChoiceField(queryset=Langue.objects.all())
     class Meta:
         model = Client
         exclude=['famille','solde','debit','credit','estResponsable','date_commencement','sessions','user']
@@ -42,10 +43,10 @@ class EleveForm2(forms.ModelForm): #creation pour un famille existante
         exclude=['user','date_inscription','sessions']
 
 class CoachForm(forms.ModelForm):
-    sessions=forms.ModelMultipleChoiceField(queryset=Session.objects.all(),widget=forms.CheckboxSelectMultiple)
+    
     class Meta:
         model = Coach
-        exclude = ['disponibilite', 'user','salaire','grade']
+        exclude = ['disponibilite', 'user','salaire']
 
 # Création du contenu pédagogique
 

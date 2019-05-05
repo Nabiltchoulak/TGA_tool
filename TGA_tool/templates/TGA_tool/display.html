@@ -11,11 +11,7 @@
     
     <h3> Niveaux de complétions de vos cours </h3>
     
-    <!--{% for seance in seances  %}
-    <div>{{ seance }}<div>
-            {% endfor %}
-            {% endif %}
--->
+    
 
 
              <div class="col-xs-12">
@@ -41,7 +37,7 @@
                         {% endfor %}
                             
 </div>
-
+{% endif %}
             {% if group == "Parents" or checker == "AA" %}
             <h3> Niveaux de complétions des cours de vos enfants </h3>
             {% for kid in kids  %}
@@ -349,6 +345,7 @@ table{
         });
 
  {% endfor %}
+ {% if request.user.is_staff == 0 %}
 $.post(
                 '/TGA_tool/presence_checker', {
                     cours_id: [{% for cour in client.get_courses %}"{{cour.id}}",{% endfor %}],
@@ -387,7 +384,7 @@ $.post(
                 },
                 'json',
             );
-
+{%  endif %}
         
     });
 </script>
