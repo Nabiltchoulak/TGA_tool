@@ -1,5 +1,5 @@
 from django.contrib import admin
-from TGA_tool.models import Parent,Eleve,Requete,Payement,Cours,Client,ElevePotentiel,Famille,Seance_Cours,Coach,Salle,Chapitre,Notions,Session,Frequence,Creneau,Langue
+from TGA_tool.models import Parent,Eleve,Requete,Payement,Cours,Client,Prospect_courses,ElevePotentiel,Famille,Seance_Cours,Coach,Salle,Chapitre,Notions,Session,Frequence,Creneau,Langue
 
 # Register your models here.
 class ParentAdmin(admin.ModelAdmin):
@@ -23,7 +23,7 @@ class EleveAdmin(admin.ModelAdmin):
 			'fields':('famille',)
 			}),
 		('Session',{
-			'fields':('langue','cours',)
+			'fields':('cours',)
 			}),
 		)
 class CoursAdmin(admin.ModelAdmin):
@@ -31,8 +31,8 @@ class CoursAdmin(admin.ModelAdmin):
 	list_filter=('langue','session','coach','frequence')
 	
 class SessionAdmin(admin.ModelAdmin):
-	
-	list_filter=('langue',)
+
+	list_filter=('langue','summer_camp')	
 	search_fields=('session',)
 class ChapitreAdmin(admin.ModelAdmin):
 	list_filter=('session',)
@@ -78,4 +78,4 @@ admin.site.register(Langue)
 admin.site.register(Requete)
 admin.site.register(Payement)
 admin.site.register(Client)
-
+admin.site.register(Prospect_courses)

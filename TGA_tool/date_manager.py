@@ -8,6 +8,14 @@ def daysrange(start_date, end_date):#Chaque jour
         else :
                 yield date 
 
+def daysrange_summer_camp(start_date):#Chaque jour
+        end_date=start_date+ timedelta(7)
+        for n in range(int ((end_date - start_date).days)+1):
+                date= start_date + timedelta(n)
+                if date.isoweekday()==5 or date.isoweekday()==6 :
+                        pass
+                else :
+                        yield date 
 
 
 

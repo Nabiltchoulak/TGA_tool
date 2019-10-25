@@ -5,7 +5,7 @@
     <!-- Une ou plusieurs balises HTML pour définir le contenu du document -->
     <span id="texteJQ"></span>
     <div class="row">
-    <div class= "col-lg-12" id='calendar'></div>
+    <div class= "col-lg-12" style="z-index: -1;" id='calendar'></div>
     </div>
 
 {% endblock %}
@@ -13,16 +13,29 @@
  
 {% block javascript %}
  <script>
-       $(function() {
+ $(function() {
+         
              
                             $('#calendar').fullCalendar({
+
+                              {% if request.user.is_staff == 1 %}
+                              defaultView : 'agendaWeek',
+                              {% else %}
+                              defaultView : 'listWeek',
+                              {% endif %} 
                               header: {
                                 left: 'prev,next today',
                                 center: 'title',
-                                right: 'month,agendaWeek,agendaDay,listMonth'
+                                right: 'agendaWeek,month,agendaDay,listWeek'
                               },
-                              
-                              weekNumbers: true,
+                              views: {
+                                agendaWeek:{
+                                  minTime : "08:00:00",
+                                  maxTime : "19:00:00"
+                                },
+
+                              },
+                              weekNumbers: false,
                               navLinks: true, // can click day/week names to navigate views
                               editable: true,
                               
@@ -40,6 +53,6 @@
                                     
     
                         });
-                       
+
 </script>
 {% endblock%}

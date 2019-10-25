@@ -3,11 +3,49 @@
 {% block title %} Nouvelle matiere {% endblock %}
 {% block content %}
 
-<form action="{% url "nouvelle matiere" %}" method="post">
+
+
+<form action="{% url "nouvelle session" %}" method="post">
     {% csrf_token %}
+    <div class="col-lg-8 col-lg-offset-2">
     {{ form.as_p }}
-    
+    </div>
+     <div class="col-lg-6 col-lg-offset-3 ">
     <input type="submit" value="Submit"  />
+    </div>
 </form>
+
+
+<style type="text/css">
+
+
+
+input[type=text],input[type=number] ,select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+h1,h2 {
+    text-align: center;
+}
+input[type=submit] {
+  width: 100%;
+  background-color: #012168;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display : block-inline
+  
+}
+
+</style>
 
 {% endblock %}

@@ -6,6 +6,7 @@ from TGA_tool.models import *
 
 class ClientForm(forms.ModelForm):
     cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple,required=False)
+    langue=langue=forms.ModelChoiceField(queryset=Langue.objects.all())
     class Meta:
         model = Client
         exclude=['famille','solde','debit','credit','estResponsable','date_commencement','sessions','user']
@@ -26,12 +27,13 @@ class ParentForm(forms.ModelForm):
 
 class EleveForm(forms.ModelForm): #creation après la famille
     date_naissance = forms.DateField()
+    sessions=Session.objects.filter(summer_camp=True)
     cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
     #Never use the objects.none() if you want to put an empty fieldchoices, juste hide it
     langue=forms.ModelChoiceField(queryset=Langue.objects.all(),empty_label=None)
     class Meta:
         model = Eleve
-        exclude=['user','date_inscription', 'famille','sessions']
+        exclude=['user','date_inscription', 'famille','sessions','adresse']
 
 class EleveForm2(forms.ModelForm): #creation pour un famille existante
     cours=forms.ModelMultipleChoiceField(queryset=Cours.objects.all(),widget=forms.CheckboxSelectMultiple)
@@ -39,13 +41,13 @@ class EleveForm2(forms.ModelForm): #creation pour un famille existante
     
     class Meta:
         model = Eleve
-        exclude=['user','date_inscription','sessions']
+        exclude=['user','date_inscription','sessions','adresse']
 
 class CoachForm(forms.ModelForm):
-    sessions=forms.ModelMultipleChoiceField(queryset=Session.objects.all(),widget=forms.CheckboxSelectMultiple)
+    
     class Meta:
         model = Coach
-        exclude = ['disponibilite', 'user','salaire','grade']
+        exclude = ['disponibilite', 'user','salaire']
 
 # Création du contenu pédagogique
 

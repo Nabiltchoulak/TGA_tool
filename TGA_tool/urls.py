@@ -31,7 +31,7 @@ urlpatterns = [
     path('test',views.some_view),
 
     url(r'^home.html$',TemplateView.as_view(template_name="TGA_tool/home.html")),#Test des vues génériques
-    #path('nouvelle-matiere.html', views.matiere, name="nouvelle matiere"),
+    path('nouvelle-session.html', views.session, name="nouvelle session"),
     path('nouveau-chapitre.html/<int:id>',views.chapitreNotions,name='chapitre notion'),
     path('nouveau-cours.html/<str:choice>', views.nouveauCours, name="nouveau cours"),
     path('nouvelle-requete.html/<str:type>', views.new_requete, name="nouvelle requete"),

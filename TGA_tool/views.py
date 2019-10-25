@@ -21,7 +21,7 @@ from django.http.response import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import TemplateView
-from reportlab.pdfgen import canvas
+
 from TGA_tool.utils import *
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import *
@@ -140,7 +140,7 @@ def newClient(request):
         if form.cleaned_data["nom"] and form.cleaned_data["prenom"] and form.cleaned_data["telephone"]:
         #cette partie va chercher si il existe un parent qui a le meme nom-prenom-telephone que le nouveau client
             try :
-                parent=Parent.objects.get(nom=form.cleaned_data["nom"],prenom=form.cleaned_data["prenom"],telephone=form.cleaned_data["telephone"])
+                Parent.objects.get(nom=form.cleaned_data["nom"],prenom=form.cleaned_data["prenom"],telephone=form.cleaned_data["telephone"])
             
             
             except ObjectDoesNotExist:#Si on ne trouve aucun parent ce bouléan va définir la méthode dont laquelle va se créer le parent
@@ -153,11 +153,19 @@ def newClient(request):
 
         
         if is_parent :#ramener le parent et le rataccher au client et ajouter les cours choisis 
+            parent=Parent.objects.get(nom=form.cleaned_data["nom"],prenom=form.cleaned_data["prenom"],telephone=form.cleaned_data["telephone"])
+            
+            parent.save()
             client=Client.objects.create(parent_ptr=parent,date_naissance=form.cleaned_data["date_naissance"])
             client.cours.set(form.cleaned_data["cours"])
             
+            print(client)
+
             client.save()
             parent.save()
+            
+            
+            
 
         else :#Crer le user du nouveau client et créer le client 
             client=form.save()
@@ -182,13 +190,16 @@ def newClient(request):
         except ObjectDoesNotExist:
             
             client.save()
-            
+            parent=client.parent_ptr
+            clients_group = Group.objects.get(name='Clients')
+            print(parent.user) 
+            clients_group.user_set.add(parent.user)
             
             if 'end' in request.POST :#test if the user choosed "submit" 
-                client.save()
+                
                 
                 if form.cleaned_data["cours"]:
-                    print(form.cleaned_data["cours"])
+                    
                     return redirect(makePayement,client.id)
                 else :
                     return render(request,'TGA_tool/home.html')
@@ -243,7 +254,9 @@ def ajaxNewEleve(request):
         form = EleveForm(request.POST or None)
         id_2=int(request.POST['langue_id'])
         langue= Langue.objects.get(id=id_2)
-        form.fields['cours'].queryset=Cours.objects.filter(langue=langue)
+        sessions=Session.objects.filter(summer_camp=True)
+        form.fields['cours'].queryset=Cours.objects.filter(langue=langue,session=sessions)
+ 
         data=[]
         data=form["cours"]
         
@@ -311,8 +324,9 @@ def nouveauEleve(request, id=0):
             id_2=int(request.POST['langue_id'])
             
             curr= Langue.objects.get(id=id_2)
-            form.fields['cours'].queryset=Cours.objects.filter(langue=curr)
             
+            sessions=Session.objects.filter(summer_camp=True)
+            form.fields['cours'].queryset=Cours.objects.filter(langue=curr,session__in=sessions)
             return HttpResponse(str(form['cours']))
         #print(form.errors)
         if form.is_valid():
@@ -427,6 +441,8 @@ def nouveauCoach(request):
 ######################################################### Connexion/deconnexion #################################################################""
 
 def connexion(request):
+    if request.user.is_authenticated :
+        return redirect('/TGA_tool/home.html')
     error = False
     first_time=False
     change=False
@@ -527,7 +543,7 @@ def ajaxNewCours(request):
         form = CoursForm(request.POST or None)
         id_2=int(request.POST['langue_id'])
         langue= Langue.objects.get(id=id_2)
-        form.fields['session'].queryset=Session.objects.filter(langue=langue)
+        form.fields['session'].queryset=Session.objects.filter(langue=langue,summer_camp=True)
         data=[]
         data=form["session"]
         
@@ -592,10 +608,14 @@ def mesSeances(request):
                 seances = Seance_Cours.objects.filter(cours = cour.id)
                 
                 for seance in seances:
-                    
+                    color=""
+                    if seance.statut == "Effectué" :
+                        color="#00cc00" 
+                    elif seance.statut == "Annulé" :
+                        color = "red"
                     #listeseances.append({'id': seance.id, 'langue': seance.cours.session.langue.langue, 'session': seance.cours.session.session, 'date' : str(seance.date), 'start' : str(seance.creneau.debut)})       
                     listeseances.append({'title': str(seance.cours) + vip + " - "  + str(client.genre) + str(client.prenom) + " - " + str(seance.statut),
-                                        'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "displayseance.html/" + str(seance.id)})
+                                        'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "displayseance.html/" + str(seance.id), 'color' : color})
 
 
 
@@ -608,8 +628,13 @@ def mesSeances(request):
                     seances = Seance_Cours.objects.filter(cours = cour.id)
                 
                     for seance in seances:
+                        color=""
+                        if seance.statut == "Effectué" :
+                            color="#00cc00" 
+                        elif seance.statut == "Annulé" :
+                            color = "red"
                         listeseances.append({'title': str(seance.cours) + vip + " - "  + str(eleve.prenom) + " - " + str(seance.statut),
-                                        'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "displayseance.html/" + str(seance.id)})
+                                        'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "displayseance.html/" + str(seance.id), 'color' : color})
                     vip=""
 
         
@@ -631,9 +656,14 @@ def mesSeances(request):
             if cour.vip==1 :
                 vip = " VIP "#Ajouter une variable
             for seance in seances:
+                color=""
+                if seance.statut == "Effectué" :
+                    color="#00cc00" 
+                elif seance.statut == "Annulé" :
+                    color = "red"
                 #listeseances.append({'id': seance.id, 'langue': seance.cours.session.langue.langue, 'session': seance.cours.session.session, 'date' : str(seance.date), 'start' : str(seance.creneau.debut)})       
                 listeseances.append({'title':  str(seance.cours) + vip + " - "   + str(cour.coach) + " - " + str(seance.statut), 
-                    'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "displayseance.html/" + str(seance.id)})
+                    'start' : str(seance.date)+"T"+str(seance.creneau.debut), 'url' : "displayseance.html/" + str(seance.id) , 'color' : color})
             vip=""
     #Cette partie va récupérer les seances de coaching 
     """coachings=Seance_Coaching.objects.filter(coach= coach.id)
@@ -644,7 +674,6 @@ def mesSeances(request):
     data = listeseances
 
     return JsonResponse(data, safe=False)
-
 
 ############################################################### Display Seance ########################################################
 
@@ -937,7 +966,7 @@ def session(request):
 
 def chapitreNotions(request, id): 
     form_chapitre=ChapitreForm(request.POST or None)
-    NotionFormset = formset_factory(NotionForm, extra=4,max_num=4)
+    NotionFormset = formset_factory(NotionForm, extra=8,max_num=8)
     form_notions=NotionFormset(request.POST or None)
     if form_notions.is_valid() and form_chapitre.is_valid() :
         chapitre=Chapitre.objects.create(chapitre=form_chapitre.cleaned_data['chapitre'],session=Session.objects.get(id= id))#créer le chapitre a partir de l'id session
@@ -1055,7 +1084,7 @@ def display(request,type):
             seances=Seance_Cours.objects.filter(clients=request.user.parent)
             client=request.user.parent.client
         seances_kids={}
-        if group== "parents" or checker == "AA":
+        if group== "Parents" or checker == "AA":
             kids=request.user.parent.famille.eleve_set.all()
             
             
@@ -1263,7 +1292,7 @@ def new_prospect_cours(request):
         except ObjectDoesNotExist :
             parent=False
         if eleve ==False and parent==False :
-            eleve_potentiel=eleve_potentiel_form.save()
+            eleve_potentiel=eleve_form.save()
             for session in form.cleaned_data['session']:
                 Prospect_courses.objects.create(session=session,date_fin=form.cleaned_data['date_fin'],eleve=eleve_potentiel) 
         elif parent :

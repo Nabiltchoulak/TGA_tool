@@ -23,7 +23,10 @@ class Famille(models.Model):
 		ordering=['nom']
 
 	def __str__(self):
-		return '{0} - {1}'.format(self.nom, self.adresse)
+		parent=Parent.objects.filter(famille=self,estResponsable=True)
+		
+		return '{0} - {1} - {2}'.format(self.nom, self.adresse,parent.first())
+			
 
 class Parent(models.Model):
 	# Information générales
@@ -33,7 +36,8 @@ class Parent(models.Model):
 	nom= models.CharField(max_length=42,verbose_name="Nom",unique=False)
 	telephone= models.CharField(max_length=40,verbose_name="Telephone",blank=True)
 	email= models.EmailField(verbose_name="E-mail",blank=True)
-	profession= models.CharField(max_length=100,verbose_name="Profession",blank=True)
+	secteur= models.CharField(max_length=100,verbose_name="Secteur",blank=True)
+	communication= models.CharField(max_length=200,verbose_name="Comment avez-vous connu TGA ?",blank=True,null=True)
 	famille = models.ForeignKey('Famille', on_delete = models.CASCADE, verbose_name="Famille", null=True,blank=True)
 	estResponsable= models.BooleanField(verbose_name="Parent principal", default=False)
 	sessions=models.ManyToManyField("Session",through="Requete", verbose_name="Cours potentiels demandes",blank=True)
@@ -58,6 +62,8 @@ class ElevePotentiel(models.Model):
 	prenom=models.CharField(max_length=42,verbose_name="Prenom",unique=False)
 	num= models.CharField(max_length=15,blank=True,verbose_name="Telephone")
 	email=models.EmailField(blank=True,null=True,verbose_name="E-mail")
+	communication= models.CharField(max_length=200,verbose_name="Comment avez-vous connu TGA ?",blank=True,null=True)
+	adresse = models.CharField(max_length=100,verbose_name="Adresse du client", unique = False,blank=True,null=True)
 	sessions=models.ManyToManyField("Session",through="Requete", verbose_name="Cours potentiels demandes",blank=True)
 	def __str__(self):
 		return '{0} {1}'.format(self.prenom, self.nom)
@@ -73,7 +79,9 @@ class Eleve(ElevePotentiel):
 
 	# Informations scolarités
 	etablissement=models.CharField(max_length=20,null=True,blank=True)
-	#langue=models.ForeignKey('Langue',on_delete=models.CASCADE,verbose_name="Langue",blank=True,null=True)
+	programme_choices=(('DZ','Algérien'),('FR','Francais'))
+	programme=models.CharField(max_length=20,null=True,choices=programme_choices,verbose_name="Programme suivi dans les études",blank=True)
+	
 	cours=models.ManyToManyField('Cours',related_name='Eleve_cours',blank=True,verbose_name="Cours")
 
 	# Information du compte utilisateur
@@ -109,7 +117,7 @@ class Eleve(ElevePotentiel):
 		return '{0} {1}'.format(self.prenom, self.nom)
 class Client(Parent):
 	date_naissance=models.DateField(null=True,blank=True,verbose_name="Date de naissance")
-	
+	adresse = models.CharField(max_length=100,verbose_name="Adresse du client", unique = False,blank=True,null=True)
 	cours=models.ManyToManyField('Cours',related_name='Client_cours',blank=True,verbose_name="Cours")
 	date_commencement = models.DateField(verbose_name="Date de commencement",null=True,blank=True)
 	
@@ -139,6 +147,7 @@ class Requete(models.Model):
 	eleve=models.ForeignKey("ElevePotentiel", on_delete=models.CASCADE,null=True,blank=True)
 	parent=models.ForeignKey("Parent", on_delete=models.CASCADE,null=True,blank=True)
 	session = models.ForeignKey("Session", on_delete=models.SET_NULL,null=True,blank=True)
+	communication= models.CharField(max_length=200,verbose_name="Comment avez-vous connu TGA ?",blank=True,null=True)
 	#day_choices=(('Dimanche','Dimanche'),('Lundi','Lundi'),('Mardi','Mardi'),('Mercredi','Mercredi'),('Jeudi','Jeudi'),('Vendredi','Vendredi'),('Samedi','Samedi'),)
 	#jour=models.CharField(null=True,blank=True,choices=day_choices, max_length=70)
 	#creneaux=models.ManyToManyField("Creneau",through="DateCreneau",verbose_name='Créneau',blank=True)
@@ -170,7 +179,7 @@ class Coach(Resource):
 	nom=models.CharField(max_length=42,verbose_name="Nom")
 	telephone=models.CharField(max_length=15,verbose_name="Telephone",unique=True,null=True,blank=True)
 	email= models.EmailField(verbose_name="E-mail",null=True,blank=True,unique=True)
-	sessions=models.ManyToManyField('Session',related_name="enseigne",verbose_name="sessions",help_text='Les matières que peut enseigner ce coach')
+	#sessions=models.ManyToManyField('Session',related_name="enseigne",verbose_name="sessions",blank=True,help_text='Les matières que peut enseigner ce coach')
 	user = models.OneToOneField(User, on_delete = models.CASCADE, default=1)
 	salaire = models.DecimalField(max_digits=8, decimal_places=2,default=0)
 	grade_choices=(("Junior","Junior"),("Senior","Senior"),("Excellence","Excellence"),)
@@ -224,6 +233,7 @@ class Session(models.Model):
 	session=models.CharField(max_length=30,verbose_name="Session")
 	langue=models.ForeignKey('Langue',on_delete=models.CASCADE,related_name='session',verbose_name="Langue")
 	objects = SessionCreator()#ajouter une methode manager au object
+	summer_camp = models.BooleanField(verbose_name="Summer Camp", default=False)
 	class Meta:
 		verbose_name="session"
 		ordering=['-langue','session']
@@ -261,13 +271,16 @@ class Cours(models.Model):#Cours est un langue(niveau ou groupe) avec une matié
 		ordering=['-langue','session']
 
 	def __str__(self):
-		return "{0} {1}".format(self.session,self.match_indic )#session contient déjà le langue
-
+	    if self.session.summer_camp :
+	        return "{0} {1} Semaine du {2} {3}".format(self.session,self.match_indic,str(self.frequence.date_debut.strftime("%d")),str(self.frequence.date_debut.strftime("%B")) )
+	    else : 
+                return "{0} {1}".format(self.session,self.match_indic )#session contient déjà le langue
 
 ######################################################## Fréquence cours #############################################################################
 class Frequence(models.Model):
 	freq_choices=(
 		('Frequence',(
+			("Summer Camp","Summer Camp"),
 			("Une seance","Une séance"),
 			("Chaque jour","Chaque jour"),
 			("Un jour chaque semaine","Chaque semaine"),
@@ -347,7 +360,7 @@ class Seance(models.Model):#Seance est une classe abstraite qui englobe les attr
 	chapitre=models.ForeignKey('Chapitre',on_delete=models.SET_NULL,null=True,blank=True,verbose_name="Chapitre")
 	notions=models.ManyToManyField('Notions',related_name="%(app_label)s_%(class)s_related",blank=True,verbose_name="Notions")#pour ne pas avoir de confusion au moment de l'appel
 	statut_choices=(("Planifié","Planifiée"),("Effectué","Effectué"),("Annulé","Annulée"),)
-	statut=models.CharField(max_length=8,choices=statut_choices,default="Planifié",verbose_name="Statut")
+	statut=models.CharField(max_length=15,choices=statut_choices,default="Planifié",verbose_name="Statut")
 	class Meta:
 		abstract=True
 
@@ -441,6 +454,11 @@ def init_seances(sender, instance, **kwargs):
 			elif instance.frequence.frequence =="Chaque jour" :
 				for day in date_manager.daysrange(instance.frequence.date_debut,instance.frequence.date_limite):
 					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau) 
+			
+			elif instance.frequence.frequence =="Summer Camp" :
+				for day in date_manager.daysrange_summer_camp(instance.frequence.date_debut):
+					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau) 
+
 			elif instance.frequence.frequence =="Un jour chaque semaine":
 				for day in date_manager.weeksperiod(instance.frequence.date_debut,instance.frequence.date_limite,instance.frequence.jour):
 					Seance_Cours.objects.create(cours=instance,date=day,creneau=instance.frequence.creneau)

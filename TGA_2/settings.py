@@ -25,9 +25,17 @@ SECRET_KEY = 'hov1mr+$z7hod3t+ef(96sk3yf3qzf_c_3q&n6156+(t_kak2%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+SECURE_SSL_REDIRECT = True
 
+SESSION_COOKIE_SECURE = True
+
+CSRF_COOKIE_SECURE = True
+
+os.environ['HTTPS'] = "on"
+
+os.environ['wsgi.url_scheme'] = 'https'
 # Application definition
 
 INSTALLED_APPS = [
@@ -71,15 +79,19 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'TGA_2.wsgi.application'
-ALLOWED_HOSTS =  ['.tga-academy.com','www.tga-academy.com', 'localhost','127.0.0.1']
+ALLOWED_HOSTS =  ['.tga-academy.com','tga-academy.com','68.66.233.218','localhost','127.0.0.1']
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'tga_tool_db',
+	'USER': 'admin_db',
+        'PASSWORD': 'Think100%.TGA',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -108,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'fr-FR'
 
-TIME_ZONE = 'CET'
+TIME_ZONE = 'Africa/Algiers'
 
 USE_I18N = True
 
@@ -121,3 +133,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
+
+ADMINS = (
+    ('Admin TGA', 'tchoulaknabil@gmail.com'),)
