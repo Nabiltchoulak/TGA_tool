@@ -1,0 +1,133 @@
+/home/TGA_tool/TGA_tool
+
+gunicorn_django --bind 68.66.233.218:3000
+
+chown -R www-data:www-data .
+
+tga_tool_db TO admin_db
+
+
+# Configuration du server
+server {
+    listen      80;
+    server_name .tga-academy.com;
+    charset     utf-8;
+
+    access_log /var/log/nginx/TGA_tool.access.log;
+    error_log /var/log/nginx/TGA_tool.error.log;
+
+    # Fichiers media et statiques, délivrés par nginx directement
+    location /media  {
+        alias /home/TGA_tool/TGA_tool/TGA_tool/media;
+    }
+
+    location /static {
+        alias /home/TGA_tool/TGA_tool/TGA_tool/static;
+    }
+
+    # Le reste va vers notre proxy uwsgi
+    location / {
+        include fastcgi_params;
+        proxy_set_header X-Forwarded-Host $server_name;
+        proxy_set_header X-Real-IP $remote_addr;
+        fastcgi_pass 127.0.0.1:8000;
+    }
+}
+
+
+#!/bin/bash
+set -e
+LOGFILE=/var/log/gunicorn/TGA_tool.log
+LOGDIR=$(dirname $LOGFILE)
+LOGLEVEL=debug   # info ou warning une fois l'installation OK
+NUM_WORKERS=3    # Règle : (2 x $num_cores) + 1
+
+# user/group to run as
+USER=root
+GROUP=root
+
+cd /home/TGA_tool/TGA_tool
+# source ../bin/activate  # Cette ligne ne sert que si vous utilisez virtualenv
+test -d $LOGDIR || mkdir -p $LOGDIR
+exec gunicorn_django -w $NUM_WORKERS \
+  --user=$USER --group=$GROUP --log-level=$LOGLEVEL \
+  --log-file=$LOGFILE 2>>$LOGFILE -b 127.0.0.1:8000
+
+
+
+
+<VirtualHost *:3000>
+
+    ServerName www.tga-academy.com
+    ServerAlias tga-academy.com
+    ServerAdmin admin@tga-academy.com
+
+
+    WSGIScriptAlias / /home/TGA_tool/TGA_tool/TGA_2/wsgi.py
+
+
+
+    <Directory /home/TGA_tool/TGA_tool/TGA_2>
+    <Files wsgi.py>
+        Require all granted
+    </Files>
+    </Directory>
+
+    Alias /static /home/TGA_tool/TGA_tool/TGA_tool/static
+    <Directory /home/TGA_tool/TGA_tool/TGA_tool/static>
+        Require all granted
+    </Directory>
+
+    <Directory /home/TGA_tool/TGA_tool>
+
+        Require all granted
+
+    </Directory>
+
+
+
+</VirtualHost>
+
+<VirtualHost *:3000>
+        ServerName www.tga-academy.com
+        ServerAlias tga-academy.com
+        ServerAdmin admin@tga-academy.com
+        DocumentRoot home/TGA_tool/TGA_tool
+
+        Alias /static /home/TGA_tool/TGA_tool/TGA_tool/static
+        <Directory "/home/TGA_tool/TGA_tool/TGA_tool/static">
+                
+                Require all granted
+        </Directory>
+
+        
+        ErrorLog ${APACHE_LOG_DIR}/TGA_tool_error.log
+        CustomLog ${APACHE_LOG_DIR}/TGA_tool_access.log combined
+
+        WSGIDaemonProcess TGA_tool python-path=/home/TGA_tool/TGA_tool
+        WSGIProcessGroup TGA_tool
+        WSGIScriptAlias / /home/TGA_tool/TGA_tool/TGA_2/wsgi.py
+
+        <Directory/home/TGA_tool/TGA_tool/TGA_2>
+                <Files wsgi.py>
+                        Require all granted
+                </Files>
+        </Directory>
+</VirtualHost>
+
+
+WSGIScriptAlias / /home/TGA_tool/TGA_tool/TGA_2/wsgi.py
+
+Alias /static /home/TGA_tool/TGA_tool/TGA_tool/static
+<Directory "/home/TGA_tool/TGA_tool/TGA_tool/static">
+
+     Require all granted
+</Directory>
+
+<Directory /home/TGA_tool/TGA_tool/TGA_2 >
+<Files wsgi.py>
+Require all granted
+</Files>
+</Directory>
+WSGIDaemonProcess TGA_tool python-path=/home/TGA_tool/TGA_tool
+         WSGIProcessGroup TGA_tool

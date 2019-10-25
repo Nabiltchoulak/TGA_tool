@@ -162,7 +162,12 @@ def newClient(request):
             print(client)
 
             client.save()
+<<<<<<< HEAD
             parent.save()
+=======
+
+
+>>>>>>> 776a0eda403ede1f236636cd3b6fc27b9afa7a02
             
             
             
@@ -190,7 +195,11 @@ def newClient(request):
         except ObjectDoesNotExist:
             
             client.save()
+<<<<<<< HEAD
             parent=client.parent_ptr
+=======
+            parent.save()
+>>>>>>> 776a0eda403ede1f236636cd3b6fc27b9afa7a02
             clients_group = Group.objects.get(name='Clients')
             print(parent.user) 
             clients_group.user_set.add(parent.user)

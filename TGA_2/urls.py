@@ -16,7 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from TGA_tool import views
+<<<<<<< HEAD
 
+=======
+>>>>>>> 776a0eda403ede1f236636cd3b6fc27b9afa7a02
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.connexion),
